@@ -1,0 +1,27 @@
+{% extends "core/base.html" %}
+{% block title %}
+{% if user.is_authenticated %} IRIS - signed in
+{% else %} IRIS - sign in
+{% endif %}
+{% endblock %}
+{% block content %}
+<div class="container form-container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success">
+                <span>
+                    {{ message }}
+                    {% if url %}
+                        <a href="{{ url }}">Go to updated page.</a>
+                    {% endif %}
+                </span>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        {% load crispy_forms_tags %}
+        {% crispy form %}
+    </div>
+</div>
+{% endblock %}

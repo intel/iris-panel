@@ -1,0 +1,14 @@
+IRIS
+=====
+
+This is the IRIS package.
+
+The purpose of this package is to provide an extensible
+web server for release engineering services.
+
+License is GPLv2.
+
+For additional information, please contact:
+    Eduard Bartosh <eduard.bartosh@intel.com>
+    Aleksi Hakli <aleksi.hakli@intel.com>
+

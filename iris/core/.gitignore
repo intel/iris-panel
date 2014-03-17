@@ -1,0 +1,7 @@
+*.pyc
+build
+dist
+iris.egg-info
+iris-core.db
+.coverage
+secret.txt

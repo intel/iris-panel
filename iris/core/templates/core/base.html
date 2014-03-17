@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>{% block title %}{% endblock %}</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}bootstrap.min.css" />
+        <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}site-specific.css" />
+        <script type="text/javascript" src="{{ STATIC_URL }}jquery.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}bootstrap.min.js"></script>
+    </head>
+
+    <body class="body">
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+          <!-- Brand and toggling, toggle menu is shown in mobile view -->
+          <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
+                  <span class="sr-only">Toggle navigation</span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="/">IRIS</a>
+          </div>
+
+          <!-- Collapsible navbar, login form if user is not authenticated -->
+          <div class="collapse navbar-collapse" id="navbar-collapse">
+              {% if user.is_authenticated %}
+              <form class="navbar-form navbar-right" method="GET" action="/logout/">
+                  <button type="submit" class="btn btn-default">Sign out</button>
+              </form>
+              <p class="navbar-text navbar-right">Signed in as <a href="#" class="navbar-link">{{ user.username }}</a></p>
+
+              {% else %}
+              <form class="navbar-form navbar-right" method="POST" action="/login/?next={{ redirect_to }}">
+                  <div class="form-group">
+                      <input name="username" type="text" class="form-control" placeholder="Username">
+                  </div>
+                  <div class="form-group">
+                      <input name="password" type="password" class="form-control" placeholder="Password">
+                  </div>
+                  <button type="submit" class="btn btn-default">Sign in</button>
+                  {% csrf_token %}
+              </form>
+              {% endif %}
+          </div>
+        </nav>
+
+        <!-- Page content wrapper -->
+        <div id="body-wrapper" class="container navbar-body-fix">
+            {% block content %}{% endblock %}
+        </div>
+    </body>
+</html>

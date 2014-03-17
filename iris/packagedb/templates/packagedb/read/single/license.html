@@ -1,0 +1,114 @@
+{% extends "core/base.html" %}
+{% block title %}IRIS - License {{ license.shortname }}{% endblock %}
+{% block content %}
+{% load user_permission_tags %}
+{% check_user_permissions_for user gittree as can_edit %}
+
+<ol class="breadcrumb">
+  <li><a href="/">IRIS</a></li>
+  <li><a href="/app/packagedb/">Package Database</a></li>
+  <li><a href="/app/packagedb/licenses/">Licenses</a></li>
+  <li class="active">{{ license.shortname }}</li>
+</ol>
+
+<div class="container">
+    <div class="row">
+        <div class="page-header">
+            <h3>
+                License information for <span class="text-warning">{{ license.shortname }}</span>
+                {% if can_edit %}
+                <a href="update"><button class="btn btn-primary pull-right">Edit</button></a>
+                {% endif %}
+            </h3>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Active</th>
+                    <th>License short name</th>
+                    {% if license.fullname %}
+                    <th>License full name</th>
+                    {% endif %}
+                    {% if license.url %}
+                    <th>External URL</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        {% if license.active %}
+                        Yes
+                        {% else %}
+                        No
+                        {% endif %}
+                    </td>
+                    <td>{{ license.shortname }}</td>
+                    {% if license.fullname %}
+                    <td>
+                        {{ license.fullname }}
+                    </td>
+                    {% endif %}
+                    {% if license.url %}
+                    <td>
+                        <a href="{{ license.url }}">{{ license.url }}</a>
+                    </td>
+                    {% endif %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                        Packages with this license
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Package tree path</th>
+                                <th>Package name</th>
+                                <th>Package domain</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for package in packages %}
+                        <tr>
+                            <td><a href="/app/packagedb/gittrees/{{ package.gittree.id }}">{{ package.gittree.gitpath }}</a></td>
+                            <td>{{ package.name }}</td>
+                            <td><a href="/app/packagedb/domains/{{ package.gittree.domain.id }}">{{ package.gittree.domain.name }}</a></td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                        License text
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <html>{{ license.text }}</html>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endblock %}
+</div>

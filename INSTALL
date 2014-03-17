@@ -1,0 +1,43 @@
+IRIS installation
+==================
+
+This is the quickstart documentation for trying out IRIS and installing the tool.
+
+The development environment has been tested to work with virtualenv.
+
+To build the project:
+
+    $ python setup.py build
+
+To install development dependencies for the project (requires pip):
+
+    $ pip install -r requirements.txt
+
+Note that python-ldap requires the following packages on Debian/Ubuntu:
+
+    python-dev libldap2-dev libsasl2-dev libssl-dev
+
+And on OpenSUSE and RedHat:
+
+    python-devel openldap-devel cyrus-sasl-devel
+
+The package may also be found in your distribution's package repositories.
+
+To install the project locally:
+
+    $ python setup.py install
+
+To access the Django management shell:
+
+    $ python $(python -c "from iris import manage; print(manage.__file__)" shell
+
+If you wish to try how the development server looks, you can do:
+
+    $ MNG_SCRIPT=$(python -c "from iris import manage; print(manage.__file__)"
+    $ python $MNG_SCRIPT syncdb
+    $ python $MNG_SCRIPT migrate
+    $ python $MNG_SCRIPT runserver
+
+After this you should get an usable URL and be able to access the service.
+
+Please refer to DEPLOY in docs folder for more detailed instructions.

@@ -1,0 +1,48 @@
+{% extends "core/base.html" %}
+{% block title %}IRIS - Product list{% endblock %}
+{% block content %}
+{% load user_permission_tags %}
+{% check_can_create_products user as can_create %}
+
+<ol class="breadcrumb">
+  <li><a href="/">IRIS</a></li>
+  <li><a href="/app/packagedb/">Package Database</a></li>
+  <li class="active">Products</li>
+</ol>
+
+<div class="container">
+    <div class="row">
+        <div class="page-header">
+            <h3>
+                Product information for all products
+                {% if can_create %}
+                <a href="create"><button class="btn btn-primary pull-right">Create</button></a>
+                {% endif %}
+            </h3>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Git branch</th>
+                    <th>State</th>
+                    <th>Targets</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td><a href="{{ product.id }}">{{ product.name }}</a></td>
+                    <td>{{ product.short }}</td>
+                    <td>{{ product.state }}</td>
+                    <td>{{ product.targets }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

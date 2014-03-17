@@ -1,0 +1,51 @@
+{% extends "core/base.html" %}
+{% block title %}IRIS - License list{% endblock %}
+{% block content %}
+{% load user_permission_tags %}
+{% check_can_create_licenses user as can_create %}
+
+<ol class="breadcrumb">
+  <li><a href="/">IRIS</a></li>
+  <li><a href="/app/packagedb/">Package Database</a></li>
+  <li class="active">Licenses</li>
+</ol>
+
+<div class="container">
+    <div class="row">
+        <div class="page-header">
+            <h3>
+                License information for all licenses
+                {% if can_create %}
+                <a href="create"><button class="btn btn-primary pull-right">Create</button></a>
+                {% endif %}
+            </h3>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Active</th>
+                    <th>Shortname</th>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for license in licenses %}
+            <tr {% if license.active %} class="success" {% endif %}>
+                <td>
+                    {% if license.active %}
+                    Yes
+                    {% else %}
+                    No
+                    {% endif %}
+                </td>
+                <td><a href="{{ license.id }}">{{ license.shortname }}</a></td>
+                <td>{{ license.fullname }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

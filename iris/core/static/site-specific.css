@@ -1,0 +1,24 @@
+/*
+ * This file is part of IRIS: Infrastructure and Release Information System
+ *
+ *  Copyright (C) 2013 Intel Corporation
+ *
+ *  IRIS is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  version 2.0 as published by the Free Software Foundation.
+ */
+
+/*
+ * This is the site specific CSS definition for the IRIS project.
+ * OVerloads and rules additional to BootStrap should go here.
+ */
+
+/* We need to push the main content div down because of the navbar. */
+body {
+    padding-top: 6em;
+}
+
+/* Adds the margin below save and cancel buttons in forms. */
+.form-container {
+    margin-bottom: 3em;
+}

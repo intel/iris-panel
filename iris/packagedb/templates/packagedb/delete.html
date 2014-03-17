@@ -1,0 +1,13 @@
+{% block title %}
+{% if user.is_authenticated %} IRIS - signed in
+{% else %} IRIS - sign in
+{% endif %}
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <h3>Deleted {{ deleted.name }}</h3>
+        <span>Object info: {{ deleted }}</span>
+    </div>
+</div>
+{% endblock %}

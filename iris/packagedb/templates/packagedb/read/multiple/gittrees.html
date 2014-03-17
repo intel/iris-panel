@@ -1,0 +1,74 @@
+{% extends "core/base.html" %}
+{% block title %}IRIS - Git Tree list{% endblock %}
+{% block content %}
+{% load user_permission_tags %}
+{% check_can_create_gittrees user as can_create %}
+
+<ol class="breadcrumb">
+  <li><a href="/">IRIS</a></li>
+  <li><a href="/app/packagedb/">Package Database</a></li>
+  <li class="active">Git trees</li>
+</ol>
+
+<div class="container">
+    <div class="row">
+        <div class="page-header">
+            <h3>
+                Git tree information for all trees
+                {% if can_create %}
+                <a href="create"><button class="btn btn-primary pull-right">Create</button></a>
+                {% endif %}
+            </h3>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Git path</th>
+                    <th>Packages</th>
+                    <th>Domain</th>
+                    <th>Maintainers</th>
+                    <th>Integrators</th>
+                    <th>Reviewers</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for gittree in gittrees %}
+            <tr>
+                <td><a href="{{ gittree.id }}">{{ gittree.gitpath }}</a></td>
+                <td>
+                    {% for package in gittree.package_set.all %}
+                    <p>{{ package.name }}</p>
+                    {% endfor %}
+                </td>
+                <td><a href="/app/packagedb/domains/{{ gittree.domain.id }}">{{ gittree.domain.name }}</a></td>
+                <td>
+                    {% for user in gittree.get_maintainers %}
+                    <a href="/users/{{ user.id}}">
+                        <p>{{ user.last_name }}, {{ user.first_name }}</p>
+                    </a>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for user in gittree.get_integrators %}
+                    <a href="/users/{{ user.id}}">
+                        <p>{{ user.last_name }}, {{ user.first_name }}</p>
+                    </a>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for user in gittree.get_reviewers %}
+                    <a href="/users/{{ user.id}}">
+                        <p>{{ user.last_name }}, {{ user.first_name }}</p>
+                    </a>
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

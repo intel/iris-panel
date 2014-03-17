@@ -1,0 +1,30 @@
+{% extends "core/base.html" %}
+{% block title %}IRIS - Package list{% endblock %}
+{% block content %}
+<div class="container row">
+    <div class="col-lg-10">
+        <h3>Package list</h3>
+    </div>
+</div>
+<div class="container fht-div">
+    <table class="table fht-table tablesorter package-table table-striped table-bordered table-hover table-condensed">
+        <thead>
+            <tr>
+                <th>Git path</th>
+                <th>Name</th>
+                <th>Domain</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for package in packages %}
+            <tr>
+                <td><a href="/info/tree/{{ package.gittree.id }}">{{ package.gittree.gitpath }}</a></td>
+                <td><a href="/info/package/{{ package.id }}">{{ package.name }}</a></td>
+                <td><a href="/info/domain/{{ package.gittree.domain.id }}">{{ package.gittree.domain.name }}</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+

@@ -1,0 +1,10 @@
+python-ldap==2.4.10
+django==1.6.1
+django-auth-ldap==1.1.4
+south==0.7.5
+djangorestframework==2.3.9
+django-rest-swagger==0.1.11
+django-crispy-forms==1.4.0
+py==1.4.19
+pytest==2.5.1
+pytest-django==2.6

@@ -1,0 +1,66 @@
+{% extends "core/base.html" %}
+{% block title %}IRIS - Domain list{% endblock %}
+{% block content %}
+{% load user_permission_tags %}
+{% check_can_create_domains user as can_create %}
+
+<ol class="breadcrumb">
+  <li><a href="/">IRIS</a></li>
+  <li><a href="/app/packagedb/">Package Database</a></li>
+  <li class="active">Domains</li>
+</ol>
+
+<div class="container">
+    <div class="row">
+        <div class="page-header">
+            <h3>
+                Domain information for all domains
+                {% if can_create %}
+                <a href="create"><button class="btn btn-primary pull-right">Create</button></a>
+                {% endif %}
+            </h3>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Domain name</th>
+                    <th>Architects</th>
+                    <th>Maintainers</th>
+                    <th>Reviewers</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for domain in domains %}
+            <tr>
+                <td><a href="{{ domain.id }}">{{ domain.name }}</a></td>
+                <td>
+                    {% for architect in domain.get_architects %}
+                    <a href="/users/{{ architect.id }}">
+                        <p>{{ architect.last_name }}, {{ architect.first_name }}</p>
+                    </a>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for maintainer in domain.get_maintainers %}
+                    <a href="/users/{{ maintainer.id }}">
+                        <p>{{ maintainer.last_name }}, {{ maintainer.first_name }}</p>
+                    </a>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for reviewer in domain.get_reviewers %}
+                    <a href="/users/{{ reviewer.id }}">
+                        <p>{{ reviewer.last_name }}, {{ reviewer.first_name }}</p>
+                    </a>
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

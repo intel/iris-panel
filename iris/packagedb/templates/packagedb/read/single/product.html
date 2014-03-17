@@ -1,0 +1,132 @@
+{% extends "core/base.html" %}
+{% block title %}IRIS - Product {{ product.name }}{% endblock %}
+{% block content %}
+{% load user_permission_tags %}
+{% check_user_permissions_for user gittree as can_edit %}
+
+<ol class="breadcrumb">
+    <li><a href="/">IRIS</a></li>
+    <li><a href="/app/packagedb/">Package Database</a></li>
+    <li><a href="/app/packagedb/products/">Products</a></li>
+    <li class="active">{{ product.name }}</li>
+</ol>
+
+<div class="container">
+    <div class="row">
+        <div class="page-header">
+            <h3>
+                Product information for <span class="text-warning">{{ product.name }}</span>
+                {% if can_edit %}
+                <a href="update"><button class="btn btn-primary pull-right">Edit</button></a>
+                {% endif %}
+            </h3>
+        </div>
+
+        <table class="table gittree-info table-striped table-bordered table-hover table-condensed">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Git branch</th>
+                    <th>State</th>
+                    <th>Targets</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td> {{ product.name }} </td>
+                <td> {{ product.short }}</td>
+                <td> {{ product.state }} </td>
+                <td> {{ product.targets }} </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                        Users related to package
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for user in product.get_architects %}
+                        <tr>
+                            <td><a href="/users/{{ user.id }}">{{ user.last_name }}, {{ user.first_name}}</a></td>
+                            <td>Architect</td>
+                        </tr>
+                        {% endfor %}
+                        {% for user in product.get_maintainers %}
+                        <tr>
+                            <td><a href="/users/{{ user.id }}">{{ user.last_name }}, {{ user.first_name}}</a></td>
+                            <td>Maintainer</td>
+                        </tr>
+                        {% endfor %}
+                        {% for user in product.get_developers %}
+                        <tr>
+                            <td><a href="/users/{{ user.id }}">{{ user.last_name }}, {{ user.first_name}}</a></td>
+                            <td>Developer</td>
+                        </tr>
+                        {% endfor %}
+                        {% for user in product.get_reviewers %}
+                        <tr>
+                            <td><a href="/users/{{ user.id }}">{{ user.last_name }}, {{ user.first_name}}</a></td>
+                            <td>Reviewer</td>
+                        </tr>
+                        {% endfor %}
+                        {% for user in product.get_integrators %}
+                        <tr>
+                            <td><a href="/users/{{ user.id }}">{{ user.last_name }}, {{ user.first_name}}</a></td>
+                            <td>Integrator</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                        Git trees related to this package
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Git path</th>
+                                <th>Domain</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for gittree in product.gittrees.all %}
+                        <tr>
+                            <td><a href="/app/packagedb/gittrees/{{ gittree.id }}">{{ gittree.gitpath }}</a></td>
+                            <td><a href="/app/packagedb/domains/{{ gittree.domain.id }}">{{ gittree.domain.name }}</a></td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,144 @@
+IRIS deployment quickstart
+=========================
+
+This guide has two parts.
+
+1. deployment from binaries from IRIS repositories
+    * easy installation for sysadmins, packages built by OBS and tested by CI
+2. building (and deploying) from (upstream) source packages
+    * trying out in virtualenv, developing
+
+Deployment from repositories
+============================
+
+Package installation
+--------------------
+
+On target host, add IRIS repositories to package manager:
+
+    # zypper addrepo http://repositoryurl.com/openSUSE_13.1/
+    # zypper refresh
+
+Install IRIS packages:
+
+    zypper install iris-*
+
+Configuration
+-------------
+
+Configure IRIS, Apache, LDAP and MySQL (or any other [Django compatible database](https://docs.djangoproject.com/en/dev/ref/databases/ "Django database documentation")).
+
+Example database creation for MySQL (run as MySQL root user) could be:
+
+    create database $DBNAME character set utf8 collate utf8_general_ci;
+    create user $USERNAME;
+    grant usage on *.* to $USERNAME@localhost identified by '$USERPASSWORD';
+    grant all privileges on $DBNAME.* to $USERNAME@localhost;
+
+__NOTE:__ UTF8 collation is required with Django applications.
+
+Change database and LDAP settings for IRIS to suit the ones you have created:
+
+LDAP configuration guide can be found at the [django-auth-ldap](http://pythonhosted.org/django-auth-ldap/ "Django Authentication Using LDAP") page.
+
+    # $EDITOR /srv/www/iris/iris.conf
+
+The server has a keyfile for generating hashes in
+
+    /etc/iris/secret.txt
+
+Please generate a suitable [secret key](https://docs.djangoproject.com/en/dev/ref/settings/#secret-key "Django secret key documentation") for this file.
+
+Change domain name and other necessary settings in Apache vhost configuration:
+
+    # $EDITOR /etc/apache2/vhosts.d/iris.conf
+
+Synchonize and migrate the IRIS database and reboot Apache:
+
+    # MNG_SCRIPT=$(python -c "from iris import manage; print(manage.__file__)"
+    # python $MNG_SCRIPT syncdb
+    # python $MNG_SCRIPT migrate
+    # apache2ctl restart
+
+Thats it, you should be good to go.
+
+In case you need to import data, iris-utils also contains sample scripts for that.
+
+
+Deployment from source packages
+===============================
+
+Requirements, source package building and installation
+------------------------------------------------------
+
+First you will need to build and install all components you wish.
+
+Install requirements:
+
+    # pip install -r requirements.txt
+
+Build and install any IRIS packages:
+
+    # python setup.py build
+    # python setup.py install
+
+Database setup
+--------------
+
+Create databases and configure them to your IRIS configuration file (details below).
+
+SQLite is the easiest database to use, it should work without extra configuration.
+
+An example for MySQL or PostgreSQL might look like this:
+
+    create database $DBNAME character set utf8 collate utf8_general_ci;
+    create user $USERNAME;
+    grant usage on *.* to $USERNAME@localhost identified by '$USERPASSWORD';
+    grant all privileges on $DBNAME.* to $USERNAME@localhost;
+
+Synchronize the database and make sure its up-to-date with the current setup:
+
+    $ MNG_SCRIPT=$(python -c "from iris import manage; print(manage.__file__)"
+    $ python $MNG_SCRIPT syncdb
+    $ python $MNG_SCRIPT migrate
+
+Running the development server
+------------------------------
+
+If you want to just run the development server in virtualenv, use e.g.
+
+    $ MNG_SCRIPT=$(python -c "from iris import manage; print(manage.__file__)"
+    $ python $MNG_SCRIPT runserver
+
+Overrides for server configuration
+----------------------------------
+
+If you need overrides, tweak the IRIS configuration
+
+    # cp doc/iris/example.conf /etc/iris/iris.conf
+
+Database settings can be found in [Django database docs](https://docs.djangoproject.com/en/dev/ref/databases/ "Django database docs").
+
+LDAP configuration guide can be found at the [django-auth-ldap](http://pythonhosted.org/django-auth-ldap/ "Django Authentication Using LDAP") page.
+
+Configuring the secret key for server
+-------------------------------------
+
+The server has a keyfile for generating hashes in
+
+    /etc/iris/secret.txt
+
+Please generate a suitable [secret key](https://docs.djangoproject.com/en/dev/ref/settings/#secret-key "Django secret key documentation") for this file.
+
+Apache server configuration example
+-----------------------------------
+
+Copy the Apache 2 configuration files to under Apache vhost directory:
+
+    # cp doc/apache2/example.conf /etc/apache2/vhosts.d/iris.conf
+
+Configure the files according to Apache documentation and your host settings.
+
+Then restart Apache and start serving:
+
+    # apache2ctl restart

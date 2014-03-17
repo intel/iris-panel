@@ -1,0 +1,154 @@
+{% extends "core/base.html" %}
+{% block title %}IRIS - User {{ User.first_name }} {{ User.last_name }}{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="page-header">
+            <h3>User information {% if User.last_name and User.first_name %}for <span class="text-warning">{{ User.last_name }}, {{ User.first_name }}</span>{% endif %}</h3>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Last name</th>
+                    <th>First name</th>
+                    <th>Email</th>
+                    <th>Organizations</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ User.last_name }}</td>
+                    <td>{{ User.first_name }}</td>
+                    <td><a href="mailto:{{ User.email }}">{{ User.email }}</a></td>
+                    <td>
+                        {% for party in User.get_userparties %}
+                        <p>{{ party.name }}</p>
+                        {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                        Domains involved in
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Domain name</th>
+                                <th>Domain role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for dr in User.get_domainroles %}
+                        <tr>
+                            <td><a href="/app/packagedb/domains/{{ dr.domain.id }}">{{ dr.domain.name }}</a></td>
+                            <td>{{ dr.role }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                        Subdomains involved in
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Subdomain name</th>
+                                <th>Subdomain role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for sdr in User.get_subdomainroles %}
+                        <tr>
+                            <td><a href="/app/packagedb/subdomains/{{ sdr.subdomain.id }}">{{ sdr.subdomain.name }}</a></td>
+                            <td>{{ sdr.role }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+                        Git trees involved in
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Git tree path</th>
+                                <th>Git tree role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for gr in User.get_gittreeroles %}
+                        <tr>
+                            <td><a href="/app/packagedb/gittrees/{{ gr.gittree.id }}">{{ gr.gittree.gitpath }}</a></td>
+                            <td>{{ gr.role }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
+                        Products involved in
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseFour" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Product name</th>
+                                <th>Product role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for pr in User.get_productroles %}
+                        <tr>
+                            <td><a href="/app/packagedb/products/{{ pr.product.id }}">{{ pr.product.name }}</a></td>
+                            <td>{{ pr.role }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
