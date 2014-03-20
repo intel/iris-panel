@@ -8,22 +8,23 @@ Setup file for the IRIS package.
 from os import path, pardir, chdir
 from setuptools import setup, find_packages
 
-
 # Allow setup.py to be run from any path:
 chdir(path.normpath(path.join(path.abspath(__file__), pardir)))
-README = open(path.join(path.dirname(__file__), 'README')).read()
 
 setup(
     url='https://otctools.jf.intel.com/pm/projects/iris',
-    name='iris',
+    name='iris-packagedb',
     version='0.0.2',
     namespace_packages=['iris'],
     packages=find_packages(),
     include_package_data=True,
     install_requires=[],
+    entry_points="""
+        [iris.app]
+        packagedb=iris.packagedb.plugin:APPINFO
+    """,
     license='GPL-2.0',
-    description='IRIS - Infrastructure and Release Engineering Service',
-    long_description=README,
+    description='IRIS Package Database plugin',
     author='Aleksi Hakli',
     author_email='aleksi.hakli@intel.com',
     classifiers=[

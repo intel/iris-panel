@@ -61,6 +61,7 @@ Common modules and dependancies for core and packagedb.
 
 %build
 python ./setup.py build
+python ./setup_packagedb.py build
 
 %pre
 getent group %{project_name} >/dev/null || groupadd -r %{project_name}
@@ -69,6 +70,7 @@ exit 0
 
 %install
 python ./setup.py install --prefix=%{_prefix} --root=%{buildroot}
+python ./setup_packagedb.py install --prefix=%{_prefix} --root=%{buildroot}
 
 install -D      README                              %{buildroot}%{_prefix}/share/doc/packages/%{name}/README
 install -D      doc/iris/example.conf               %{buildroot}%{_prefix}/share/doc/packages/%{name}/iris.conf
@@ -153,5 +155,7 @@ Package Database web portal and RESTful API.
 %files %{packagedb_name}
 %defattr(-,root,root,-)
 %{python_sitelib}/%{project_name}/%{packagedb_name}
+%{python_sitelib}/%{name}_%{packagedb_name}-%{version}-*.egg-info
+%{python_sitelib}/%{name}_%{packagedb_name}-%{version}-*-nspkg.pth
 
 %changelog %{packagedb_name}
