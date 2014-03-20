@@ -123,9 +123,10 @@ class ProductForm(BaseForm):
     short = forms.CharField(label='Short name for the product')
     state = forms.CharField(label='Current state of the product')
     targets = forms.CharField(label='List of targets for the product')
-    gittrees = forms.MultipleChoiceField(
-            label='Select associated git trees',
-            widget=forms.SelectMultiple(attrs={'size': '20'}))
+    gittrees = forms.ModelMultipleChoiceField(
+        label='Select associated git trees',
+        widget=forms.SelectMultiple(attrs={'size': '20'}),
+        queryset=GitTree.objects.all())
 
     def __init__(self, *args, **kwargs):
         super(ProductForm, self).__init__(*args, **kwargs)
