@@ -63,8 +63,6 @@ Common modules and dependancies for core and packagedb.
 
 %build
 python ./setup.py build
-python ./setup_packagedb.py build
-python ./setup_submissions.py build
 
 %pre
 getent group %{name} >/dev/null || groupadd -r %{name}
@@ -73,8 +71,6 @@ exit 0
 
 %install
 python ./setup.py install --prefix=%{_prefix} --root=%{buildroot}
-python ./setup_packagedb.py install --prefix=%{_prefix} --root=%{buildroot}
-python ./setup_submissions.py install --prefix=%{_prefix} --root=%{buildroot}
 
 install -D      README                              %{buildroot}%{_prefix}/share/doc/packages/%{name}/README
 install -D      doc/iris/example.conf               %{buildroot}%{_prefix}/share/doc/packages/%{name}/iris.conf
