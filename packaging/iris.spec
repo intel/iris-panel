@@ -11,6 +11,7 @@
 %define project_alias iris-panel
 %define core_name core
 %define packagedb_name packagedb
+%define submissions_name submissions
 
 ###############################################################################
 # Logical iris package that installs iris-core and iris-packagedb
@@ -52,6 +53,7 @@ Requires:       djangorestframework
 Requires:       django-rest-swagger
 Requires:       %{project_name}-%{core_name} = %{version}
 Requires:       %{project_name}-%{packagedb_name} = %{version}
+Requires:       %{project_name}-%{submissions_name} = %{version}
 
 %description
 Common modules and dependancies for core and packagedb.
@@ -62,15 +64,17 @@ Common modules and dependancies for core and packagedb.
 %build
 python ./setup.py build
 python ./setup_packagedb.py build
+python ./setup_submissions.py build
 
 %pre
-getent group %{project_name} >/dev/null || groupadd -r %{project_name}
-getent passwd %{project_name} >/dev/null || useradd -r -g %{name} -d /srv/www/%{name} -s /sbin/nologin -c "user for %{name}" %{name}
+getent group %{name} >/dev/null || groupadd -r %{name}
+getent passwd %{name} >/dev/null || useradd -r -g %{name} -d /srv/www/%{name} -s /sbin/nologin -c "user for %{name}" %{name}
 exit 0
 
 %install
 python ./setup.py install --prefix=%{_prefix} --root=%{buildroot}
 python ./setup_packagedb.py install --prefix=%{_prefix} --root=%{buildroot}
+python ./setup_submissions.py install --prefix=%{_prefix} --root=%{buildroot}
 
 install -D      README                              %{buildroot}%{_prefix}/share/doc/packages/%{name}/README
 install -D      doc/iris/example.conf               %{buildroot}%{_prefix}/share/doc/packages/%{name}/iris.conf
@@ -112,7 +116,7 @@ rm -rf %{buildroot}
 %package %{core_name}
 Summary:        Core
 
-Requires:       %{project_name} = %{version}
+Requires:       %{name} = %{version}
 
 %description %{core_name}
 Core, an extendible web portal for pluggable applications.
@@ -131,31 +135,51 @@ Core, an extendible web portal for pluggable applications.
 %dir                                                /srv/www/iris
                     %attr(0644, root, root)         /srv/www/iris/wsgi.py
 
-%dir %{python_sitelib}/%{project_name}
-%{python_sitelib}/%{project_name}/*.py
-%{python_sitelib}/%{project_name}/*.pyc
-%{python_sitelib}/%{project_name}/%{core_name}
+%dir %{python_sitelib}/%{name}
+%{python_sitelib}/%{name}/*.py
+%{python_sitelib}/%{name}/*.pyc
+%{python_sitelib}/%{name}/%{core_name}
 %{python_sitelib}/%{name}-%{version}-*.egg-info
 %{python_sitelib}/%{name}-%{version}-*-nspkg.pth
 
 %changelog %{core_name}
 
 ###############################################################################
-# Binary iris-packaegdb package that installs the Package Database application
+# Binary iris-packagedb package that installs the Package Database application
 
 %package %{packagedb_name}
 Summary:        Package Database
 
-Requires:       %{project_name} = %{version}
-Requires:       %{project_name}-%{core_name} = %{version}
+Requires:       %{name} = %{version}
+Requires:       %{name}-%{core_name} = %{version}
 
 %description %{packagedb_name}
 Package Database web portal and RESTful API.
 
 %files %{packagedb_name}
 %defattr(-,root,root,-)
-%{python_sitelib}/%{project_name}/%{packagedb_name}
+%{python_sitelib}/%{name}/%{packagedb_name}
 %{python_sitelib}/%{name}_%{packagedb_name}-%{version}-*.egg-info
 %{python_sitelib}/%{name}_%{packagedb_name}-%{version}-*-nspkg.pth
 
 %changelog %{packagedb_name}
+
+###############################################################################
+# Binary iris-submissions package that installs the Submissions application
+
+%package %{submissions_name}
+Summary:        Submissions
+
+Requires:       %{name} = %{version}
+Requires:       %{name}-%{core_name} = %{version}
+
+%description %{submissions_name}
+Submissions web portal and RESTful API.
+
+%files %{submissions_name}
+%defattr(-,root,root,-)
+%{python_sitelib}/%{name}/%{submissions_name}
+%{python_sitelib}/%{name}_%{submissions_name}-%{version}-*.egg-info
+%{python_sitelib}/%{name}_%{submissions_name}-%{version}-*-nspkg.pth
+
+%changelog %{submissions_name}

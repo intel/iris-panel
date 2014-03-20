@@ -1,5 +1,8 @@
 iris.egg-info
+iris_packagedb.egg-info
+iris_submissions.egg-info
 build
 dist
 virtualenv
 *.pyc
+

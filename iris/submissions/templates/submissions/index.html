@@ -1,0 +1,36 @@
+{% extends "core/base.html" %}
+{% block title %}
+{% if user.is_authenticated %} IRIS - signed in
+{% else %} IRIS - sign in
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+<ol class="breadcrumb">
+  <li><a href="/">IRIS</a></li>
+  <li class="active">Submissions</li>
+</ol>
+
+<div class="container">
+    <div class="row jumbotron">
+        <br />
+        <h2>IRIS Submissions</h2>
+        <hr />
+        {% if user.is_authenticated %}
+        <p>IRIS Submissions is a portal for submissions metadata.</p>
+        <p>Here you can view CI and build system statuses.</p>
+        {% else %}
+        <div class="container col-offset-1">
+            <p>Please <a href="/login/">log in</a> to access the page.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% if user.is_authenticated %}
+<div class="container">
+    <!-- Insert Submissions front page content here -->
+</div>
+{% endif %}
+{% endblock %}
