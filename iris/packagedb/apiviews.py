@@ -14,7 +14,7 @@ This is the API view file for the iris-packagedb application.
 Views shown by REST Framework under API URLs are defined here.
 """
 
-# pylint: disable=W0232,C0111,R0901,R0904
+# pylint: disable=E1101,W0232,C0111,R0901,R0904
 
 from rest_framework.viewsets import ReadOnlyModelViewSet
 

@@ -14,7 +14,7 @@ Main URL configuration for the iris-packagedb project.
 Put commonplace URL definitions here.
 """
 
-# pylint: disable=C0103
+# pylint: disable=C0103,C0301
 
 from django.conf.urls import patterns, url
 

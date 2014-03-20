@@ -15,7 +15,7 @@ The tests included are mostly smoke tests for verifying that all views
 indeed work correctly with legal input and produce a HTTP response code 200.
 """
 
-# pylint: disable=E1103,R0904,C0103
+# pylint: disable=E1101,E1103,R0904,C0103
 
 from django.test import Client, TestCase
 from django.contrib.auth.models import User

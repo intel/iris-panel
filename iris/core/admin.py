@@ -18,9 +18,9 @@ Admin site registrations for the IRIS Core application models.
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from iris.core.models import (Domain, SubDomain, License, GitTree, Package, Product,
-        Image, Log, PackageBuild, ImageBuild, TestResult, Submission,
-        UserProfile, UserParty, DomainRole, SubDomainRole, ProductRole, GitTreeRole)
+from iris.core.models import (Domain, SubDomain, License, GitTree, Package,
+    Product, Image, Log, PackageBuild, ImageBuild, TestResult, Submission,
+    UserProfile, UserParty, DomainRole, SubDomainRole, ProductRole, GitTreeRole)
 
 
 class UserProfileInline(admin.StackedInline):

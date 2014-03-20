@@ -14,13 +14,12 @@ This is the read view file for the iris-packagedb application.
 Views for listing single and multiple item info is contained here.
 """
 
-# pylint: disable=C0111,W0622
+# pylint: disable=E1101,C0111,W0622
 
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from iris.core.models import (Domain, SubDomain, License, GitTree, Package,
         Product, Image)
-from iris.core.models import ProductRole, UserParty
 from iris.packagedb.injectors import (inject_domain, inject_subdomain,
         inject_gittree, inject_product)
 

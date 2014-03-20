@@ -12,9 +12,9 @@
 This module contains helpers such as property injectors for models.
 """
 
-# pylint: disable=C0111
+# pylint: disable=E1101,C0111
 
-from iris.core.models import Domain, SubDomain, Package
+from iris.core.models import SubDomain, Package
 from iris.core.models import DomainRole, SubDomainRole, GitTreeRole, ProductRole
 
 

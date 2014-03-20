@@ -52,10 +52,9 @@ def index(request):
 
             apps.append(app)
 
-        except KeyError as missing_field:
+        except KeyError as field:
             logger = getLogger('iris')
-            logger.info("Plugin '%s' error, entrypoint '%s' field %s missing!"
-                % (fields.get('name', 'unknown'), entrypoint, missing_field))
+            logger.info('Plugin error, entrypoint field "%s" missing!' % field)
 
     return render(request, 'core/index.html', {
         'messages': messages,

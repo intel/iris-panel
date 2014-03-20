@@ -12,7 +12,7 @@
 This is the REST framework test class for the iris-packagedb project REST API.
 """
 
-# pylint: disable=E1103,R0904,C0103
+# pylint: disable=E1101,E1103,R0904,C0103
 
 import base64
 from django.test import TestCase
@@ -80,15 +80,11 @@ class ProductsTests(TestCase):
         self.credentials = basic_auth_header(user.username, 'password')
 
         self.fixture_obj = Product.objects.create(name='product',
-            short='short', state='open', targets='product'
-        )
-        self.data = [{
-            'name': obj.name, 'short': obj.short, 'state': obj.state,
-            'targets': obj.targets,
-            'gittrees': [item for item in obj.gittrees.all()]
-            }
-            for obj in Product.objects.all()
-        ]
+            short='short', state='open', targets='product')
+        self.data = [{'name': obj.name, 'short': obj.short,
+                      'state': obj.state, 'targets': obj.targets,
+                      'gittrees': [item for item in obj.gittrees.all()]
+                     } for obj in Product.objects.all()]
 
 
     def test_get_info(self):
@@ -168,8 +164,7 @@ class SubDomainsTests(TestCase):
         domain = Domain.objects.create(name='domain')
         SubDomain.objects.create(name='subdomain', domain=domain)
         self.data = [{'name': obj.name, 'domain': obj.domain.id}
-                     for obj in SubDomain.objects.all()
-        ]
+                     for obj in SubDomain.objects.all()]
 
 
     def test_get_info(self):
@@ -198,12 +193,10 @@ class LicensesTests(TestCase):
 
         License.objects.create(fullname='license', shortname='lic')
         self.data = [{'fullname': obj.fullname, 'shortname': obj.shortname,
-                      'url': obj.url, 'notes': obj.notes, 'text': obj.text,
-                      'active': obj.active, 'text_updatable': obj.text_updatable,
+                      'url': obj.url, 'notes': obj.notes, 'active': obj.active,
+                      'text': obj.text, 'text_updatable': obj.text_updatable,
                       'md5': obj.md5, 'detector_type': obj.detector_type
-                     }
-                      for obj in License.objects.all()
-        ]
+                     } for obj in License.objects.all()]
 
 
     def test_get_info(self):
@@ -236,9 +229,7 @@ class GitTreesTests(TestCase):
         GitTree.objects.create(gitpath='gitpath', subdomain=subdomain)
         self.data = [{'gitpath': obj.gitpath, 'subdomain': obj.subdomain.pk,
                       'licenses': [item for item in obj.licenses.all()]
-                     }
-                     for obj in GitTree.objects.all()
-        ]
+                     } for obj in GitTree.objects.all()]
 
 
     def test_get_info(self):
@@ -270,9 +261,7 @@ class PackagesTests(TestCase):
         gt = GitTree.objects.create(gitpath='gitpath', subdomain=subdomain)
         Package.objects.create(name='package', gittree=gt)
         self.data = [{'name': obj.name, 'gittree': obj.gittree.pk
-                     }
-                     for obj in Package.objects.all()
-        ]
+                     } for obj in Package.objects.all()]
 
 
     def test_get_info(self):
@@ -301,13 +290,10 @@ class ImagesTests(TestCase):
 
         product = Product.objects.create(name='product')
         Image.objects.create(name='image', target='target',
-            arch='arch', product=product
-        )
-        self.data = [{'name': obj.name, 'target': obj.target, 'arch': obj.arch,
-                      'product': obj.product.pk
-                     }
-                     for obj in Image.objects.all()
-        ]
+            arch='arch', product=product)
+        self.data = [{'name': obj.name, 'target': obj.target,
+                      'arch': obj.arch, 'product': obj.product.pk
+                     } for obj in Image.objects.all()]
 
 
     def test_get_info(self):
