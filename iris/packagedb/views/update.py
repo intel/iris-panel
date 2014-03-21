@@ -18,9 +18,7 @@ Views for adding items are contained here.
 
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
-from django.contrib.auth.decorators import login_required
-from iris.core.permissions import can_edit
+from django.contrib.auth.decorators import login_required, permission_required
 from iris.core.models import (Domain, SubDomain, License, GitTree, Package,
         Product, Image)
 from iris.packagedb.forms import (DomainForm, SubDomainForm, LicenseForm,
@@ -54,9 +52,6 @@ def update(request, pkid, model, form):
 
     obj = get_object_or_404(model, id=pkid) if pkid else None
 
-    if not can_edit(request.user, obj):
-        raise PermissionDenied()
-
     form = form(request.POST or None, instance=obj)
     url = None
 
@@ -71,29 +66,36 @@ def update(request, pkid, model, form):
 
 
 @login_required
+@permission_required('core.change_domain', raise_exception=True)
 def domain(request, pkid):
     return update(request, pkid, Domain, DomainForm)
 
 @login_required
+@permission_required('core.change_subdomain', raise_exception=True)
 def subdomain(request, pkid):
     return update(request, pkid, SubDomain, SubDomainForm)
 
 @login_required
+@permission_required('core.change_license', raise_exception=True)
 def license(request, pkid):
     return update(request, pkid, License, LicenseForm)
 
 @login_required
+@permission_required('core.change_gittree', raise_exception=True)
 def gittree(request, pkid):
     return update(request, pkid, GitTree, GitTreeForm)
 
 @login_required
+@permission_required('core.change_package', raise_exception=True)
 def package(request, pkid):
     return update(request, pkid, Package, PackageForm)
 
 @login_required
+@permission_required('core.change_product', raise_exception=True)
 def product(request, pkid):
     return update(request, pkid, Product, ProductForm)
 
 @login_required
+@permission_required('core.change_image', raise_exception=True)
 def image(request, pkid):
     return update(request, pkid, Image, ImageForm)

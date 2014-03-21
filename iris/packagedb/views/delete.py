@@ -18,7 +18,7 @@ Views for deleting items are contained here.
 
 from django.shortcuts import render, get_object_or_404
 from django.forms.models import model_to_dict
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from iris.core.models import (Domain, SubDomain, License, GitTree, Package,
         Product, Image)
 
@@ -50,29 +50,36 @@ def delete(request, pkid, model):
 
 
 @login_required()
+@permission_required('core.delete_domain', raise_exception=True)
 def domain(request, pkid):
     return delete(request, pkid, Domain)
 
 @login_required()
+@permission_required('core.delete_subdomain', raise_exception=True)
 def subdomain(request, pkid):
     return delete(request, pkid, SubDomain)
 
 @login_required()
+@permission_required('core.delete_license', raise_exception=True)
 def license(request, pkid):
     return delete(request, pkid, License)
 
 @login_required()
+@permission_required('core.delete_gittree', raise_exception=True)
 def gittree(request, pkid):
     return delete(request, pkid, GitTree)
 
 @login_required()
+@permission_required('core.delete_package', raise_exception=True)
 def package(request, pkid):
     return delete(request, pkid, Package)
 
 @login_required()
+@permission_required('core.delete_product', raise_exception=True)
 def product(request, pkid):
     return delete(request, pkid, Product)
 
 @login_required()
+@permission_required('core.delete_image', raise_exception=True)
 def image(request, pkid):
     return delete(request, pkid, Image)

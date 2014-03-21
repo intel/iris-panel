@@ -1,8 +1,6 @@
 {% extends "core/base.html" %}
 {% block title %}IRIS - License {{ license.shortname }}{% endblock %}
 {% block content %}
-{% load user_permission_tags %}
-{% check_user_permissions_for user gittree as can_edit %}
 
 <ol class="breadcrumb">
   <li><a href="/">IRIS</a></li>
@@ -16,7 +14,7 @@
         <div class="page-header">
             <h3>
                 License information for <span class="text-warning">{{ license.shortname }}</span>
-                {% if can_edit %}
+                {% if perms.core.change_license %}
                 <a href="update"><button class="btn btn-primary pull-right">Edit</button></a>
                 {% endif %}
             </h3>

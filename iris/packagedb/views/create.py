@@ -18,11 +18,7 @@ Views for adding items are contained here.
 
 from django.shortcuts import render
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
-from django.contrib.auth.decorators import login_required
-from iris.core.permissions import (can_create_products,
-        can_create_domains, can_create_subdomains, can_create_gittrees,
-        can_create_packages, can_create_licenses, can_create_images)
+from django.contrib.auth.decorators import login_required, permission_required
 from iris.packagedb.forms import (DomainForm, SubDomainForm, LicenseForm,
         GitTreeForm, PackageForm, ProductForm, ImageForm)
 
@@ -59,50 +55,36 @@ def create(request, form):
         'url': url})
 
 @login_required()
+@permission_required('core.add_domain', raise_exception=True)
 def domain(request):
-    if not can_create_domains(request.user):
-        raise PermissionDenied()
-
     return create(request, DomainForm)
 
 @login_required()
+@permission_required('core.add_subdomain', raise_exception=True)
 def subdomain(request):
-    if not can_create_subdomains(request.user):
-        raise PermissionDenied()
-
     return create(request, SubDomainForm)
 
 @login_required()
+@permission_required('core.add_license', raise_exception=True)
 def license(request):
-    if not can_create_licenses(request.user):
-        raise PermissionDenied()
-
     return create(request, LicenseForm)
 
 @login_required()
+@permission_required('core.add_gittree', raise_exception=True)
 def gittree(request):
-    if not can_create_gittrees(request.user):
-        raise PermissionDenied()
-
     return create(request, GitTreeForm)
 
 @login_required()
+@permission_required('core.add_package', raise_exception=True)
 def package(request):
-    if not can_create_packages(request.user):
-        raise PermissionDenied()
-
     return create(request, PackageForm)
 
 @login_required()
+@permission_required('core.add_product', raise_exception=True)
 def product(request):
-    if not can_create_products(request.user):
-        raise PermissionDenied()
-
     return create(request, ProductForm)
 
 @login_required()
+@permission_required('core.add_image', raise_exception=True)
 def image(request):
-    if not can_create_images(request.user):
-        raise PermissionDenied()
-
     return create(request, ImageForm)

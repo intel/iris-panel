@@ -1,8 +1,6 @@
 {% extends "core/base.html" %}
 {% block title %}IRIS - Git Tree list{% endblock %}
 {% block content %}
-{% load user_permission_tags %}
-{% check_can_create_gittrees user as can_create %}
 
 <ol class="breadcrumb">
   <li><a href="/">IRIS</a></li>
@@ -15,7 +13,7 @@
         <div class="page-header">
             <h3>
                 Git tree information for all trees
-                {% if can_create %}
+                {% if perms.core.add_gittree %}
                 <a href="create"><button class="btn btn-primary pull-right">Create</button></a>
                 {% endif %}
             </h3>
