@@ -29,7 +29,7 @@
                 <tr>
                     <th>Git path</th>
                     <th>Packages</th>
-                    <th>Domain</th>
+                    <th>Subdomain</th>
                     <th>Licenses</th>
                 </tr>
             </thead>
@@ -41,7 +41,7 @@
                         <p>{{ package }}</p>
                         {% endfor %}
                     </td>
-                    <td><a href="/app/packagedb/domains/{{ gittree.domain.id }}">{{ gittree.domain.name }}</a></td>
+                    <td><a href="/app/packagedb/subdomains/{{ gittree.subdomain.id }}">{{ gittree.subdomain.name }}</a></td>
                     <td>
                         {% for license in gittree.licenses.all %}
                         <p><a href="/app/packagedb/licenses/{{ license.id }}">{{ license }}</a></p>
@@ -57,7 +57,7 @@
             <div class="panel-heading">
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                        Users related to package
+                        Users related to git tree
                     </a>
                 </h4>
             </div>

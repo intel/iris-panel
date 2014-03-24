@@ -27,7 +27,7 @@
                 <tr>
                     <th>Git path</th>
                     <th>Packages</th>
-                    <th>Domain</th>
+                    <th>Subdomain</th>
                     <th>Maintainers</th>
                     <th>Integrators</th>
                     <th>Reviewers</th>
@@ -42,7 +42,7 @@
                     <p>{{ package.name }}</p>
                     {% endfor %}
                 </td>
-                <td><a href="/app/packagedb/domains/{{ gittree.domain.id }}">{{ gittree.domain.name }}</a></td>
+                <td><a href="/app/packagedb/subdomains/{{ gittree.subdomain.id }}">{{ gittree.subdomain.name }}</a></td>
                 <td>
                     {% for user in gittree.get_maintainers %}
                     <a href="/users/{{ user.id}}">
