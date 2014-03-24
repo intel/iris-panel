@@ -29,7 +29,7 @@ class Domain(models.Model):
     Class defining domains, e.g. 'multimedia'.
     """
 
-    name = models.TextField(unique=True)
+    name = models.CharField(max_length=255, unique=True)
 
     def __unicode__(self):
         return self.name
