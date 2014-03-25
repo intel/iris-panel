@@ -50,6 +50,8 @@ _TEMPLATE_DIRS = (
 _URLPATTERNS = {
     'baseurl': r'^app/%s/' % _NAME,
     'patterns': 'iris.%s.urls' % _NAME,
+    'apiurl': r'^api/%s/' % _NAME,
+    'apipatterns': 'iris.%s.apiurls' % _NAME,
 }
 
 _INTRO = """IRIS Submissions. Contains metadata about
