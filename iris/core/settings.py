@@ -214,8 +214,8 @@ LOGGING = {
 #   - Basic CRUD URL actions
 #   - Application web views and forms
 
-UI_AVAILABLE = False
-REST_API_AVAILABLE = False
+UI_AVAILABLE = True
+REST_API_AVAILABLE = True
 
 # Secret key should be read from an external file for security reasons.
 # Please DO NOT expose this file to anybody after setting it in production.
@@ -239,7 +239,6 @@ try:
     execfile(CONFIG_FILE)
 except IOError as e:
     print('Skipping settings loading, no file at %s' % CONFIG_FILE)
-    print(e)
 except SyntaxError as e:
     print('Invalid syntax in configuration at %s' % CONFIG_FILE)
     raise(e)
