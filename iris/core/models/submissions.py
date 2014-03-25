@@ -132,7 +132,7 @@ class Submission(models.Model):
         ('IMGFAILED', 'Image build failed'),
         ('TESTING', 'Testing package'),
         ('TESTINGFAILED', 'Testing failed'),
-        ('ACCEPTANCE', 'Ready for acceptance'),
+        ('READY', 'Ready for acceptance'),
         ('ACCEPTED', 'Accepted'),
         ('REJECTED', 'Rejected'),
         ('LOCKED', 'Locked'),
@@ -171,7 +171,7 @@ class SubmissionGroup(models.Model):
         ('IMGFAILED', 'Image build failed'),
         ('TESTING', 'Testing package'),
         ('TESTINGFAILED', 'Testing failed'),
-        ('ACCEPTANCE', 'Ready for acceptance'),
+        ('READY', 'Ready for acceptance'),
         ('ACCEPTED', 'Accepted'),
         ('REJECTED', 'Rejected'),
     )
