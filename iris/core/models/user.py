@@ -104,7 +104,7 @@ class ProductRole(Group):
     Group role model concerning a product such as Tizen IVI etc.
     """
 
-    role = models.CharField(max_length=15, choices=roles())
+    role = models.CharField(max_length=15, choices=roles(), db_index=True)
     product = models.ForeignKey(Product)
 
     def __unicode__(self):
@@ -119,7 +119,7 @@ class DomainRole(Group):
     Group role model concerning a domain such as Security etc.
     """
 
-    role = models.CharField(max_length=15, choices=roles())
+    role = models.CharField(max_length=15, choices=roles(), db_index=True)
     domain = models.ForeignKey(Domain)
 
     def __unicode__(self):
@@ -134,7 +134,7 @@ class SubDomainRole(Group):
     Group role model concerning subdomains.
     """
 
-    role = models.CharField(max_length=15, choices=roles())
+    role = models.CharField(max_length=15, choices=roles(), db_index=True)
     subdomain = models.ForeignKey(SubDomain)
 
     def __unicode__(self):
@@ -149,7 +149,7 @@ class GitTreeRole(Group):
     Group role model concerning git trees.
     """
 
-    role = models.CharField(max_length=15, choices=roles())
+    role = models.CharField(max_length=15, choices=roles(), db_index=True)
     gittree = models.ForeignKey(GitTree)
 
     def __unicode__(self):

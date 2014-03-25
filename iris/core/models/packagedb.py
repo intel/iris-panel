@@ -43,7 +43,7 @@ class SubDomain(models.Model):
     Class defining subdomains.
     """
 
-    name = models.TextField()
+    name = models.CharField(max_length=255, db_index=True)
     domain = models.ForeignKey(Domain)
 
     def __unicode__(self):
@@ -60,8 +60,8 @@ class License(models.Model):
     Aims to be compatible with Fossology tool models.
     """
 
-    fullname = models.TextField()
-    shortname = models.TextField()
+    fullname = models.CharField(max_length=255, db_index=True)
+    shortname = models.CharField(max_length=255, db_index=True)
     url = models.URLField(blank=True)
     notes = models.TextField(blank=True)
     text = models.TextField()
@@ -82,7 +82,7 @@ class GitTree(models.Model):
     Class defining a single git tree information.
     """
 
-    gitpath = models.TextField()
+    gitpath = models.CharField(max_length=255, unique=True)
     subdomain = models.ForeignKey(SubDomain)
     licenses = models.ManyToManyField(License)
 
@@ -101,7 +101,7 @@ class Package(models.Model):
     produce packages 'project-base' and 'project-ui'.
     """
 
-    name = models.TextField()
+    name = models.CharField(max_length=255, db_index=True)
     gittree = models.ForeignKey(GitTree)
 
     def __unicode__(self):
@@ -116,8 +116,8 @@ class Product(models.Model):
     A class defining a single product, e.g. Tizen IVI.
     """
 
-    name = models.TextField()
-    short = models.TextField()
+    name = models.CharField(max_length=255, db_index=True)
+    short = models.CharField(max_length=255, db_index=True)
     state = models.TextField()
     targets = models.TextField()
     gittrees = models.ManyToManyField(GitTree)
