@@ -157,6 +157,9 @@ class Submission(models.Model):
     class Meta:
         app_label = APP_LABEL
 
+    # workaround to stop pylint complaint
+    # class 'Submission' has no 'objects' name
+    objects = models.Manager()
 
 class SubmissionGroup(models.Model):
     """
