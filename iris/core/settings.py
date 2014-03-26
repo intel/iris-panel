@@ -36,13 +36,12 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-SQLITE_DB = 'iris-core.db'
-SQLITE_PATH = path.join(path.dirname(__file__), '..')
+SQLITE_DB_FILE = path.join(path.expanduser('~'), '.cache', 'iris.db')
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': path.abspath(path.join(SQLITE_PATH, SQLITE_DB)),
+        'NAME': SQLITE_DB_FILE,
 
         # The following settings are not used with SQLite
         'USER': '',
