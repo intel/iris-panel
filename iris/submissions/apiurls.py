@@ -23,7 +23,7 @@ from iris.submissions.apiviews import SubmissionViewSet
 
 # Create a router and register our views with it.
 router = DefaultRouter()
-router.register(r'submisssions', SubmissionViewSet)
+router.register(r'items', SubmissionViewSet)
 
 # The API URLs are now determined automatically by the router.
 # Additionally, we include the login URLs for the browseable API.

@@ -16,17 +16,22 @@ Permittable fields and serializer validation behaviour is defined here.
 
 # pylint: disable=W0232,C0111,R0903
 
-from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 
 from iris.core.models import Submission
 
 
-class SubmissionSerializer(ModelSerializer):
+class SubmissionSerializer(serializers.ModelSerializer):
     """
     Serializer class for the Submission model.
     """
 
+    product = serializers.SlugRelatedField(slug_field='short')
+    gittree = serializers.SlugRelatedField(many=True, slug_field='gitpath')
+    submitters = serializers.SlugRelatedField(many=True, slug_field='email')
+
     class Meta:
         model = Submission
-        fields = ('name', 'commit', 'status')
+        fields = ('id', 'name', 'gittree', 'product', 'commit', 'status',
+                  'submitters', 'comment')
 
