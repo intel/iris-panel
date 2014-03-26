@@ -19,7 +19,7 @@ Note that python-ldap requires the following packages on Debian/Ubuntu:
 
 And on OpenSUSE and RedHat:
 
-    python-devel openldap-devel cyrus-sasl-devel
+    python-devel openldap-devel cyrus-sasl-devel libldapcpp-devel
 
 The package may also be found in your distribution's package repositories.
 
