@@ -138,10 +138,11 @@ class Submission(models.Model):
         ('LOCKED', 'Locked'),
     )
 
-    name = models.TextField()
-    commit = models.TextField()
+    name = models.CharField(max_length=80, db_index=True)
+    commit = models.CharField(max_length=40)
     datetime = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=16, choices=SUBMISSIONSTATUS)
+    status = models.CharField(max_length=16, choices=SUBMISSIONSTATUS,
+                              db_index=True)
     product = models.ForeignKey(Product, blank=True, null=True,
                                 on_delete=models.SET_NULL)
     gittree = models.ManyToManyField(GitTree, blank=True)
@@ -176,7 +177,7 @@ class SubmissionGroup(models.Model):
         ('REJECTED', 'Rejected'),
     )
 
-    name = models.TextField()
+    name = models.CharField(max_length=80, db_index=True)
     author = models.ForeignKey(User)
     datetime = models.DateTimeField(auto_now_add=True)
     submissions = models.ManyToManyField(Submission)
