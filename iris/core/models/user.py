@@ -32,6 +32,7 @@ class UserProfile(models.Model):
     User information that is application specific and outside User model.
     """
 
+    User._meta.get_field("username").max_length = 225
     user = models.OneToOneField(User)
 
     def __unicode__(self):
