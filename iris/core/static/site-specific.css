@@ -10,7 +10,7 @@
 
 /*
  * This is the site specific CSS definition for the IRIS project.
- * OVerloads and rules additional to BootStrap should go here.
+ * Overloads and rules additional to BootStrap should go here.
  */
 
 /* We need to push the main content div down because of the navbar. */
@@ -21,4 +21,9 @@ body {
 /* Adds the margin below save and cancel buttons in forms. */
 .form-container {
     margin-bottom: 3em;
+}
+
+/* Submissions page has two stacked tables, attach them to eachother */
+.submission-summary-filters {
+    margin-bottom: 0px !important;
 }

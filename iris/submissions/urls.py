@@ -22,4 +22,5 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns(
     'iris.submissions.views.base',
     url(r'^(?i)$', 'index', name='index'),
+    url(r'^summary/$', 'summary', name='summary'),
 )

@@ -87,9 +87,12 @@ WSGI_APPLICATION = 'iris.core.wsgi.application'
 
 STATICFILES_DIRS = (
     path.abspath(path.join(prefix, 'share/javascript/jquery')),
+    path.abspath(path.join(prefix, 'share/javascript/datatables')),
     path.abspath(path.join(prefix, 'share/javascript/bootstrap')),
     path.abspath(path.join(prefix, 'share/css/bootstrap')),
+    path.abspath(path.join(prefix, 'share/css/datatables')),
     path.abspath(path.join(prefix, 'share/fonts/bootstrap')),
+    path.abspath(path.join(prefix, 'share/images/datatables')),
     path.abspath(path.join(PROJECT_FOLDER, 'static')),
 )
 

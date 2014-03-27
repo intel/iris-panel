@@ -14,8 +14,11 @@ This is the base view file for the iris-submissions application.
 Commonplace views such as index page is contained here.
 """
 
+# pylint: disable=E1101,W0621
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from iris.core.models import Submission, SubmissionGroup
 
 
 @login_required()
@@ -25,3 +28,26 @@ def index(request):
     """
 
     return render(request, 'submissions/index.html')
+
+@login_required()
+def summary(request):
+    """
+    Submissions summary page view.
+
+    Requesting the page with ?filter=submissions or ?filter=submissiongroups
+    restricts the results accordingly to either Submissions or Groups.
+    """
+
+    summary = list()
+
+    if request.GET.get('filter', '') == 'submissions':
+        summary.extend(Submission.objects.all())
+    elif request.GET.get('filter', '') == 'submissiongroups':
+        summary.extend(SubmissionGroup.objects.all())
+    else:
+        summary.extend(Submission.objects.all())
+        summary.extend(SubmissionGroup.objects.all())
+
+    summary = sorted(summary, key=lambda s: s.datetime)
+
+    return render(request, 'submissions/summary.html', {'summary': summary})

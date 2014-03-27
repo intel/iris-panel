@@ -1,0 +1,76 @@
+{% extends "core/base.html" %}
+{% block title %}IRIS - Submissions summary{% endblock %}
+{% block content %}
+
+<ol class="breadcrumb">
+  <li><a href="/">IRIS</a></li>
+  <li><a href="/app/submissions/">Submissions</a></li>
+  <li class="active">Summary</li>
+</ol>
+
+<div class="container">
+    <div class="row">
+        <div class="page-header">
+            <h3>
+                Summary information for submissions
+            </h3>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-bordered submission-summary-filters">
+            <tbody>
+                <tr>
+                    <td class="col-md-2">
+                        <input class="form-control" id="date-filter" placeholder="Date filter">
+                    </td>
+                    <td class="col-md-4">
+                        <input class="form-control" id="name-filter" placeholder="Name filter">
+                    </td>
+                    <td class="col-md-4">
+                        <input class="form-control" id="tree-submission-filter" placeholder="Tree / submission filter">
+                    </td>
+                    <td class="col-md-2">
+                        <select class="form-control" id="status-filter" placeholder="Status filter">
+                            <option>Any status</option>
+                            <option>Pending</option>
+                            <option>Testing</option>
+                            <option>Building</option>
+                            <option>Accepted</option>
+                            <option>Failed</option>
+                            <option>Rejected</option>
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table id="submissions-summary" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th class="col-md-2">Date</th>
+                    <th class="col-md-4">Name</th>
+                    <th class="col-md-4">Git trees / Submissions</th>
+                    <th class="col-md-2">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for s in summary %}
+                <tr>
+                    <td class="col-md-2">{{ s.datetime }}</td>
+                    <td class="col-md-4">{{ s.name }}</td>
+                    <td class="col-md-4">
+                        {% for tree in s.gittree.all %}
+                        <a href="/app/packagedb/gittrees/{{ tree.id }}"><p>{{ tree }}</p></a>
+                        {% endfor %}
+                        {% for submission in s.submissions.all %}
+                        <p>{{ submission }}</p>
+                        {% endfor %}
+                    </td>
+                    <td class="col-md-2">{{ s.status }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

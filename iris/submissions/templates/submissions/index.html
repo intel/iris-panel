@@ -30,7 +30,16 @@
 </div>
 {% if user.is_authenticated %}
 <div class="container">
-    <!-- Insert Submissions front page content here -->
+    <div class="row">
+        <div class="col-lg-4">
+            <h2>Summary</h2>
+            <a class="btn btn-default" href="summary">
+                View summary »
+            </a>
+            <br />
+            <p>Summary page has the latest changes.</p>
+        </div>
+    </div>
 </div>
 {% endif %}
 {% endblock %}
