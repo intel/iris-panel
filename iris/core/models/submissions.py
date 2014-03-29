@@ -179,6 +179,8 @@ class SubmissionGroup(models.Model):
 
     name = models.CharField(max_length=80, db_index=True)
     author = models.ForeignKey(User)
+    product = models.ForeignKey(Product, blank=True, null=True,
+                                on_delete=models.SET_NULL)
     datetime = models.DateTimeField(auto_now_add=True)
     submissions = models.ManyToManyField(Submission)
     status = models.CharField(max_length=16, choices=SUBMISSIONGROUPSTATUS)
