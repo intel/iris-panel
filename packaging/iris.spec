@@ -48,6 +48,7 @@ Requires:       python-ldap
 Requires:       python-django-auth-ldap
 Requires:       jquery
 Requires:       bootstrap
+Requires:       datatables
 Requires:       django-crispy-forms
 Requires:       djangorestframework
 Requires:       django-rest-swagger
