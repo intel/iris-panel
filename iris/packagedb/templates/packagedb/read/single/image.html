@@ -1,0 +1,100 @@
+{% extends "core/base.html" %}
+{% block title %}IRIS - Image {{ image }}{% endblock %}
+{% block content %}
+
+<ol class="breadcrumb">
+  <li><a href="/">IRIS</a></li>
+  <li><a href="/app/packagedb/">Package Database</a></li>
+  <li><a href="/app/packagedb/images/">Images</a></li>
+  <li class="active">{{ image.name }}</li>
+</ol>
+
+<div class="container">
+    <div class="row">
+        <div class="page-header">
+            <h3>
+                Image information for <span class="text-warning">{{ image.name }}</span>
+                {% if perms.core.change_image %}
+                <a href="update"><button class="btn btn-primary pull-right">Edit</button></a>
+                {% endif %}
+            </h3>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Architects</th>
+                    <th>Maintainers</th>
+                    <th>Integrators</th>
+                    <th>Reviewers</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    {% for architect in image.get_architects %}
+                    <a href="/users/{{ architect.id }}">
+                        <p>{{ architect.last_name }}, {{ architect.first_name }}</p>
+                    </a>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for maintainer in image.get_maintainers %}
+                    <a href="/users/{{ maintainer.id }}">
+                        <p>{{ maintainer.last_name }}, {{ maintainer.first_name }}</p>
+                    </a>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for integrator in image.get_integrators %}
+                    <a href="/users/{{ integrator.id }}">
+                        <p>{{ integrator.last_name }}, {{ integrator.first_name }}</p>
+                    </a>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for reviewer in image.get_reviewers %}
+                    <a href="/users/{{ reviewer.id }}">
+                        <p>{{ reviewer.last_name }}, {{ reviewer.first_name }}</p>
+                    </a>
+                    {% endfor %}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                        Products in this image
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Product name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for product in image.product_set.all %}
+                        <tr>
+                            <td>
+                                <a href="/app/packagedb/products/{{ product.id }}">{{ product.name }}</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

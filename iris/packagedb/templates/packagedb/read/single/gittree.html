@@ -36,7 +36,7 @@
                     <td>{{ gittree.gitpath }}</td>
                     <td>
                         {% for package in gittree.package_set.all %}
-                        <p>{{ package }}</p>
+                        <p><a href="/app/packagedb/packages/{{ package.id }}">{{ package.name }}</a></p>
                         {% endfor %}
                     </td>
                     <td><a href="/app/packagedb/subdomains/{{ gittree.subdomain.id }}">{{ gittree.subdomain.name }}</a></td>

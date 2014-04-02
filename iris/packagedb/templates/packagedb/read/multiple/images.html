@@ -24,6 +24,7 @@
             <thead>
                 <tr>
                     <th>Name</th>
+                    <th>Target</th>
                     <th>Architecture</th>
                     <th>Product</th>
                 </tr>
@@ -31,9 +32,18 @@
             <tbody>
             {% for image in images %}
             <tr>
-                <td>{{ image.name }}</td>
-                <td>{{ image.target }}</td>
-                <td>{{ image.product }}</td>
+                <td>
+                    <a href="{{image.id}}">{{ image.name }}</a>
+                </td>
+                <td>
+                    {{image.target}}
+                </td>
+                <td>
+                    {{ image.arch }}
+                </td>
+                <td>
+                    <a href="/app/packagedb/products/{{image.product.id}}">{{ image.product }}</a>
+                </td>
             </tr>
             {% endfor %}
             </tbody>

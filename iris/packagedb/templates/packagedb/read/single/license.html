@@ -73,17 +73,17 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Package tree path</th>
+                                <th>Git tree</th>
                                 <th>Package name</th>
-                                <th>Package domain</th>
+                                <th>Package subdomain</th>
                             </tr>
                         </thead>
                         <tbody>
                         {% for package in packages %}
                         <tr>
                             <td><a href="/app/packagedb/gittrees/{{ package.gittree.id }}">{{ package.gittree.gitpath }}</a></td>
-                            <td>{{ package.name }}</td>
-                            <td><a href="/app/packagedb/domains/{{ package.gittree.domain.id }}">{{ package.gittree.domain.name }}</a></td>
+                            <td><a href="/app/packagedb/packages/{{ package.id }}">{{ package.name }}</a></td>
+                            <td><a href="/app/packagedb/subdomains/{{ package.gittree.subdomain.id }}">{{ package.gittree.subdomain.name }}</a></td>
                         </tr>
                         {% endfor %}
                         </tbody>
