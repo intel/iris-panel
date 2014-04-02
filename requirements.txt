@@ -8,3 +8,4 @@ django-crispy-forms==1.4.0
 py==1.4.19
 pytest==2.5.1
 pytest-django==2.6
+MySQL-python==1.2.5
