@@ -13,7 +13,7 @@ Django settings for the iris-core project.
 """
 
 # pylint: disable=C0103,F0401,W0611,W0703
-
+import os
 from os import path
 from sys import prefix, argv
 from pkg_resources import iter_entry_points
@@ -226,7 +226,7 @@ REST_API_AVAILABLE = True
 
 KEYFILE = '/etc/iris/secret.txt'
 
-if path.isfile(KEYFILE):
+if path.isfile(KEYFILE) and os.access(KEYFILE, os.R_OK):
     with open(KEYFILE) as secret:
         SECRET_KEY = secret.read()
 

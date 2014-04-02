@@ -52,6 +52,7 @@ setup(
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
+    scripts=['bin/generate_django_secret_key.py'],
 )
 
 # Package Database plugin setup

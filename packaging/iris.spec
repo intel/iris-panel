@@ -59,7 +59,6 @@ python ./setup.py install --prefix=%{_prefix} --root=%{buildroot}
 
 install -D      README                              %{buildroot}%{_prefix}/share/doc/packages/%{name}/README
 install -D      doc/iris/example.conf               %{buildroot}%{_prefix}/share/doc/packages/%{name}/iris.conf
-install -D      etc/%{name}/secret.txt              %{buildroot}%{_sysconfdir}/%{name}/secret.txt
 install -D      etc/%{name}/%{name}.conf            %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
 install -D      etc/apache2/vhosts.d/%{name}.conf   %{buildroot}%{_sysconfdir}/apache2/vhosts.d/%{name}.conf
 install -D      srv/www/iris/wsgi.py                %{buildroot}/srv/www/iris/wsgi.py
@@ -74,6 +73,14 @@ if which apache2ctl; then
     python $MANAGE collectstatic --noinput
     service apache2 stop
     service apache2 start
+fi
+
+# Generate Django secret file if it doesn't exist
+secret_file=%{_sysconfdir}/%{name}/secret.txt
+if ! test -e $secret_file; then
+    %{_bindir}/generate_django_secret_key.py >$secret_file
+    chown %{name}:%{name} $secret_file
+    chmod 400 $secret_file
 fi
 
 %preun
@@ -123,7 +130,6 @@ Core, an extendible web portal for pluggable applications.
 %doc                %attr(0644, root, root)         %{_datadir}/doc/packages/%{name}/README
 %doc                %attr(0644, root, root)         %{_datadir}/doc/packages/%{name}/iris.conf
 %dir                                                %{_sysconfdir}/%{name}
-%config(noreplace)  %attr(0644, root, root)         %{_sysconfdir}/%{name}/secret.txt
 %config(noreplace)  %attr(0644, root, root)         %{_sysconfdir}/%{name}/%{name}.conf
 %dir                                                %{_sysconfdir}/apache2
 %dir                                                %{_sysconfdir}/apache2/vhosts.d
@@ -137,6 +143,8 @@ Core, an extendible web portal for pluggable applications.
 %{python_sitelib}/%{name}/%{core_name}
 %{python_sitelib}/%{name}-%{version}-*.egg-info
 %{python_sitelib}/%{name}-%{version}-*-nspkg.pth
+
+%{_bindir}/generate_django_secret_key.py
 
 %changelog %{core_name}
 
