@@ -109,6 +109,7 @@ def settings_view(request):
         'messages': messages})
 
 
+@login_required
 def users(request, pkid=None):
     """
     Returns IRIS user list.
