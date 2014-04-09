@@ -31,8 +31,9 @@ def domain(request, pkid=None):
         return render(request, 'packagedb/read/single/domain.html',
                 {'domain': _domain})
     else:
+        _domains = [inject_domain(d) for d in Domain.objects.all()]
         return render(request, 'packagedb/read/multiple/domains.html',
-                {'domains': Domain.objects.all()})
+                {'domains': _domains})
 
 @login_required()
 def subdomain(request, pkid=None):
