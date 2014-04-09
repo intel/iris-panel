@@ -5,6 +5,7 @@
         <title>{% block title %}{% endblock %}</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}bootstrap.min.css" />
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}site-specific.css" />
         <script type="text/javascript" src="{{ STATIC_URL }}jquery.min.js"></script>
@@ -53,5 +54,13 @@
         <div id="body-wrapper" class="container navbar-body-fix">
             {% block content %}{% endblock %}
         </div>
+
+        <!--[if IE 8]>
+        <script>
+            $("a > button").live('click', function() {
+                location.href = $(this).parent("a").attr("href");
+            });
+        </script>
+        <![endif]-->
     </body>
 </html>
