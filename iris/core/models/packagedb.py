@@ -51,6 +51,7 @@ class SubDomain(models.Model):
 
     class Meta:
         app_label = APP_LABEL
+        unique_together = ('name', 'domain')
 
 
 class License(models.Model):
@@ -61,7 +62,7 @@ class License(models.Model):
     """
 
     fullname = models.CharField(max_length=255, db_index=True)
-    shortname = models.CharField(max_length=255, db_index=True)
+    shortname = models.CharField(max_length=255, unique=True)
     url = models.URLField(blank=True)
     notes = models.TextField(blank=True)
     text = models.TextField()
@@ -109,6 +110,7 @@ class Package(models.Model):
 
     class Meta:
         app_label = APP_LABEL
+        unique_together = ('name', 'gittree')
 
 
 class Product(models.Model):
