@@ -33,7 +33,7 @@
               <form class="navbar-form navbar-right" method="GET" action="/logout/">
                   <button type="submit" class="btn btn-default">Sign out</button>
               </form>
-              <p class="navbar-text navbar-right">Signed in as <a href="#" class="navbar-link">{{ user.username }}</a></p>
+              <p class="navbar-text navbar-right">Signed in as {{ user.username }}</p>
 
               {% else %}
               <form class="navbar-form navbar-right" method="POST" action="/login/?next={{ redirect_to }}">
