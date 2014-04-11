@@ -32,6 +32,9 @@
                     {% if license.url %}
                     <th>External URL</th>
                     {% endif %}
+                    <th>Notes</th>
+                    <th>Text updatable</th>
+                    <th>Md5</th>
                 </tr>
             </thead>
             <tbody>
@@ -54,6 +57,15 @@
                         <a href="{{ license.url }}">{{ license.url }}</a>
                     </td>
                     {% endif %}
+                    <td>{{ license.notes }}</td>
+                    <td>
+                        {% if license.text_updatable %}
+                        Yes
+                        {% else %}
+                        No
+                        {% endif %}
+                    </td>
+                    <td>{{ license.md5 }}</td>
                 </tr>
             </tbody>
         </table>
@@ -73,16 +85,16 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Git tree</th>
                                 <th>Package name</th>
-                                <th>Package subdomain</th>
+                                <th>Git tree</th>
+                                <th>Subdomain</th>
                             </tr>
                         </thead>
                         <tbody>
                         {% for package in packages %}
                         <tr>
-                            <td><a href="/app/packagedb/gittrees/{{ package.gittree.id }}">{{ package.gittree.gitpath }}</a></td>
                             <td><a href="/app/packagedb/packages/{{ package.id }}">{{ package.name }}</a></td>
+                            <td><a href="/app/packagedb/gittrees/{{ package.gittree.id }}">{{ package.gittree.gitpath }}</a></td>
                             <td><a href="/app/packagedb/subdomains/{{ package.gittree.subdomain.id }}">{{ package.gittree.subdomain.name }}</a></td>
                         </tr>
                         {% endfor %}
