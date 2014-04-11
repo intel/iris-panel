@@ -14,7 +14,7 @@ This module contains helpers such as property injectors for models.
 
 # pylint: disable=E1101,C0111
 
-from iris.core.models import SubDomain, Package
+from iris.core.models import SubDomain, Package, Product
 from iris.core.models import DomainRole, SubDomainRole, GitTreeRole, ProductRole
 
 
@@ -165,6 +165,19 @@ def inject_gittree(gittree):
 
         roles = GitTreeRole.objects.filter(role=role, gittree=gittree)
         return [user for group in roles for user in group.user_set.all()]
+
+    def _get_product():
+        """
+        Returns Product containing this GitTree object.
+
+        Follows a backward relation from Product model's gittree
+        field into the GitTree object the product belongs to, then
+        back to the GitTree the Product belongs to.
+        """
+
+        return Product.objects.filter(gittrees=gittree)
+
+    gittree.get_product = _get_product
 
     return inject_base_getters(gittree, _get_users)
 
