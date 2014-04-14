@@ -18,6 +18,7 @@ Views for deleting items are contained here.
 
 from iris.core.views.common import delete
 from django.contrib.auth.decorators import login_required, permission_required
+
 from iris.core.models import (Domain, SubDomain, License, GitTree, Package,
         Product, Image)
 
@@ -25,34 +26,34 @@ from iris.core.models import (Domain, SubDomain, License, GitTree, Package,
 @login_required()
 @permission_required('core.delete_domain', raise_exception=True)
 def domain(request, pkid):
-    return delete(request, pkid, Domain)
+    return delete(request, pkid, Domain, '/app/packagedb/domains')
 
 @login_required()
 @permission_required('core.delete_subdomain', raise_exception=True)
 def subdomain(request, pkid):
-    return delete(request, pkid, SubDomain)
+    return delete(request, pkid, SubDomain, '/app/packagedb/subdomains')
 
 @login_required()
 @permission_required('core.delete_license', raise_exception=True)
 def license(request, pkid):
-    return delete(request, pkid, License)
+    return delete(request, pkid, License, '/app/packagedb/licenses')
 
 @login_required()
 @permission_required('core.delete_gittree', raise_exception=True)
 def gittree(request, pkid):
-    return delete(request, pkid, GitTree)
+    return delete(request, pkid, GitTree, '/app/packagedb/gittrees')
 
 @login_required()
 @permission_required('core.delete_package', raise_exception=True)
 def package(request, pkid):
-    return delete(request, pkid, Package)
+    return delete(request, pkid, Package, '/app/packagedb/packages')
 
 @login_required()
 @permission_required('core.delete_product', raise_exception=True)
 def product(request, pkid):
-    return delete(request, pkid, Product)
+    return delete(request, pkid, Product, '/app/packagedb/products')
 
 @login_required()
 @permission_required('core.delete_image', raise_exception=True)
 def image(request, pkid):
-    return delete(request, pkid, Image)
+    return delete(request, pkid, Image, '/app/packagedb/images')

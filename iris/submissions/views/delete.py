@@ -16,7 +16,9 @@ Views for deleting items are contained here.
 
 # pylint: disable=C0111,W0622
 
+from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
+
 from iris.core.views.common import delete
 from iris.core.models import Submission, SubmissionGroup
 
@@ -24,9 +26,9 @@ from iris.core.models import Submission, SubmissionGroup
 @login_required()
 @permission_required('core.delete_submission', raise_exception=True)
 def submissions(request, pkid):
-    return delete(request, pkid, Submission)
+    return delete(request, pkid, Submission, reverse('read_submissions'))
 
 @login_required()
 @permission_required('core.delete_submissiongroup', raise_exception=True)
 def submissiongroups(request, pkid):
-    return delete(request, pkid, SubmissionGroup)
+    return delete(request, pkid, SubmissionGroup, reverse('read_submissiongroups'))

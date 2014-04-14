@@ -18,8 +18,8 @@ Views for adding items are contained here.
 
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required, permission_required
-from iris.core.views.common import create
-from iris.submissions.forms import SubmissionForm, SubmissionGroupForm
+
+from iris.submissions.forms import SubmissionGroupForm
 
 
 @login_required()

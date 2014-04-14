@@ -14,9 +14,15 @@
         <div class="page-header">
             <h3>
                 Domain information for <span class="text-warning">{{ domain.name }}</span>
+                <span class="pull-right">
                 {% if perms.core.change_domain %}
-                <a href="update"><button class="btn btn-primary pull-right">Edit</button></a>
+                <a href="update"><button class="btn btn-primary">Edit</button></a>
                 {% endif %}
+
+                {% if perms.core.delete_domain %}
+                <a href="delete" class="delete"><button class="btn btn-primary">Delete</button></a>
+                {% endif %}
+                </span>
             </h3>
         </div>
     </div>

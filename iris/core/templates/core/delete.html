@@ -1,14 +1,38 @@
 {% extends "core/base.html" %}
 {% block title %}
-{% if user.is_authenticated %} IRIS - signed in
+{% if error %} IRIS - Delete error
+{% elif user.is_authenticated %} IRIS - Delete success
 {% else %} IRIS - sign in
 {% endif %}
 {% endblock %}
+
 {% block content %}
 <div class="container">
-    <div class="row">
-        <h3>Deleted {{ deleted.name }}</h3>
-        <span>Object info: {{ deleted }}</span>
+{% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+{% else %}
+    <div class="alert alert-success">
+        <h3>{{ deleted }} had been deleted.</h3>
     </div>
+    <div class="alert alert-info">
+        Redirect to <a href="{{ redirect_url}}" class="alert-link">
+            {{redirect_url}}</a> in <span id="timeout">10</span> seconds ...
+    </div>
+
+    {% if redirect_url %}
+    <script>
+window.seconds = 10;
+(function countdown() {
+    if (seconds < 1) {
+        window.location = "{{ redirect_url }}";
+        return;
+    }
+    $('#timeout').text(seconds);
+    seconds -= 1;
+    setTimeout(countdown, 1000);
+})();
+    </script>
+    {% endif %}
+{% endif %}
 </div>
 {% endblock %}

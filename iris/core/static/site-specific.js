@@ -29,6 +29,12 @@ var findIndex = function(list, value) {
 /**
  * Attaches filtering to the submissions summary table.
  */
+$(document).read(function() {
+    $('.delete').click(function() {
+        return confirm("Do you really want to delete it ?");
+    });
+});
+
 $(document).ready(function() {
     if (!$('#submissions-summary').length) {
         return;

@@ -93,7 +93,7 @@ def update(request, pkid, model, form, cancel_url=None):
         'url': url})
 
 
-def delete(request, pkid, model):
+def delete(request, pkid, model, redirect_url=None):
     """
     A generic wrapper for deleting objects of type Model with id pkid.
 
@@ -105,6 +105,7 @@ def delete(request, pkid, model):
     :type   pkid:       integer
     :param  model:      Django model class to use for request
     :type   model:      Django model class
+    :param  redirect_url: URL redirect when after delete
 
     Example usage::
 
@@ -114,6 +115,12 @@ def delete(request, pkid, model):
 
     obj = get_object_or_404(model, id=pkid)
     deleted = model_to_dict(obj)
-    obj.delete()
+    try:
+        obj.delete()
+    except Exception as err:
+        return render(request, 'core/delete.html', {'error': repr(err)})
 
-    return render(request, 'core/delete.html', {'deleted': deleted})
+    return render(request, 'core/delete.html', {
+            'deleted': deleted,
+            'redirect_url': redirect_url,
+            })

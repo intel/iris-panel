@@ -14,9 +14,15 @@
         <div class="page-header">
             <h3>
                 Subdomain information for <span class="text-warning">{{ subdomain.name }}</span>
+                <span class="pull-right">
                 {% if perms.core.change_subdomain %}
-                <a href="update"><button class="btn btn-primary pull-right">Edit</button></a>
+                <a href="update"><button class="btn btn-primary">Edit</button></a>
                 {% endif %}
+
+                {% if perms.core.delete_subdomain %}
+                <a href="delete" class="delete"><button class="btn btn-primary">Delete</button></a>
+                {% endif %}
+                </span>
             </h3>
         </div>
     </div>
