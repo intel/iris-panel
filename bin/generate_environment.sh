@@ -23,9 +23,9 @@ python setup.py install
 python iris/manage.py syncdb --noinput
 python iris/manage.py migrate
 
+# Import dummy data into the application
 echo "
 import os
-from datetime import datetime
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'iris.core.settings')
 
@@ -74,21 +74,18 @@ ARCHITECTS.user_set.add(ADMIN_USER)
 S1, _ = Submission.objects.get_or_create(
         name='Test submission 1',
         commit='12345',
-        datetime=datetime.now(),
         status='SUBMITTED',
         comment='This is an automatically generated test submission')
 
 S2, _ = Submission.objects.get_or_create(
         name='Test submission 2',
         commit='12345',
-        datetime=datetime.now(),
         status='SUBMITTED',
         comment='This is an automatically generated test submission')
 
 SG1, _ = SubmissionGroup.objects.get_or_create(
         name='Test submission group 1',
         author=STAFF_USER,
-        datetime=datetime.now(),
         status='SUBMITTED')
 
 SG1.submissions.add(S1)
@@ -97,16 +94,16 @@ SG1.submissions.add(S2)
 S3, _ = Submission.objects.get_or_create(
         name='Test submission 3',
         commit='12345',
-        datetime=datetime.now(),
         status='SUBMITTED',
         comment='This is an automatically generated test submission')
 
 SG2, _ = SubmissionGroup.objects.get_or_create(
         name='Test submission group 1',
         author=STAFF_USER,
-        datetime=datetime.now(),
         status='SUBMITTED')
 
 SG2.submissions.add(S3)"|python
 
-python iris/manage.py runserver
+if [[ -z $(pgrep python|grep manage.py) ]]; then
+    python iris/manage.py runserver 0.0.0.0:5900
+fi
