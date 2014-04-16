@@ -18,7 +18,7 @@ Permittable fields and serializer validation behaviour is defined here.
 
 from rest_framework import serializers
 
-from iris.core.models import Submission
+from iris.core.models import Submission, SubmissionGroup
 
 
 class SubmissionSerializer(serializers.ModelSerializer):
@@ -34,4 +34,13 @@ class SubmissionSerializer(serializers.ModelSerializer):
         model = Submission
         fields = ('id', 'name', 'gittree', 'product', 'commit', 'status',
                   'submitters', 'comment')
+
+class SubmissionGroupSerializer(serializers.ModelSerializer):
+    """
+    Serializer class for the Submission model.
+    """
+
+    class Meta:
+        model = SubmissionGroup
+        fields = ('name', 'author', 'product', 'submissions', 'status')
 
