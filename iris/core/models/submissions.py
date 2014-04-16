@@ -23,6 +23,7 @@ APP_LABEL = 'core'
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from iris.core.models import GitTree, Package, Product, Image
 
 
@@ -140,7 +141,8 @@ class Submission(models.Model):
 
     name = models.CharField(max_length=80, db_index=True)
     commit = models.CharField(max_length=40)
-    datetime = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=16, choices=SUBMISSIONSTATUS,
                               db_index=True)
     product = models.ForeignKey(Product, blank=True, null=True,
@@ -151,9 +153,13 @@ class Submission(models.Model):
     testresults = models.ManyToManyField(TestResult, blank=True)
     submitters = models.ManyToManyField(User)
     comment = models.TextField(blank=True)
+    obj_type = 'Submission'
 
     def __unicode__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('read_submissions', args=(self.id,))
 
     class Meta:
         app_label = APP_LABEL
@@ -168,6 +174,7 @@ class SubmissionGroup(models.Model):
     """
 
     SUBMISSIONGROUPSTATUS = (
+        ('NEW', 'New'),
         ('IMGBUILDING', 'Image building'),
         ('IMGFAILED', 'Image build failed'),
         ('TESTING', 'Testing package'),
@@ -181,12 +188,17 @@ class SubmissionGroup(models.Model):
     author = models.ForeignKey(User)
     product = models.ForeignKey(Product, blank=True, null=True,
                                 on_delete=models.SET_NULL)
-    datetime = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
     submissions = models.ManyToManyField(Submission)
     status = models.CharField(max_length=16, choices=SUBMISSIONGROUPSTATUS)
+    obj_type = 'SubmissionGroup'
 
     def __unicode__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('read_submissiongroups', args=(self.id,))
 
     class Meta:
         app_label = APP_LABEL
