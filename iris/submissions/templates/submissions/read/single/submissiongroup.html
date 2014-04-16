@@ -1,0 +1,122 @@
+{% extends "core/base.html" %}
+{% block title %}IRIS - Submission group {{ submissiongroup.name }}{% endblock %}
+{% block content %}
+
+<ol class="breadcrumb">
+    <li><a href="/">IRIS</a></li>
+    <li><a href="/app/submissions/">Submissions</a></li>
+    <li><a href="/app/submissions/summary/">Summary</a></li>
+    <li class="active">{{ submissiongroup.name }}</li>
+</ol>
+
+<div class="container">
+    <div class="row">
+        <div class="page-header">
+            <h3>
+                Submission group information for <span class="text-warning">{{ submissiongroup.name }}</span>
+                <div class="pull-right">
+                    <a href="accept"><button class="btn btn-success">Accept</button></a>
+                    <a href="reject"><button class="btn btn-danger">Reject</button></a>
+                </div>
+            </h3>
+        </div>
+
+        <table class="table gittree-info table-striped table-bordered table-hover table-condensed">
+            <tbody>
+                <tr>
+                    <th>Name</th>
+                    <td> {{ submissiongroup.name }} </td>
+                </tr>
+                <tr>
+                    <th>Created</th>
+                    <td> {{ submissiongroup.created }}</td>
+                </tr>
+                <tr>
+                    <th>Updated</th>
+                    <td> {{ submissiongroup.updated }}</td>
+                </tr>
+                <tr>
+                    <th>Commit</th>
+                    <td> {{ submissiongroup.commit }} </td>
+                </tr>
+                <tr>
+                    <th>Status</th>
+                    <td> {{ submissiongroup.status }} </td>
+                </tr>
+                <tr>
+                    <th>Project</th>
+                    <td>
+                        {% if submissiongroup.product %}
+                        <a href="/app/packagedb/products/{{ submissiongroup.product.id }}">
+                        {% endif %}
+                            {{ submissiongroup.product }}
+                        {% if submissiongroup.product %}
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                        Logs related to submissiongroup
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>URL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in submissiongroup.logs.all %}
+                            <tr>
+                                <td><a href="/app/submissiongroups/logs/{{ log.url }}">{{ log.url }}</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                        Git trees related to submissiongroup
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Git path</th>
+                                <th>Domain</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for gittree in submissiongroup.gittrees.all %}
+                        <tr>
+                            <td><a href="/app/packagedb/gittrees/{{ gittree.id }}">{{ gittree.gitpath }}</a></td>
+                            <td><a href="/app/packagedb/domains/{{ gittree.domain.id }}">{{ gittree.domain.name }}</a></td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
