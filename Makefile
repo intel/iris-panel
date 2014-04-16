@@ -23,6 +23,7 @@
 # which has to be found out by getting a concrete package location
 # (in this case the iris.core) and coming down to namespace package level
 
+.PHONY: test
 test:
 	export OUTPUT_DIR=`pwd` \
 		&& cd \
@@ -35,3 +36,12 @@ test:
 		&& coverage report -m \
 		&& export JUNIT_XML=$$OUTPUT_DIR/nosetests.xml \
 		&& py.test --ds=iris.core.settings --junitxml $$JUNIT_XML
+
+.PHONY: devel
+devel:
+	bash bin/generate_environment.sh
+
+.PHONY: clean
+clean:
+	rm -rf virtualenv build dist node_modules bower_components \
+		iris.egg-info iris_packagedb.egg-info iris_submissions.egg-info

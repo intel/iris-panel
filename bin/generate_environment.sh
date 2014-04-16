@@ -12,16 +12,42 @@ if ! which virtualenv; then
     exit 1
 fi
 
+if ! which npm; then
+    echo "Please install Node Package Manager (npm)"
+    exit 1
+fi
+
 BASEPATH=`dirname "$(readlink -f "$0")"`/..
 
 cd $BASEPATH
+
+# Install virtual environment
 virtualenv virtualenv
 source virtualenv/bin/activate
+
+# Backend requirement installation
 pip install -r requirements.txt
 python setup.py build
 python setup.py install
 python iris/manage.py syncdb --noinput
 python iris/manage.py migrate
+
+# Frontend requirement installation
+npm install && bower install
+install -d virtualenv/share/javascript/jquery
+install -d virtualenv/share/javascript/datatables
+install -d virtualenv/share/javascript/bootstrap
+install -d virtualenv/share/fonts/bootstrap
+install -d virtualenv/share/css/bootstrap
+install -d virtualenv/share/css/datatables
+install -d virtualenv/share/images/datatables
+install bower_components/jquery/*.js                virtualenv/share/javascript/jquery
+install bower_components/bootstrap/dist/js/*        virtualenv/share/javascript/bootstrap
+install bower_components/bootstrap/dist/fonts/*     virtualenv/share/fonts
+install bower_components/bootstrap/dist/css/*       virtualenv/share/css/bootstrap
+install bower_components/datatables/media/js/*      virtualenv/share/javascript/datatables
+install bower_components/datatables/media/images/*  virtualenv/share/images/datatables
+install bower_components/datatables/media/css/*     virtualenv/share/css/datatables
 
 # Import dummy data into the application
 echo "
@@ -104,6 +130,7 @@ SG2, _ = SubmissionGroup.objects.get_or_create(
 
 SG2.submissions.add(S3)"|python
 
-if [[ -z $(pgrep python|grep manage.py) ]]; then
-    python iris/manage.py runserver 0.0.0.0:5900
+# Start the development server
+if [[ -z $(ps aux|grep python|grep manage.py) ]]; then
+    python iris/manage.py runserver 127.0.0.1:5900
 fi

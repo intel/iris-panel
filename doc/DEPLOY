@@ -71,10 +71,17 @@ Deployment from source packages
 Requirements, source package building and installation
 ------------------------------------------------------
 
-First you will need to build and install all components you wish.
+First you will need to build and install all components.
 
-Install requirements:
+As normal user, fetch frontend libraries:
 
+    $ bash bin/generate_environment.sh
+
+Now quit the server if running. Deactive virtual environment if active.
+
+As root install requirements and collect server static files:
+
+    # python iris/manage.py collectstatic
     # pip install -r requirements.txt
 
 Build and install any IRIS packages:

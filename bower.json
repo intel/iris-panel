@@ -1,0 +1,12 @@
+{
+    "name": "iris",
+    "version": "0.0.2",
+    "dependencies": {
+        "jquery": "1.10.2",
+        "datatables": "1.9.4",
+        "bootstrap": "3.0.2"
+    },
+    "resolutions": {
+        "jquery": "1.10.2"
+    }
+}
