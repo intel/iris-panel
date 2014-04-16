@@ -16,37 +16,10 @@ Views for deleting items are contained here.
 
 # pylint: disable=C0111,W0622
 
-from django.shortcuts import render, get_object_or_404
-from django.forms.models import model_to_dict
+from iris.core.views.common import delete
 from django.contrib.auth.decorators import login_required, permission_required
 from iris.core.models import (Domain, SubDomain, License, GitTree, Package,
         Product, Image)
-
-
-def delete(request, pkid, model):
-    """
-    A generic wrapper for deleting objects of type Model with id pkid.
-
-    For GET renders an empty form, for PUT validates and saves the form.
-
-    :param  request:    Django HTTP request context to handle
-    :type   request:    Django HTTP request object with DELETE
-    :param  pkid:       Django model object database ID to fetch
-    :type   pkid:       integer
-    :param  model:      Django model class to use for request
-    :type   model:      Django model class
-
-    Example usage::
-
-        def example(request):
-            return delete(request, pkid, ExampleModel)
-    """
-
-    obj = get_object_or_404(model, id=pkid)
-    deleted = model_to_dict(obj)
-    obj.delete()
-
-    return render(request, 'packagedb/delete.html', {'deleted': deleted})
 
 
 @login_required()

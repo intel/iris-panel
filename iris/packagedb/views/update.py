@@ -16,53 +16,12 @@ Views for adding items are contained here.
 
 # pylint: disable=C0111,W0622
 
-from django.shortcuts import render, get_object_or_404
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from iris.core.models import (Domain, SubDomain, License, GitTree, Package,
-        Product, Image)
-from iris.packagedb.forms import (DomainForm, SubDomainForm, LicenseForm,
-        GitTreeForm, PackageForm, ProductForm, ImageForm)
-
-
-def update(request, pkid, model, form):
-    """
-    A generic wrapper for updating given objects with a form.
-
-    For GET renders a prefilled form, for POST validates and saves the form.
-
-    :param  request:    Django HTTP request context to handle
-    :type   request:    Django HTTP request object with GET or PUT
-    :param  pkid:       Django model object database ID to fetch
-    :type   pkid:       integer
-    :param  model:      Django model class to use for request
-    :type   model:      Django model class
-    :param  form:       Django form class to use for request
-    :type   form:       Django form class
-
-    Example usage::
-
-        def example(request):
-            return update(request, pkid, ExampleModel, ExampleForm)
-
-    Which would use
-    Exampleform to instanciate a form,
-    Examplemodel and pkid to fetch the object to use for the update operation,
-    """
-
-    obj = get_object_or_404(model, id=pkid) if pkid else None
-
-    form = form(request.POST or None, instance=obj)
-    url = None
-
-    if request.POST and form.is_valid():
-        form.save()
-        url = '%s/' % request.path.rstrip('update/')
-        messages.success(request, 'Update successful!')
-
-    return render(request, 'packagedb/update.html', {
-        'form': form,
-        'url': url})
+from iris.core.views.common import update
+from iris.core.models import (Domain, SubDomain,
+        License, GitTree, Package, Product, Image)
+from iris.packagedb.forms import (DomainForm, SubDomainForm,
+        LicenseForm, GitTreeForm, PackageForm, ProductForm, ImageForm)
 
 
 @login_required
