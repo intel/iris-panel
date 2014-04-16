@@ -23,7 +23,27 @@ body {
     margin-bottom: 3em;
 }
 
-/* Submissions page has two stacked tables, attach them to eachother */
-.submission-summary-filters {
+/* Styling of the submissions page filters */
+.submissions-filters {
+    border-bottom-left-radius: 0px !important;
+    border-bottom-right-radius: 0px !important;
+}
+
+.submissions-column-filters {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+}
+
+.submissions-column-filters > table {
     margin-bottom: 0px !important;
+    border-right: 0px hidden !important;
+    border-left: 0px hidden !important;
+    border-bottom: 0px hidden !important;
+}
+
+.submissions-select {
+    margin-top: 0px !important;
+    margin-right: 5px !important;
+    width: 1em;
+    height: 1em;
 }
