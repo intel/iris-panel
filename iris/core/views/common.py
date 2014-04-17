@@ -19,7 +19,7 @@ from django.forms.models import model_to_dict
 from django.contrib import messages
 
 
-def create(request, form):
+def create(request, form, cancel_url=None):
     """
     A generic wrapper for creating given objects from a form.
 
@@ -29,6 +29,7 @@ def create(request, form):
     :type   request:    Django HTTP request object with GET or POST
     :param  form:       Django form class to use for request
     :param  form:       Django form class
+    :param  cancel_url: URL redirect for cancel button
 
     Example usage::
 
@@ -38,7 +39,7 @@ def create(request, form):
     Which would use ExampleForm to instanciate a form and save possible object.
     """
 
-    form = form(request.POST or None)
+    form = form(request.POST or None, cancel_url=cancel_url)
     url = None
 
     if request.method == 'POST' and form.is_valid():
@@ -51,7 +52,7 @@ def create(request, form):
         'url': url})
 
 
-def update(request, pkid, model, form):
+def update(request, pkid, model, form, cancel_url=None):
     """
     A generic wrapper for updating given objects with a form.
 
@@ -65,6 +66,7 @@ def update(request, pkid, model, form):
     :type   model:      Django model class
     :param  form:       Django form class to use for request
     :type   form:       Django form class
+    :param  cancel_url: URL redirect for cancel button
 
     Example usage::
 
@@ -78,7 +80,7 @@ def update(request, pkid, model, form):
 
     obj = get_object_or_404(model, id=pkid) if pkid else None
 
-    form = form(request.POST or None, instance=obj)
+    form = form(request.POST or None, instance=obj, cancel_url=cancel_url)
     url = None
 
     if request.POST and form.is_valid():

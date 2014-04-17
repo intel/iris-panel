@@ -19,12 +19,13 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Button, Div
 
 
-def add_default_buttons(layout):
+def add_default_buttons(layout, cancel_url):
     """
     Appends "Save" and "Cancel" buttons to given layout.
 
     :param  layout:     Layout to append buttons to.
     :type   layout:     FormHelper layout.
+    :param  cancel_url: URL redirect to for cancel button
 
     Example usage with a modelform::
 
@@ -34,10 +35,14 @@ def add_default_buttons(layout):
                 self.helper = FormHelper(self)
                 add_default_buttons(self.helper.layout)
     """
+    if not cancel_url:
+        cancel_onclick = 'history.back()'
+    else:
+        cancel_onclick = 'window.location.href="%s"' % cancel_url
 
     layout.append(Div(
         Submit('save', 'Save'),
-        Button('cancel', 'Cancel', onclick='history.back()'),
+        Button('cancel', 'Cancel', onclick=cancel_onclick),
         css_class='pull-right')
     )
 
@@ -56,8 +61,10 @@ class BaseForm(forms.ModelForm):
     """
 
     def __init__(self, *args, **kwargs):
+        if 'cancel_url' in kwargs:
+            cancel_url = kwargs.pop('cancel_url')
+        else:
+            cancel_url = None
         super(BaseForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-        add_default_buttons(self.helper.layout)
-
-
+        add_default_buttons(self.helper.layout, cancel_url)

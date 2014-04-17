@@ -25,34 +25,34 @@ from iris.packagedb.forms import (DomainForm, SubDomainForm, LicenseForm,
 @login_required()
 @permission_required('core.add_domain', raise_exception=True)
 def domain(request):
-    return create(request, DomainForm)
+    return create(request, DomainForm, '/app/packagedb/domains')
 
 @login_required()
 @permission_required('core.add_subdomain', raise_exception=True)
 def subdomain(request):
-    return create(request, SubDomainForm)
+    return create(request, SubDomainForm, '/app/packagedb/subdomains')
 
 @login_required()
 @permission_required('core.add_license', raise_exception=True)
 def license(request):
-    return create(request, LicenseForm)
+    return create(request, LicenseForm, '/app/packagedb/licenses')
 
 @login_required()
 @permission_required('core.add_gittree', raise_exception=True)
 def gittree(request):
-    return create(request, GitTreeForm)
+    return create(request, GitTreeForm, '/app/packagedb/gittrees')
 
 @login_required()
 @permission_required('core.add_package', raise_exception=True)
 def package(request):
-    return create(request, PackageForm)
+    return create(request, PackageForm, '/app/packagedb/packages')
 
 @login_required()
 @permission_required('core.add_product', raise_exception=True)
 def product(request):
-    return create(request, ProductForm)
+    return create(request, ProductForm, '/app/packagedb/products')
 
 @login_required()
 @permission_required('core.add_image', raise_exception=True)
 def image(request):
-    return create(request, ImageForm)
+    return create(request, ImageForm, '/app/packagedb/images')

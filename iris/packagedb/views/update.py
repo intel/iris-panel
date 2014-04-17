@@ -27,34 +27,41 @@ from iris.packagedb.forms import (DomainForm, SubDomainForm,
 @login_required
 @permission_required('core.change_domain', raise_exception=True)
 def domain(request, pkid):
-    return update(request, pkid, Domain, DomainForm)
+    return update(request, pkid, Domain, DomainForm,
+                  '/app/packagedb/domains/%s/' % pkid)
 
 @login_required
 @permission_required('core.change_subdomain', raise_exception=True)
 def subdomain(request, pkid):
-    return update(request, pkid, SubDomain, SubDomainForm)
+    return update(request, pkid, SubDomain, SubDomainForm,
+                  '/app/packagedb/subdomains/%s/' % pkid)
 
 @login_required
 @permission_required('core.change_license', raise_exception=True)
 def license(request, pkid):
-    return update(request, pkid, License, LicenseForm)
+    return update(request, pkid, License, LicenseForm,
+                  '/app/packagedb/licenses/%s/' % pkid)
 
 @login_required
 @permission_required('core.change_gittree', raise_exception=True)
 def gittree(request, pkid):
-    return update(request, pkid, GitTree, GitTreeForm)
+    return update(request, pkid, GitTree, GitTreeForm,
+                  '/app/packagedb/gittrees/%s/' % pkid)
 
 @login_required
 @permission_required('core.change_package', raise_exception=True)
 def package(request, pkid):
-    return update(request, pkid, Package, PackageForm)
+    return update(request, pkid, Package, PackageForm,
+                  '/app/packagedb/packages/%s/' % pkid)
 
 @login_required
 @permission_required('core.change_product', raise_exception=True)
 def product(request, pkid):
-    return update(request, pkid, Product, ProductForm)
+    return update(request, pkid, Product, ProductForm,
+                  '/app/packagedb/products/%s/' % pkid)
 
 @login_required
 @permission_required('core.change_image', raise_exception=True)
 def image(request, pkid):
-    return update(request, pkid, Image, ImageForm)
+    return update(request, pkid, Image, ImageForm,
+                  '/app/packagedb/images/%s/' % pkid)
