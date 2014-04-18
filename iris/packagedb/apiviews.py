@@ -26,7 +26,6 @@ from iris.packagedb.serializers import (DomainSerializer, SubDomainSerializer,
     ImageSerializer)
 
 
-
 class DomainViewSet(ReadOnlyModelViewSet):
     """
     View to the Domains provided by the API.

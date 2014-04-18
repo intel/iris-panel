@@ -48,7 +48,8 @@ urlpatterns += patterns(
 
 urlpatterns += patterns(
     'iris.packagedb.views.update',
-    url(r'^subdomains(?:/(?P<pkid>\d+))?/update/$', 'subdomain', name='subdomain'),
+    url(r'^subdomains(?:/(?P<pkid>\d+))?/update/$',
+        'subdomain', name='subdomain'),
     url(r'^domains(?:/(?P<pkid>\d+))?/update/$', 'domain', name='domain'),
     url(r'^licenses(?:/(?P<pkid>\d+))?/update/$', 'license', name='license'),
     url(r'^gittrees(?:/(?P<pkid>\d+))?/update/$', 'gittree', name='gittree'),
@@ -59,7 +60,8 @@ urlpatterns += patterns(
 
 urlpatterns += patterns(
     'iris.packagedb.views.delete',
-    url(r'^subdomains(?:/(?P<pkid>\d+))?/delete/$', 'subdomain', name='subdomain'),
+    url(r'^subdomains(?:/(?P<pkid>\d+))?/delete/$',
+        'subdomain', name='subdomain'),
     url(r'^domains(?:/(?P<pkid>\d+))?/delete/$', 'domain', name='domain'),
     url(r'^licenses(?:/(?P<pkid>\d+))?/delete/$', 'license', name='license'),
     url(r'^gittrees(?:/(?P<pkid>\d+))?/delete/$', 'gittree', name='gittree'),

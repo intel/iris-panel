@@ -15,7 +15,8 @@ This module contains helpers such as property injectors for models.
 # pylint: disable=E1101,C0111
 
 from iris.core.models import SubDomain, Package, Product
-from iris.core.models import DomainRole, SubDomainRole, GitTreeRole, ProductRole
+from iris.core.models import (DomainRole, SubDomainRole,
+                              GitTreeRole, ProductRole)
 
 
 def inject_base_getters(obj, user_resolver):
@@ -61,8 +62,8 @@ def inject_base_getters(obj, user_resolver):
         return user_resolver('INTEGRATOR')
 
     (obj.get_architects, obj.get_maintainers, obj.get_developers,
-        obj.get_reviewers, obj.get_integrators) = \
-    (get_architects, get_maintainers, get_developers,
+     obj.get_reviewers, obj.get_integrators) = (
+        get_architects, get_maintainers, get_developers,
         get_reviewers, get_integrators)
 
     return obj
