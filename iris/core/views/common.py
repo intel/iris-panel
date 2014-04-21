@@ -19,7 +19,7 @@ from django.forms.models import model_to_dict
 from django.contrib import messages
 
 
-def create(request, form, cancel_url=None):
+def create(request, form, cancel_url=None, breadcrumb=None):
     """
     A generic wrapper for creating given objects from a form.
 
@@ -49,10 +49,12 @@ def create(request, form, cancel_url=None):
 
     return render(request, 'core/create.html', {
         'form': form,
-        'url': url})
+        'url': url,
+        'breadcrumb': breadcrumb,
+        })
 
 
-def update(request, pkid, model, form, cancel_url=None):
+def update(request, pkid, model, form, cancel_url=None, breadcrumb=None):
     """
     A generic wrapper for updating given objects with a form.
 
@@ -90,7 +92,9 @@ def update(request, pkid, model, form, cancel_url=None):
 
     return render(request, 'core/update.html', {
         'form': form,
-        'url': url})
+        'url': url,
+        'breadcrumb': breadcrumb,
+        })
 
 
 def delete(request, pkid, model, redirect_url=None):

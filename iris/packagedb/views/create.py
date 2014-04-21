@@ -16,8 +16,10 @@ Views for adding items are contained here.
 
 # pylint: disable=C0111,W0622
 
-from iris.core.views.common import create
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.urlresolvers import reverse
+
+from iris.core.views.common import create
 from iris.packagedb.forms import (DomainForm, SubDomainForm, LicenseForm,
         GitTreeForm, PackageForm, ProductForm, ImageForm)
 
@@ -25,34 +27,71 @@ from iris.packagedb.forms import (DomainForm, SubDomainForm, LicenseForm,
 @login_required()
 @permission_required('core.add_domain', raise_exception=True)
 def domain(request):
-    return create(request, DomainForm, '/app/packagedb/domains')
+    return create(request, DomainForm, reverse('domain.read'),
+                  (('/', 'IRIS'),
+                   (reverse('packagedb'), 'Package Database'),
+                   (reverse('domain.read'), 'Domains'),
+                   (None, 'Create'),
+                   ))
 
 @login_required()
 @permission_required('core.add_subdomain', raise_exception=True)
 def subdomain(request):
-    return create(request, SubDomainForm, '/app/packagedb/subdomains')
+    return create(request, SubDomainForm, reverse('subdomain.read'),
+                  (('/', 'IRIS'),
+                   (reverse('packagedb'), 'Package Database'),
+                   (reverse('subdomain.read'), 'SubDomains'),
+                   (None, 'Create'),
+                   ))
 
 @login_required()
 @permission_required('core.add_license', raise_exception=True)
 def license(request):
-    return create(request, LicenseForm, '/app/packagedb/licenses')
+    return create(request, LicenseForm, reverse('license.read'),
+                  (('/', 'IRIS'),
+                   (reverse('packagedb'), 'Package Database'),
+                   (reverse('license.read'), 'Licenses'),
+                   (None, 'Create'),
+                   ))
 
 @login_required()
 @permission_required('core.add_gittree', raise_exception=True)
 def gittree(request):
-    return create(request, GitTreeForm, '/app/packagedb/gittrees')
+    return create(request, GitTreeForm, reverse('gittree.read'),
+                  (('/', 'IRIS'),
+                   (reverse('packagedb'), 'Package Database'),
+                   (reverse('gittree.read'), 'Git trees'),
+                   (None, 'Create'),
+                  ))
 
 @login_required()
 @permission_required('core.add_package', raise_exception=True)
 def package(request):
-    return create(request, PackageForm, '/app/packagedb/packages')
+    return create(request, PackageForm, reverse('package.read'),
+                  (('/', 'IRIS'),
+                   (reverse('packagedb'), 'Package Database'),
+                   (reverse('package.read'), 'Packages'),
+                   (None, 'Create'),
+                  ))
+
 
 @login_required()
 @permission_required('core.add_product', raise_exception=True)
 def product(request):
-    return create(request, ProductForm, '/app/packagedb/products')
+    return create(request, ProductForm, reverse('product.read'),
+                  (('/', 'IRIS'),
+                   (reverse('packagedb'), 'Package Database'),
+                   (reverse('product.read'), 'Products'),
+                   (None, 'Create'),
+                  ))
+
 
 @login_required()
 @permission_required('core.add_image', raise_exception=True)
 def image(request):
-    return create(request, ImageForm, '/app/packagedb/images')
+    return create(request, ImageForm, reverse('image.read'),
+                  (('/', 'IRIS'),
+                   (reverse('packagedb'), 'Package Database'),
+                   (reverse('image.read'), 'Images'),
+                   (None, 'Create'),
+                  ))

@@ -7,6 +7,18 @@
 {% endblock %}
 
 {% block content %}
+{% if breadcrumb %}
+<ol class="breadcrumb">
+  {% for link, text in breadcrumb %}
+  {% if link %}
+  <li><a href="{{link}}">{{text}}</a></li>
+  {% else %}
+  <li class="active">{{text}}</li>
+  {% endif %}
+  {% endfor %}
+</ol>
+{% endif %}
+
 <div class="container">
 {% if error %}
     <div class="alert alert-danger">{{ error }}</div>
