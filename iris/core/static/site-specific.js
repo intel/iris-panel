@@ -29,7 +29,7 @@ var findIndex = function(list, value) {
 /**
  * Attaches filtering to the submissions summary table.
  */
-$(document).read(function() {
+$(document).ready(function() {
     $('.delete').click(function() {
         return confirm("Do you really want to delete it ?");
     });
