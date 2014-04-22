@@ -18,6 +18,7 @@ Views for adding items are contained here.
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
+from django.shortcuts import render
 
 from iris.core.views.common import create
 from iris.packagedb.forms import (DomainForm, SubDomainForm, LicenseForm,
@@ -37,12 +38,23 @@ def domain(request):
 @login_required()
 @permission_required('core.add_subdomain', raise_exception=True)
 def subdomain(request):
-    return create(request, SubDomainForm, reverse('subdomain.read'),
-                  (('/', 'IRIS'),
-                   (reverse('packagedb'), 'Package Database'),
-                   (reverse('subdomain.read'), 'SubDomains'),
-                   (None, 'Create'),
-                   ))
+    domain = request.GET.get('domain')
+    url = reverse('domain.read', args=(domain,))
+    breadcrumb = (('/', 'IRIS'),
+                  (reverse('packagedb'), 'Package Database'),
+                  (reverse('domain.read'), 'Domains'),
+                  (url, request.GET.get('name')),
+                  (None, 'Create'),
+                 )
+
+    if request.method == 'POST':
+        return create(request, SubDomainForm, url, breadcrumb)
+
+    form = SubDomainForm(initial={'domain': domain}, cancel_url=url)
+    return render(request, 'core/create.html', {
+        'form': form,
+        'breadcrumb': breadcrumb,
+        })
 
 @login_required()
 @permission_required('core.add_license', raise_exception=True)

@@ -45,7 +45,9 @@ def subdomain(request, pkid):
                   reverse('subdomain.read', args=(pkid,)),
                   (('/', 'IRIS'),
                    (reverse('packagedb'), 'Package Database'),
-                   (reverse('subdomain.read'), 'SubDomains'),
+                   (reverse('domain.read'), 'Domains'),
+                   (reverse('domain.read', args=(request.GET.get('domain'),)),
+                        request.GET.get('name')),
                    (None, "Update"),
                    ))
 

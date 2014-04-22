@@ -31,7 +31,9 @@ def domain(request, pkid):
 @login_required()
 @permission_required('core.delete_subdomain', raise_exception=True)
 def subdomain(request, pkid):
-    return delete(request, pkid, SubDomain, '/app/packagedb/subdomains')
+    domain = request.GET.get('domain')
+    return delete(request, pkid, SubDomain,
+                  '/app/packagedb/domains/%s/' % (domain,))
 
 @login_required()
 @permission_required('core.delete_license', raise_exception=True)

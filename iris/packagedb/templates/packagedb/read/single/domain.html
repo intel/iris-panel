@@ -15,6 +15,10 @@
             <h3>
                 Domain information for <span class="text-warning">{{ domain.name }}</span>
                 <span class="pull-right">
+                {% if perms.core.add_subdomain %}
+                <a href="/app/packagedb/subdomains/create/?domain={{ domain.id }}&name={{ domain.name }}"><button class="btn btn-primary">Add subdomain</button></a>
+                {% endif %}
+
                 {% if perms.core.change_domain %}
                 <a href="update"><button class="btn btn-primary">Edit</button></a>
                 {% endif %}

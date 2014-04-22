@@ -165,17 +165,8 @@ class SubDomainTest(TestCase):
         }
 
         login(self.client, username='admin', password='admin')
-        url = synthesize_url('subdomains/create/')
+        url = synthesize_url('subdomains/create/?domain=%d' % self.domain.id)
         response = self.client.post(url, data)
-        self.assertEqual(response.status_code, 200)
-
-    def test_read_subdomains(self):
-        """
-        Reads all SubDomain objects with GET.
-        """
-
-        url = synthesize_url('subdomains/')
-        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_read_subdomain(self):

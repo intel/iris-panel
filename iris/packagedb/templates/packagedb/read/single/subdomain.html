@@ -5,7 +5,8 @@
 <ol class="breadcrumb">
   <li><a href="/">IRIS</a></li>
   <li><a href="/app/packagedb/">Package Database</a></li>
-  <li><a href="/app/packagedb/subdomains/">Subdomains</a></li>
+  <li><a href="/app/packagedb/domains/">Domains</a></li>
+  <li><a href="/app/packagedb/domains/{{ subdomain.domain.id }}/">{{ subdomain.domain.name }}</a></li>
   <li class="active">{{ subdomain.name }}</li>
 </ol>
 
@@ -16,11 +17,11 @@
                 Subdomain information for <span class="text-warning">{{ subdomain.name }}</span>
                 <span class="pull-right">
                 {% if perms.core.change_subdomain %}
-                <a href="update"><button class="btn btn-primary">Edit</button></a>
+                <a href="update?domain={{ subdomain.domain.id }}&name={{ subdomain.domain.name }}"><button class="btn btn-primary">Edit</button></a>
                 {% endif %}
 
                 {% if perms.core.delete_subdomain %}
-                <a href="delete" class="delete"><button class="btn btn-primary">Delete</button></a>
+                <a href="delete?domain={{ subdomain.domain.id }}" class="delete"><button class="btn btn-primary">Delete</button></a>
                 {% endif %}
                 </span>
             </h3>
