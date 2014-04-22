@@ -214,8 +214,7 @@ class LicenseTest(TestCase):
 
         self.license = License.objects.create(
                 shortname='LGPL 2.1',
-                text='Lorem ipsum dolor, sit amet qualitet.',
-                md5='eb56c32650bc3f2bdd25eb5ebad9f522')
+                text='Lorem ipsum dolor, sit amet qualitet.')
 
     def test_create_license(self):
         """
@@ -225,7 +224,6 @@ class LicenseTest(TestCase):
         data = {
             'shortname': 'LGPL 2.0',
             'text': 'Lorem ipsum dolor, sit amet qualitet.',
-            'md5': 'eb56c32650bc3f2bdd25eb5ebad9f523',
         }
 
         login(self.client, username='admin', password='admin')

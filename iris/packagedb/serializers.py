@@ -49,8 +49,7 @@ class LicenseSerializer(ModelSerializer):
 
     class Meta:
         model = License
-        fields = ('shortname', 'text', 'url', 'fullname', 'notes',
-                  'active', 'text_updatable', 'md5', 'detector_type')
+        fields = ('shortname', 'text', 'fullname')
 
 
 class GitTreeSerializer(ModelSerializer):

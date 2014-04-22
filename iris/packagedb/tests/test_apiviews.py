@@ -193,9 +193,7 @@ class LicensesTests(TestCase):
 
         License.objects.create(fullname='license', shortname='lic')
         self.data = [{'fullname': obj.fullname, 'shortname': obj.shortname,
-                      'url': obj.url, 'notes': obj.notes, 'active': obj.active,
-                      'text': obj.text, 'text_updatable': obj.text_updatable,
-                      'md5': obj.md5, 'detector_type': obj.detector_type
+                      'text': obj.text
                      } for obj in License.objects.all()]
 
 

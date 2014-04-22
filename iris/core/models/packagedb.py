@@ -63,13 +63,7 @@ class License(models.Model):
 
     fullname = models.CharField(max_length=255, db_index=True)
     shortname = models.CharField(max_length=255, unique=True)
-    url = models.URLField(blank=True)
-    notes = models.TextField(blank=True)
     text = models.TextField()
-    active = models.BooleanField(default=True)
-    text_updatable = models.BooleanField(default=False)
-    md5 = models.CharField(max_length=32)
-    detector_type = models.IntegerField(default=0)
 
     def __unicode__(self):
         return self.fullname if self.fullname else self.shortname

@@ -30,48 +30,20 @@
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th>Active</th>
                     <th>License short name</th>
                     {% if license.fullname %}
                     <th>License full name</th>
                     {% endif %}
-                    {% if license.url %}
-                    <th>External URL</th>
-                    {% endif %}
-                    <th>Notes</th>
-                    <th>Text updatable</th>
-                    <th>Md5</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>
-                        {% if license.active %}
-                        Yes
-                        {% else %}
-                        No
-                        {% endif %}
-                    </td>
                     <td>{{ license.shortname }}</td>
                     {% if license.fullname %}
                     <td>
                         {{ license.fullname }}
                     </td>
                     {% endif %}
-                    {% if license.url %}
-                    <td>
-                        <a href="{{ license.url }}">{{ license.url }}</a>
-                    </td>
-                    {% endif %}
-                    <td>{{ license.notes }}</td>
-                    <td>
-                        {% if license.text_updatable %}
-                        Yes
-                        {% else %}
-                        No
-                        {% endif %}
-                    </td>
-                    <td>{{ license.md5 }}</td>
                 </tr>
             </tbody>
         </table>
