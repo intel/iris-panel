@@ -408,7 +408,7 @@ class ProductTest(TestCase):
         login(self.client)
 
         self.product = Product.objects.create(name='Tizen Common',
-                short='Tizen', state='active', targets='Foo, Bar, Biz, Bah')
+                description='Foo, Bar, Biz, Bah')
 
     def test_create_product(self):
         """
@@ -417,9 +417,7 @@ class ProductTest(TestCase):
 
         data = {
             'name': 'Tizen IVI',
-            'short': 'Tizen IVI',
-            'state': 'active',
-            'targets': 'Tizen IVI',
+            'description': 'Tizen IVI',
         }
 
         login(self.client, username='admin', password='admin')
@@ -471,7 +469,7 @@ class ImageTest(TestCase):
         login(self.client)
 
         self.product = Product.objects.create(name='Tizen Common',
-                short='Tizen', state='active', targets='Foo, Bar, Biz, Bah')
+                description='Foo, Bar, Biz, Bah')
         self.image = Image.objects.create(name='Tizen IVI',
                 target='Tizen IVI', arch='x86', product=self.product)
 

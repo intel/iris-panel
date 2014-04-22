@@ -45,7 +45,7 @@ class SubmissionViewSet(ModelViewSet):
         product = request.GET.get('product')
         if product:
             try:
-                prodobj = Product.objects.get(short=product)
+                prodobj = Product.objects.get(name=product)
             except Product.DoesNotExist:
                 return Response({'error': "Product %s doesn't exist" % product},
                                 status=HTTP_406_NOT_ACCEPTABLE)

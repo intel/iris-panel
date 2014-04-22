@@ -26,7 +26,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
     Serializer class for the Submission model.
     """
 
-    product = serializers.SlugRelatedField(slug_field='short')
+    product = serializers.SlugRelatedField(slug_field='name')
     gittree = serializers.SlugRelatedField(many=True, slug_field='gitpath')
     submitters = serializers.SlugRelatedField(many=True, slug_field='email')
 

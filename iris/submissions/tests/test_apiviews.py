@@ -83,7 +83,7 @@ class SubmissionsTests(TestCase):
         user = User.objects.create_user(username='nemo', password='password')
         self.credentials = basic_auth_header(user.username, 'password')
 
-        product = Product.objects.create(name='Product', short='prod')
+        product = Product.objects.create(name='prod', description='Product')
 
         self.fixture_obj = Submission.objects.create(
                                name='submit/product/20140321.223750',
@@ -91,7 +91,7 @@ class SubmissionsTests(TestCase):
                                status='SUBMITTED', product=product)
 
         self.data = [{'id': obj.id, 'name': obj.name, 'commit': obj.commit,
-                      'product': obj.product.short, 'status': obj.status,
+                      'product': obj.product.name, 'status': obj.status,
                       'comment': obj.comment,
                       'gittree': [item for item in obj.gittree.all()],
                       'submitters': [item for item in obj.submitters.all()],
@@ -248,7 +248,7 @@ class SubmissionsTests(TestCase):
                         'status': status, 'product': product},
                        HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, HTTP_201_CREATED)
-        Submission.objects.get(name__exact=name, product__short__exact=product,
+        Submission.objects.get(name__exact=name, product__name__exact=product,
                                status__exact=status, commit__exact=commit)
 
     def test_create_duplicated(self):

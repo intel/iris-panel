@@ -24,18 +24,14 @@
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Git branch</th>
-                    <th>State</th>
-                    <th>Targets</th>
+                    <th>Description</th>
                 </tr>
             </thead>
             <tbody>
                 {% for product in products %}
                 <tr>
                     <td><a href="{{ product.id }}">{{ product.name }}</a></td>
-                    <td>{{ product.short }}</td>
-                    <td>{{ product.state }}</td>
-                    <td>{{ product.targets }}</td>
+                    <td>{{ product.description }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

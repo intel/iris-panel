@@ -80,9 +80,8 @@ class ProductsTests(TestCase):
         self.credentials = basic_auth_header(user.username, 'password')
 
         self.fixture_obj = Product.objects.create(name='product',
-            short='short', state='open', targets='product')
-        self.data = [{'name': obj.name, 'short': obj.short,
-                      'state': obj.state, 'targets': obj.targets,
+            description='product')
+        self.data = [{'name': obj.name,'description': obj.description,
                       'gittrees': [item for item in obj.gittrees.all()]
                      } for obj in Product.objects.all()]
 

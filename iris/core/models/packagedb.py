@@ -113,9 +113,7 @@ class Product(models.Model):
     """
 
     name = models.CharField(max_length=255, db_index=True)
-    short = models.CharField(max_length=255, db_index=True)
-    state = models.TextField()
-    targets = models.TextField()
+    description = models.TextField()
     gittrees = models.ManyToManyField(GitTree)
 
     def __unicode__(self):
