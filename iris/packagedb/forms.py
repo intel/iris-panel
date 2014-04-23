@@ -45,8 +45,6 @@ class SubDomainForm(BaseForm):
 class LicenseForm(BaseForm):
     shortname = forms.CharField(label='Short name for the license')
     fullname = forms.CharField(label='Full name for the license')
-    notes = forms.CharField(required=False,
-            widget=forms.Textarea(attrs={'rows': 3}))
 
     def __init__(self, *args, **kwargs):
         super(LicenseForm, self).__init__(*args, **kwargs)
