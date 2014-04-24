@@ -14,7 +14,7 @@ This module contains helpers such as property injectors for models.
 
 # pylint: disable=E1101,C0111
 
-from iris.core.models import SubDomain, Package, Product
+from iris.core.models import SubDomain, Package, GitTree, Product
 from iris.core.models import (DomainRole, SubDomainRole,
                               GitTreeRole, ProductRole)
 
@@ -134,18 +134,18 @@ def inject_subdomain(subdomain):
         roles = SubDomainRole.objects.filter(role=role, subdomain=subdomain)
         return [user for group in roles for user in group.user_set.all()]
 
-    def _get_packages():
+    def _get_gittrees():
         """
-        Returns Packages belonging to this SubDomain object.
+        Returns Gittrees belonging to this SubDomain object.
 
-        Follows a backward relation from Package model's gittree
-        field into the GitTree object the package belongs to, then
+        Follows a backward relation from Gittree model's subdomain
+        field into the GitTree object the belongs to, then
         back to the SubDomain the GitTree belongs to.
         """
 
-        return Package.objects.filter(gittree__subdomain=subdomain)
+        return GitTree.objects.filter(subdomain=subdomain)
 
-    subdomain.get_packages = _get_packages
+    subdomain.get_gittrees = _get_gittrees
 
     return inject_base_getters(subdomain, _get_users)
 
