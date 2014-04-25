@@ -178,7 +178,19 @@ def inject_gittree(gittree):
 
         return Product.objects.filter(gittrees=gittree)
 
+    def _get_packages():
+        """
+        Returns Packages containing this GitTree object.
+
+        Follows a backward relation from Package model's gittree
+        field into the GitTree object the package belongs to, then
+        back to the GitTree the Package belongs to.
+        """
+
+        return Package.objects.filter(gittree=gittree)
+
     gittree.get_product = _get_product
+    gittree.get_packages = _get_packages
 
     return inject_base_getters(gittree, _get_users)
 
