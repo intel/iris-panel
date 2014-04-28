@@ -1,14 +1,16 @@
 {% extends "core/base.html" %}
 {% block title %}IRIS - User {{ User.first_name }} {{ User.last_name }}{% endblock %}
 {% block content %}
-
-<ol class="breadcrumb">
-  <li><a href="/">IRIS</a></li>
-  <li><a href="/users/">Users</a></li>
-  <li class="active">{{ User.first_name }} {{ User.last_name }}</li>
-</ol>
-
 <div class="container">
+
+  <div class="row">
+    <ol class="breadcrumb">
+      <li><a href="/">IRIS</a></li>
+      <li><a href="/users/">Users</a></li>
+      <li class="active">{{ User.first_name }} {{ User.last_name }}</li>
+    </ol>
+  </div>
+
     <div class="row">
         <div class="page-header">
             <h3>User information {% if User.last_name and User.first_name %}for <span class="text-warning">{{ User.last_name }}, {{ User.first_name }}</span>{% endif %}</h3>

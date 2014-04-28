@@ -8,12 +8,13 @@
 {% block content %}
 <div class="container">
 
-<ol class="breadcrumb">
-  <li><a href="/">IRIS</a></li>
-  <li class="active">Submissions</li>
-</ol>
+  <div class="row">
+    <ol class="breadcrumb">
+      <li><a href="/">IRIS</a></li>
+      <li class="active">Submissions</li>
+    </ol>
+  </div>
 
-<div class="container">
     <div class="row jumbotron">
         <br />
         <h2>IRIS Submissions</h2>
@@ -27,9 +28,8 @@
         </div>
         {% endif %}
     </div>
-</div>
+
 {% if user.is_authenticated %}
-<div class="container">
     <div class="row">
         <div class="col-lg-4">
             <h2>Summary</h2>
@@ -40,6 +40,6 @@
             <p>Summary page has the latest changes.</p>
         </div>
     </div>
-</div>
 {% endif %}
+</div>
 {% endblock %}

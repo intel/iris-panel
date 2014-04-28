@@ -5,36 +5,38 @@
 {% endif %}
 {% endblock %}
 {% block content %}
-
-{% if breadcrumb %}
-<ol class="breadcrumb">
-  {% for link, text in breadcrumb %}
-  {% if link %}
-  <li><a href="{{link}}">{{text}}</a></li>
-  {% else %}
-  <li class="active">{{text}}</li>
-  {% endif %}
-  {% endfor %}
-</ol>
-{% endif %}
-
 <div class="container form-container">
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-success">
-                <span>
-                    {{ message }}
-                    {% if url %}
-                        <a href="{{ url }}">Go to created page.</a>
-                    {% endif %}
-                </span>
-            </div>
-        {% endfor %}
-    {% endif %}
 
-    <div class="row">
-        {% load crispy_forms_tags %}
-        {% crispy form %}
-    </div>
+  {% if breadcrumb %}
+  <div class="row">
+    <ol class="breadcrumb">
+      {% for link, text in breadcrumb %}
+      {% if link %}
+      <li><a href="{{link}}">{{text}}</a></li>
+      {% else %}
+      <li class="active">{{text}}</li>
+      {% endif %}
+      {% endfor %}
+    </ol>
+    {% endif %}
+  </div>
+
+  {% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-success">
+    <span>
+      {{ message }}
+      {% if url %}
+      <a href="{{ url }}">Go to created page.</a>
+      {% endif %}
+    </span>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="row">
+    {% load crispy_forms_tags %}
+    {% crispy form %}
+  </div>
 </div>
 {% endblock %}

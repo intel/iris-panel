@@ -7,29 +7,28 @@
 
 {% block content %}
 <div class="container">
+  <div class="row">
+    <ol class="breadcrumb">
+      <li><a href="/">IRIS</a></li>
+      <li class="active">Package Database</li>
+    </ol>
+  </div>
 
-<ol class="breadcrumb">
-  <li><a href="/">IRIS</a></li>
-  <li class="active">Package Database</li>
-</ol>
-
-<div class="container">
-    <div class="row jumbotron">
-        <br />
-        <h2>IRIS Package Database</h2>
-        <hr />
-        {% if user.is_authenticated %}
-        <p>IRIS Package Database is a portal for package metadata.</p>
-        <p>Here you can view meta information about different package aspects.</p>
-        {% else %}
-        <div class="container col-offset-1">
-            <p>Please <a href="/login/">log in</a> to access the page.</p>
-        </div>
-        {% endif %}
+  <div class="row jumbotron">
+    <br />
+    <h2>IRIS Package Database</h2>
+    <hr />
+    {% if user.is_authenticated %}
+    <p>IRIS Package Database is a portal for package metadata.</p>
+    <p>Here you can view meta information about different package aspects.</p>
+    {% else %}
+    <div class="container col-offset-1">
+      <p>Please <a href="/login/">log in</a> to access the page.</p>
     </div>
-</div>
+    {% endif %}
+  </div>
+
 {% if user.is_authenticated %}
-<div class="container">
     <div class="row">
         <div class="col-lg-4">
             <h2>Products</h2>
@@ -101,6 +100,6 @@
         </div>
         <br />
     </div>
-</div>
 {% endif %}
+</div>
 {% endblock %}

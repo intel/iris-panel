@@ -4,21 +4,24 @@
 {% else %} IRIS - sign in
 {% endif %}
 {% endblock %}
+
 {% block content %}
-
-{% if breadcrumb %}
-<ol class="breadcrumb">
-  {% for link, text in breadcrumb %}
-  {% if link %}
-  <li><a href="{{link}}">{{text}}</a></li>
-  {% else %}
-  <li class="active">{{text}}</li>
-  {% endif %}
-  {% endfor %}
-</ol>
-{% endif %}
-
 <div class="container form-container">
+
+  {% if breadcrumb %}
+  <div class="row">
+    <ol class="breadcrumb">
+      {% for link, text in breadcrumb %}
+      {% if link %}
+      <li><a href="{{link}}">{{text}}</a></li>
+      {% else %}
+      <li class="active">{{text}}</li>
+      {% endif %}
+      {% endfor %}
+    </ol>
+  </div>
+  {% endif %}
+
     {% if messages %}
         {% for message in messages %}
             <div class="alert alert-success">

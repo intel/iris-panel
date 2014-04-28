@@ -1,15 +1,17 @@
 {% extends "core/base.html" %}
 {% block title %}IRIS - Submission {{ submission.name }}{% endblock %}
 {% block content %}
-
-<ol class="breadcrumb">
-    <li><a href="/">IRIS</a></li>
-    <li><a href="/app/submissions/">Submissions</a></li>
-    <li><a href="/app/submissions/summary/">Summary</a></li>
-    <li class="active">{{ submission.name }}</li>
-</ol>
-
 <div class="container">
+
+  <div class="row">
+    <ol class="breadcrumb">
+      <li><a href="/">IRIS</a></li>
+      <li><a href="/app/submissions/">Submissions</a></li>
+      <li><a href="/app/submissions/summary/">Summary</a></li>
+      <li class="active">{{ submission.name }}</li>
+    </ol>
+  </div>
+
     <div class="row">
         <div class="page-header">
             <h3>

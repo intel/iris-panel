@@ -1,14 +1,16 @@
 {% extends "core/base.html" %}
 {% block title %}IRIS - Domain list{% endblock %}
 {% block content %}
-
-<ol class="breadcrumb">
-  <li><a href="/">IRIS</a></li>
-  <li><a href="/app/packagedb/">Package Database</a></li>
-  <li class="active">Domains</li>
-</ol>
-
 <div class="container">
+
+  <div class="row">
+    <ol class="breadcrumb">
+      <li><a href="/">IRIS</a></li>
+      <li><a href="/app/packagedb/">Package Database</a></li>
+      <li class="active">Domains</li>
+    </ol>
+  </div>
+
     <div class="row">
         <div class="page-header">
             <h3>
@@ -69,4 +71,3 @@
     </div>
 </div>
 {% endblock %}
-

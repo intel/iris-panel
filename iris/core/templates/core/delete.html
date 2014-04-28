@@ -7,32 +7,36 @@
 {% endblock %}
 
 {% block content %}
-{% if breadcrumb %}
-<ol class="breadcrumb">
-  {% for link, text in breadcrumb %}
-  {% if link %}
-  <li><a href="{{link}}">{{text}}</a></li>
-  {% else %}
-  <li class="active">{{text}}</li>
-  {% endif %}
-  {% endfor %}
-</ol>
-{% endif %}
-
 <div class="container">
-{% if error %}
-    <div class="alert alert-danger">{{ error }}</div>
-{% else %}
-    <div class="alert alert-success">
-        <h3>{{ deleted }} had been deleted.</h3>
-    </div>
-    <div class="alert alert-info">
-        Redirect to <a href="{{ redirect_url}}" class="alert-link">
-            {{redirect_url}}</a> in <span id="timeout">10</span> seconds ...
-    </div>
 
-    {% if redirect_url %}
-    <script>
+  {% if breadcrumb %}
+  <div class="row">
+    <ol class="breadcrumb">
+      {% for link, text in breadcrumb %}
+      {% if link %}
+      <li><a href="{{link}}">{{text}}</a></li>
+      {% else %}
+      <li class="active">{{text}}</li>
+      {% endif %}
+      {% endfor %}
+    </ol>
+  </div>
+  {% endif %}
+
+  {% if error %}
+  <div class="alert alert-danger">{{ error }}</div>
+  {% else %}
+  <div class="alert alert-success">
+    <h3>{{ deleted }} had been deleted.</h3>
+  </div>
+
+  <div class="alert alert-info">
+    Redirect to <a href="{{ redirect_url}}" class="alert-link">
+      {{redirect_url}}</a> in <span id="timeout">10</span> seconds ...
+  </div>
+
+  {% if redirect_url %}
+  <script>
 window.seconds = 10;
 (function countdown() {
     if (seconds < 1) {
@@ -43,8 +47,8 @@ window.seconds = 10;
     seconds -= 1;
     setTimeout(countdown, 1000);
 })();
-    </script>
-    {% endif %}
+  </script>
+  {% endif %}
 {% endif %}
 </div>
 {% endblock %}

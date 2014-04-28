@@ -1,14 +1,16 @@
 {% extends "core/base.html" %}
 {% block title %}IRIS - Product list{% endblock %}
 {% block content %}
-
-<ol class="breadcrumb">
-  <li><a href="/">IRIS</a></li>
-  <li><a href="/app/packagedb/">Package Database</a></li>
-  <li class="active">Products</li>
-</ol>
-
 <div class="container">
+
+  <div class="row">
+    <ol class="breadcrumb">
+      <li><a href="/">IRIS</a></li>
+      <li><a href="/app/packagedb/">Package Database</a></li>
+      <li class="active">Products</li>
+    </ol>
+  </div>
+
     <div class="row">
         <div class="page-header">
             <h3>
@@ -39,4 +41,3 @@
     </div>
 </div>
 {% endblock %}
-
