@@ -35,23 +35,7 @@ Source5:        iris-rpmlintrc
 
 BuildRequires:  python-setuptools
 Requires(pre):  pwdutils
-Requires:       apache2
-Requires:       apache2-mod_wsgi
-Requires:       mysql-community-server
-Requires:       mysql-community-server-client
-Requires:       python >= 2.6
-Requires:       python-setuptools
-Requires:       python-mysql
-Requires:       django
-Requires:       python-South
-Requires:       python-ldap
-Requires:       python-django-auth-ldap
-Requires:       jquery
-Requires:       bootstrap
-Requires:       datatables
-Requires:       django-crispy-forms
-Requires:       djangorestframework
-Requires:       django-rest-swagger
+
 Requires:       %{project_name}-%{core_name} = %{version}
 Requires:       %{project_name}-%{packagedb_name} = %{version}
 Requires:       %{project_name}-%{submissions_name} = %{version}
@@ -113,7 +97,22 @@ rm -rf %{buildroot}
 %package %{core_name}
 Summary:        Core
 
-Requires:       %{name} = %{version}
+Requires:       apache2
+Requires:       apache2-mod_wsgi
+Requires:       mysql-community-server
+Requires:       mysql-community-server-client
+Requires:       python >= 2.6
+Requires:       python-setuptools
+Requires:       python-mysql
+Requires:       django
+Requires:       python-South
+Requires:       python-ldap
+Requires:       python-django-auth-ldap
+Requires:       jquery
+Requires:       bootstrap
+Requires:       django-crispy-forms
+Requires:       djangorestframework
+Requires:       django-rest-swagger
 
 %description %{core_name}
 Core, an extendible web portal for pluggable applications.
@@ -147,7 +146,6 @@ Core, an extendible web portal for pluggable applications.
 %package %{packagedb_name}
 Summary:        Package Database
 
-Requires:       %{name} = %{version}
 Requires:       %{name}-%{core_name} = %{version}
 
 %description %{packagedb_name}
@@ -167,7 +165,7 @@ Package Database web portal and RESTful API.
 %package %{submissions_name}
 Summary:        Submissions
 
-Requires:       %{name} = %{version}
+Requires:       datatables
 Requires:       %{name}-%{core_name} = %{version}
 
 %description %{submissions_name}
