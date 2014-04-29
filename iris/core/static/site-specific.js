@@ -33,6 +33,8 @@ $(document).ready(function() {
     $('.delete').click(function() {
         return confirm("Do you really want to delete it ?");
     });
+
+    $('select[multiple=multiple]').multiSelect();
 });
 
 $(document).ready(function() {

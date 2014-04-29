@@ -54,3 +54,12 @@ img.tizen {
     width: 1em;
     height: 1em;
 }
+
+/* Overwrite default values from jquery-multi-select plugin */
+body .ms-container {
+    width: auto;
+}
+
+body .ms-container .ms-list {
+    height: 400px;
+}

@@ -116,6 +116,7 @@ Requires:       python-South
 Requires:       python-ldap
 Requires:       python-django-auth-ldap
 Requires:       jquery
+Requires:       jquery-multi-select
 Requires:       bootstrap
 Requires:       django-crispy-forms
 Requires:       djangorestframework

@@ -18,16 +18,16 @@ Forms correspond to their respective models in the iris.core.models module
 # pylint: disable=E1002,C0111,R0903,W0232,E1101,C1001
 
 from django import forms
+
 from iris.core.forms import BaseForm, GroupedModelChoiceField
 from iris.core.models import (Domain, SubDomain,
         License, GitTree, Package, Product, Image)
 
+MULTI_SELECT_HELP_TEXT = "Click items from left into right to select"
+
 
 class DomainForm(BaseForm):
     name = forms.CharField(label='Name for the domain')
-
-    def __init__(self, *args, **kwargs):
-        super(DomainForm, self).__init__(*args, **kwargs)
 
     class Meta:
         model = Domain
@@ -35,9 +35,6 @@ class DomainForm(BaseForm):
 
 class SubDomainForm(BaseForm):
     name = forms.CharField(label='Name for the subdomain')
-
-    def __init__(self, *args, **kwargs):
-        super(SubDomainForm, self).__init__(*args, **kwargs)
 
     class Meta:
         model = SubDomain
@@ -47,9 +44,6 @@ class LicenseForm(BaseForm):
     shortname = forms.CharField(label='Short name for the license')
     fullname = forms.CharField(label='Full name for the license')
 
-    def __init__(self, *args, **kwargs):
-        super(LicenseForm, self).__init__(*args, **kwargs)
-
     class Meta:
         model = License
 
@@ -58,9 +52,9 @@ class GitTreeForm(BaseForm):
     gitpath = forms.CharField(label='Git path for the tree')
     subdomain = GroupedModelChoiceField(queryset=SubDomain.objects.all(),
                                         group_by_field='domain')
-
-    def __init__(self, *args, **kwargs):
-        super(GitTreeForm, self).__init__(*args, **kwargs)
+    licenses = forms.ModelMultipleChoiceField(
+        queryset=License.objects.all())
+    licenses.help_text = MULTI_SELECT_HELP_TEXT
 
     class Meta:
         model = GitTree
@@ -68,9 +62,6 @@ class GitTreeForm(BaseForm):
 
 class PackageForm(BaseForm):
     name = forms.CharField(label='Name for the package')
-
-    def __init__(self, *args, **kwargs):
-        super(PackageForm, self).__init__(*args, **kwargs)
 
     class Meta:
         model = Package
@@ -82,17 +73,15 @@ class ProductForm(BaseForm):
         label='Select associated git trees',
         widget=forms.SelectMultiple(attrs={'size': '20'}),
         queryset=GitTree.objects.all())
-
-    def __init__(self, *args, **kwargs):
-        super(ProductForm, self).__init__(*args, **kwargs)
+    # In order to remove builtin help text as follows, we have
+    # to set it to empty after this filed has been created
+    # "Hold down "Ctrol", or "Command" on a Mac, to select more than one."
+    gittrees.help_text = MULTI_SELECT_HELP_TEXT
 
     class Meta:
         model = Product
 
 
 class ImageForm(BaseForm):
-    def __init__(self, *args, **kwargs):
-        super(ImageForm, self).__init__(*args, **kwargs)
-
     class Meta:
         model = Image
