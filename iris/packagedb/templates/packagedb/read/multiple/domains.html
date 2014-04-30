@@ -26,23 +26,16 @@
             <thead>
                 <tr>
                     <th>Domain name</th>
-                    <th>Subdomains</th>
                     <th>Architects</th>
                     <th>Maintainers</th>
                     <th>Reviewers</th>
+                    <th>Subdomains</th>
                 </tr>
             </thead>
             <tbody>
             {% for domain in domains %}
             <tr>
                 <td><a href="{{ domain.id }}">{{ domain.name }}</a></td>
-                <td>
-                    {% for subdomain in domain.get_subdomains %}
-                    <a href="/app/packagedb/subdomains/{{ subdomain.id }}">
-                        <p>{{ subdomain.name }}</p>
-                    </a>
-                    {% endfor %}
-                </td>
                 <td>
                     {% for architect in domain.get_architects %}
                     <a href="/users/{{ architect.id }}">
@@ -61,6 +54,13 @@
                     {% for reviewer in domain.get_reviewers %}
                     <a href="/users/{{ reviewer.id }}">
                         <p>{{ reviewer.last_name }}, {{ reviewer.first_name }}</p>
+                    </a>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for subdomain in domain.get_subdomains %}
+                    <a href="/app/packagedb/subdomains/{{ subdomain.id }}">
+                        <p>{{ subdomain.name }}</p>
                     </a>
                     {% endfor %}
                 </td>
