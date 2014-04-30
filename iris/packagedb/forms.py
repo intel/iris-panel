@@ -13,11 +13,12 @@ This is the forms file for the iris-packagedb application.
 
 Forms correspond to their respective models in the iris.core.models module
 """
-
-# pylint: disable=E1002,C0111,R0903,W0232
+# E1101(%s %r has no %r member) Django model objects
+# C1001(old-style-class) Django raised on every Meta class
+# pylint: disable=E1002,C0111,R0903,W0232,E1101,C1001
 
 from django import forms
-from iris.core.forms import BaseForm
+from iris.core.forms import BaseForm, GroupedModelChoiceField
 from iris.core.models import (Domain, SubDomain,
         License, GitTree, Package, Product, Image)
 
@@ -55,6 +56,8 @@ class LicenseForm(BaseForm):
 
 class GitTreeForm(BaseForm):
     gitpath = forms.CharField(label='Git path for the tree')
+    subdomain = GroupedModelChoiceField(queryset=SubDomain.objects.all(),
+                                        group_by_field='domain')
 
     def __init__(self, *args, **kwargs):
         super(GitTreeForm, self).__init__(*args, **kwargs)
