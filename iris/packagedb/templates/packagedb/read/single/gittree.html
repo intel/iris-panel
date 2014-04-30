@@ -80,6 +80,7 @@
                 <tr>
                     <th>Git path</th>
                     <th>Product</th>
+                    <th>Domain</th>
                     <th>Subdomain</th>
                     <th>Packages</th>
                     <th>Licenses</th>
@@ -93,6 +94,7 @@
                         <p><a href="/app/packagedb/products/{{ product.id }}">{{ product.name }}</a></p>
                         {% endfor %}
                     </td>
+                    <td><a href="/app/packagedb/domains/{{ gittree.subdomain.domain.id }}">{{ gittree.subdomain.domain.name }}</a></td>
                     <td><a href="/app/packagedb/subdomains/{{ gittree.subdomain.id }}">{{ gittree.subdomain.name }}</a></td>
                     <td>
                         {% for package in gittree.get_packages %}
