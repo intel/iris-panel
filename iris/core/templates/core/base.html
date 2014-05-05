@@ -6,6 +6,7 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <link rel="shortcut icon" href="{{ STATIC_URL }}favicon.ico" type="image/vnd.microsoft.icon">
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}bootstrap.min.css" />
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}site-specific.css" />
         <script type="text/javascript" src="{{ STATIC_URL }}jquery.min.js"></script>
@@ -24,7 +25,10 @@
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="/">IRIS</a>
+              <a class="navbar-brand" href="/">
+                <!-- img src attribute is a base64 encoded of 1x1px transparent GIF -->
+                <img class="tizen" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" />
+                IRIS</a>
           </div>
 
           <!-- Collapsible navbar, login form if user is not authenticated -->

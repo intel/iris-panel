@@ -18,6 +18,13 @@ body {
     padding-top: 6em;
 }
 
+img.tizen {
+    width: 26px;
+    height: 28px;
+    background: url(logo.png) -196px 0 no-repeat;
+    vertical-align: bottom;
+}
+
 /* Adds the margin below save and cancel buttons in forms. */
 .form-container {
     margin-bottom: 3em;
