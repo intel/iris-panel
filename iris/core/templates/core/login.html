@@ -8,22 +8,33 @@
         {% if not user.is_authenticated %}
         <form class="form form-horizontal" method="POST" action="/login/?next={{ redirecto_to }}">
             <fieldset>
-                <div class="col-4">
+                <div class="col-lg-8">
                     <div class="form-group">
-                        <input class="form-control" id="id_login_username" name="username" type="text" placeholder="Username" />
+                      <label for="id_login_user">Email address or Username</label>
+                      <input class="form-control" id="id_login_username" name="username"
+                             type="text" placeholder="Email address or Username" />
                     </div>
+
                     <div class="form-group">
-                        <input class="form-control" id="id_login_password" name="password" type="password" placeholder="Password" />
+                      <label for="id_login_user">Password</label>
+                      <input class="form-control" id="id_login_password" name="password"
+                             type="password" placeholder="Password" />
                     </div>
+
                     <div class="form-group">
-                        {% if messages %}
+                      <span class="help-block">You may login with the same email address and password as tizen.org.</span>
+                    </div>
+
+                    {% if messages %}
+                    <div class="form-group">
                         {% for message in messages %}
                         <p class="text-danger">{{ message }}</p>
                         {% endfor %}
-                        {% endif %}
                     </div>
+                    {% endif %}
+
                     <div class="form-group">
-                        <button id="login-button" class="btn btn-default" type="submit" value="Sign in">Sign in</button>
+                        <button id="login-button" class="btn btn-primary" type="submit" value="Sign in">Sign in</button>
                     </div>
                 </div>
                 {% csrf_token %}
