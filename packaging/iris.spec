@@ -111,16 +111,16 @@ Requires:       mysql-community-server-client
 Requires:       python >= 2.6
 Requires:       python-setuptools
 Requires:       python-mysql
-Requires:       django
+Requires:       python-django
 Requires:       python-South
 Requires:       python-ldap
 Requires:       python-django-auth-ldap
 Requires:       jquery
 Requires:       jquery-multi-select
 Requires:       bootstrap
-Requires:       django-crispy-forms
-Requires:       djangorestframework
-Requires:       django-rest-swagger
+Requires:       python-django-crispy-forms
+Requires:       python-djangorestframework
+Requires:       python-django-rest-swagger
 
 %description %{core_name}
 Core, an extendible web portal for pluggable applications.
