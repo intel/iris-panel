@@ -87,22 +87,6 @@ ROOT_URLCONF = 'iris.core.urls'
 WSGI_APPLICATION = 'iris.core.wsgi.application'
 
 STATICFILES_DIRS = (
-    # iris
-    path.abspath(path.join(PROJECT_FOLDER, 'static')),
-    # jquery
-    path.abspath(path.join(prefix, 'share/javascript/jquery')),
-    # bootstrap
-    path.abspath(path.join(prefix, 'share/javascript/bootstrap')),
-    path.abspath(path.join(prefix, 'share/css/bootstrap')),
-    path.abspath(path.join(prefix, 'share/fonts/bootstrap')),
-    # jquery-datatables
-    path.abspath(path.join(prefix, 'share/javascript/datatables')),
-    path.abspath(path.join(prefix, 'share/css/datatables')),
-    path.abspath(path.join(prefix, 'share/images/datatables')),
-    # jquery-multi-select
-    path.abspath(path.join(prefix, 'share/javascript/jquery-multi-select')),
-    path.abspath(path.join(prefix, 'share/css/jquery-multi-select')),
-    path.abspath(path.join(prefix, 'share/images/jquery-multi-select')),
 )
 
 TEMPLATE_DIRS = (
