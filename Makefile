@@ -23,25 +23,25 @@
 # which has to be found out by getting a concrete package location
 # (in this case the iris.core) and coming down to namespace package level
 
-.PHONY: test
-test:
-	export OUTPUT_DIR=`pwd` \
-		&& cd \
-		&& cd `python -c "import os; from iris import manage; \
-			print(os.path.dirname(manage.__file__))"` \
-		&& export COVERAGE_FILE=$$OUTPUT_DIR/.coverage \
-		&& coverage run --source=core,packagedb manage.py test \
-		&& export COVERAGE_XML=$$OUTPUT_DIR/coverage.xml \
-		&& coverage xml -o $$COVERAGE_XML \
-		&& coverage report -m \
-		&& export JUNIT_XML=$$OUTPUT_DIR/nosetests.xml \
-		&& py.test --ds=iris.core.settings --junitxml $$JUNIT_XML
+HERE=$(shell pwd)
+MANAGEPY=$(shell python -c 'from iris import manage; print(manage.__file__)')
+MPATH=$(shell dirname $(MANAGEPY))
 
-.PHONY: devel
-devel:
+.PHONY: test devel clean
+
+test:
+	cd $(MPATH) && \
+	ls && \
+	COVERAGE_FILE=$(HERE)/.coverage python manage.py test \
+		--with-xunit \
+		--xunit-file=$(HERE)/nosetests.xml \
+		--with-coverage \
+		--cover-xml \
+		--cover-xml-file=$(HERE)/coverage.xml
+
+devel:		
 	bash bin/generate_environment.sh
 
-.PHONY: clean
 clean:
 	rm -rf virtualenv build dist node_modules bower_components \
 		iris.egg-info iris_packagedb.egg-info iris_submissions.egg-info

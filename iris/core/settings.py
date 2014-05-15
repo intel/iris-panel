@@ -54,15 +54,6 @@ DATABASES = {
     }
 }
 
-# If running in test mode, make the database import testing faster
-if 'test' in argv:
-    print('Using test database, skipping migrations')
-    SOUTH_TESTS_MIGRATE = False
-    DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
-    }
-
 ALLOWED_HOSTS = ['*']
 
 TIME_ZONE = 'Europe/Helsinki'
@@ -279,3 +270,16 @@ if UI_AVAILABLE:
         print('Loaded web UI components')
     except ImportError:
         print('Could not load web UI components')
+
+# If running in test mode, make the database import testing faster
+if 'test' in argv:
+    print('Using test database, skipping migrations')
+    SOUTH_TESTS_MIGRATE = False
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+    }
+
+    INSTALLED_APPS += ('django_nose',)
+
+    TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
