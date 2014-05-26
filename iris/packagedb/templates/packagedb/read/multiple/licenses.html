@@ -25,21 +25,13 @@
         <table class="table table-striped table-bordered">
             <thead>
                 <tr>
-                    <th>Active</th>
                     <th>Shortname</th>
                     <th>Name</th>
                 </tr>
             </thead>
             <tbody>
             {% for license in licenses %}
-            <tr {% if license.active %} class="success" {% endif %}>
-                <td>
-                    {% if license.active %}
-                    Yes
-                    {% else %}
-                    No
-                    {% endif %}
-                </td>
+            <tr>
                 <td><a href="{{ license.id }}">{{ license.shortname }}</a></td>
                 <td>{{ license.fullname }}</td>
             </tr>
