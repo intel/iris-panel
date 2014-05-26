@@ -129,35 +129,6 @@
                 </div>
             </div>
         </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
-                        Products involved in
-                    </a>
-                </h4>
-            </div>
-            <div id="collapseFour" class="panel-collapse collapse">
-                <div class="panel-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Product name</th>
-                                <th>Product role</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for pr in User.get_productroles %}
-                        <tr>
-                            <td><a href="/app/packagedb/products/{{ pr.product.id }}">{{ pr.product.name }}</a></td>
-                            <td>{{ pr.role }}</td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 {% endblock %}
