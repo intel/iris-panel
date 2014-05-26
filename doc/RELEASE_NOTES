@@ -1,0 +1,12 @@
+Release notes for IRIS 0.1
+==========================
+
+- Release Date: 2014-05
+
+- Features: This version include one application of the Package Database
+  for Tizen.
+  * PackageDB contains information such as domains, subdomains, git
+    trees,packages, products, images, maintainers, reviewers, developers,
+    integrators and all the relationship among them. Users could view even
+    edit those information if permission granted.
+  * It also provides RESTful API to get those information in JSON format.

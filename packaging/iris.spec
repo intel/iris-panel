@@ -158,6 +158,7 @@ fi
 %defattr(-,root,root,-)
 %dir                                                %{_datadir}/doc/packages/%{name}
 %doc                %attr(0644, root, root)         %{_datadir}/doc/packages/%{name}/README
+%doc doc/RELEASE_NOTES
 %doc                %attr(0644, root, root)         %{_datadir}/doc/packages/%{name}/iris.conf
 %dir                                                %{_sysconfdir}/%{name}
 %config(noreplace)  %attr(0644, root, root)         %{_sysconfdir}/%{name}/%{name}.conf
