@@ -11,6 +11,7 @@
 %define core_name core
 %define packagedb_name packagedb
 %define submissions_name submissions
+%define media_root /srv/www/iris/media
 %define static_root /srv/www/iris/static
 
 ###############################################################################
@@ -38,6 +39,10 @@ BuildRequires:  jquery
 BuildRequires:  jquery-multi-select
 BuildRequires:  bootstrap
 BuildRequires:  datatables
+BuildRequires:  python-django
+BuildRequires:  python-django-rest-swagger
+BuildRequires:  python-South
+BuildRequires:  python-xml
 
 Requires:       %{name}-%{core_name} = %{version}
 Requires:       %{name}-%{packagedb_name} = %{version}
@@ -55,20 +60,31 @@ python ./setup.py build
 %install
 python ./setup.py install --prefix=%{_prefix} --root=%{buildroot}
 
+mediapath=%{buildroot}%{media_root}
+staticpath=%{buildroot}%{static_root}
+install -d $mediapath
+install -d $staticpath
+
+# Static files from django admin site and all django plugins
+# need be collected here
+python -m iris.manage shell <<EOF
+from django.conf import settings
+settings.MEDIA_ROOT="${mediapath}"
+settings.STATIC_ROOT="${staticpath}"
+from django.core.management import call_command
+call_command('collectstatic', interactive=False)
+EOF
+
 install -D      README                              %{buildroot}%{_prefix}/share/doc/packages/%{name}/README
 install -D      doc/iris/example.conf               %{buildroot}%{_prefix}/share/doc/packages/%{name}/iris.conf
 install -D      etc/%{name}/%{name}.conf            %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
 install -D      etc/apache2/vhosts.d/%{name}.conf   %{buildroot}%{_sysconfdir}/apache2/vhosts.d/%{name}.conf
 install -D      srv/www/iris/wsgi.py                %{buildroot}/srv/www/iris/wsgi.py
 
-staticpath=%{buildroot}%{static_root}
 jspath=/usr/share/javascript
 csspath=/usr/share/css
 imgpath=/usr/share/images
 fontpath=/usr/share/fonts
-
-install -d %{buildroot}/srv/www/iris/media
-install -d $staticpath
 
 install -D $jspath/datatables/*                 $staticpath
 install -D $csspath/datatables/*                $staticpath
