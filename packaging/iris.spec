@@ -35,10 +35,7 @@ Source0:        %{project_alias}_%{version}.tar.gz
 Source5:        iris-rpmlintrc
 
 BuildRequires:  python-setuptools
-BuildRequires:  jquery
 BuildRequires:  jquery-multi-select
-BuildRequires:  bootstrap
-BuildRequires:  datatables
 BuildRequires:  python-django
 BuildRequires:  python-django-rest-swagger
 BuildRequires:  python-South
@@ -86,19 +83,9 @@ csspath=/usr/share/css
 imgpath=/usr/share/images
 fontpath=/usr/share/fonts
 
-install -D $jspath/datatables/*                 $staticpath
-install -D $csspath/datatables/*                $staticpath
-install -D $imgpath/datatables/*                $staticpath
-
 install -D $jspath/jquery-multi-select/*        $staticpath
 install -D $csspath/jquery-multi-select/*       $staticpath
 install -D $imgpath/jquery-multi-select/*       $staticpath
-
-install -D $jspath/bootstrap/*                  $staticpath
-install -D $csspath/bootstrap/*                 $staticpath
-install -D $fontpath/bootstrap/*                $staticpath
-
-install -D $jspath/jquery/*                     $staticpath
 
 install -D iris/core/static/*                   $staticpath
 
