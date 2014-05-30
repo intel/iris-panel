@@ -23,15 +23,26 @@ from os import path, pardir, chdir
 from setuptools import setup, find_packages
 
 
+def get_version():
+    """Get version from the spec file"""
+    filename = path.join(path.dirname(__file__), 'packaging', 'iris.spec')
+    with open(filename, 'r') as spec:
+        for line in spec.readlines():
+            if line.lower().startswith('version:'):
+                return line.split(':', 1)[1].strip()
+    raise Exception('ERROR: unable to parse version from spec file')
+
+
 # Allow setup.py to be run from any path:
 chdir(path.normpath(path.join(path.abspath(__file__), pardir)))
 README = open(path.join(path.dirname(__file__), 'README')).read()
+VERSION = get_version()
 
 # Core package project setup
 setup(
     url='https://otctools.jf.intel.com/pm/projects/iris',
     name='iris',
-    version='0.0.2',
+    version=VERSION,
     namespace_packages=['iris'],
     packages=find_packages(),
     include_package_data=True,
@@ -59,7 +70,7 @@ setup(
 setup(
     url='https://otctools.jf.intel.com/pm/projects/iris',
     name='iris_packagedb',
-    version='0.0.2',
+    version=VERSION,
     namespace_packages=['iris'],
     packages=['iris.packagedb'],
     include_package_data=True,
@@ -75,7 +86,7 @@ setup(
 setup(
     url='https://otctools.jf.intel.com/pm/projects/iris',
     name='iris_submissions',
-    version='0.0.2',
+    version=VERSION,
     namespace_packages=['iris'],
     packages=['iris.submissions'],
     include_package_data=True,
