@@ -31,7 +31,7 @@ urlpatterns = patterns(
 )
 
 urlpatterns += patterns(
-    'core.views.base',
+    'iris.core.views.base',
     url(r'^$', 'index', name='index'),
     url(r'^404/$', 'error', name='error'),
     url(r'^login/$', 'login_view', name='login_view'),
