@@ -103,4 +103,4 @@ def image(request, pkid=None):
                 {'image': get_object_or_404(Image, id=pkid)})
     else:
         return render(request, 'packagedb/read/multiple/images.html',
-                {'images': Image.objects.all()})
+                {'images': Image.objects.select_related('product').all()})
