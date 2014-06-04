@@ -33,7 +33,7 @@
                 </tr>
             </thead>
             <tbody>
-            {% for domain in domains %}
+            {% for domain in domains|dictsort:"name" %}
             <tr>
                 <td><a href="{{ domain.id }}">{{ domain.name }}</a></td>
                 <td>
@@ -58,7 +58,7 @@
                     {% endfor %}
                 </td>
                 <td>
-                    {% for subdomain in domain.subdomain_set.all %}
+                    {% for subdomain in domain.subdomain_set.all|dictsort:"name" %}
                     <a href="/app/packagedb/subdomains/{{ subdomain.id }}">
                         <p>{{ subdomain.name }}</p>
                     </a>
