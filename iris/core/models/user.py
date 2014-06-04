@@ -151,7 +151,7 @@ class GitTreeRole(Group):
     """
 
     role = models.CharField(max_length=15, choices=roles(), db_index=True)
-    gittree = models.ForeignKey(GitTree)
+    gittree = models.ForeignKey(GitTree, related_name='role_set')
 
     def __unicode__(self):
         return '%s: %s' % (self.role, self.gittree.gitpath)

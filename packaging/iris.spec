@@ -40,6 +40,7 @@ BuildRequires:  python-django
 BuildRequires:  python-django-rest-swagger
 BuildRequires:  python-South
 BuildRequires:  python-xml
+BuildRequires:  python-django-debug-toolbar
 
 Requires:       %{name}-%{core_name} = %{version}
 Requires:       %{name}-%{packagedb_name} = %{version}

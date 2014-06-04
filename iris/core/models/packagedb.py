@@ -24,6 +24,24 @@ APP_LABEL = 'core'
 from django.db import models
 
 
+class RolesMixin(object):
+
+    def get_users(rolestring):
+        def getter(self):
+            # role_set is defined by "related_name" of corresponding role model
+            for role in self.role_set.all():
+                if role.role == rolestring:
+                    return role.user_set.all()
+            return ()
+        return getter
+
+    get_architects = get_users('ARCHITECT')
+    get_maintainers = get_users('MAINTAINER')
+    get_developers = get_users('DEVELOPER')
+    get_reviewers = get_users('REVIEWER')
+    get_integrators = get_users('INTEGRATOR')
+
+
 class Domain(models.Model):
     """
     Class defining domains, e.g. 'multimedia'.
@@ -72,7 +90,7 @@ class License(models.Model):
         app_label = APP_LABEL
 
 
-class GitTree(models.Model):
+class GitTree(models.Model, RolesMixin):
     """
     Class defining a single git tree information.
     """

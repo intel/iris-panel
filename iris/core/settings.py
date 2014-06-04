@@ -283,3 +283,8 @@ if 'test' in argv:
     INSTALLED_APPS += ('django_nose',)
 
     TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+if DEBUG:
+    INSTALLED_APPS += (
+        'debug_toolbar',
+    )

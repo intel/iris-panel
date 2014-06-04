@@ -66,7 +66,10 @@ def gittree(request, pkid=None):
         return render(request, 'packagedb/read/single/gittree.html',
                 {'gittree': _gittree})
     else:
-        _gittrees = [inject_gittree(g) for g in GitTree.objects.all()]
+        _gittrees = GitTree.objects.select_related(
+            'subdomain', 'subdomain__domain'
+            ).all().prefetch_related(
+            'role_set', 'role_set__user_set')
         return render(request, 'packagedb/read/multiple/gittrees.html',
                 {'gittrees': _gittrees})
 
@@ -76,8 +79,11 @@ def package(request, pkid=None):
         return render(request, 'packagedb/read/single/package.html',
                 {'package': get_object_or_404(Package, id=pkid)})
     else:
+        packs = Package.objects.select_related(
+            'gittree', 'gittree__subdomain', 'gittree__subdomain__domain'
+            ).all()
         return render(request, 'packagedb/read/multiple/packages.html',
-                {'packages': Package.objects.all()})
+                {'packages': packs})
 
 @login_required()
 def product(request, pkid=None):
