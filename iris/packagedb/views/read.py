@@ -29,11 +29,12 @@ def domain(request, pkid=None):
     if pkid:
         _domain = inject_domain(get_object_or_404(Domain, id=pkid))
         return render(request, 'packagedb/read/single/domain.html',
-                {'domain': _domain})
-    else:
-        _domains = [inject_domain(d) for d in Domain.objects.all()]
-        return render(request, 'packagedb/read/multiple/domains.html',
-                {'domains': _domains})
+                      {'domain': _domain})
+    res = Domain.objects.all().prefetch_related(
+        'subdomain_set', 'role_set', 'role_set__user_set')
+    return render(request, 'packagedb/read/multiple/domains.html',
+                  {'domains': res})
+
 
 @login_required()
 def subdomain(request, pkid=None):

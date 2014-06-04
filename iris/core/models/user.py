@@ -121,7 +121,7 @@ class DomainRole(Group):
     """
 
     role = models.CharField(max_length=15, choices=roles(), db_index=True)
-    domain = models.ForeignKey(Domain)
+    domain = models.ForeignKey(Domain, related_name='role_set')
 
     def __unicode__(self):
         return '%s: %s' % (self.role, self.domain.name)

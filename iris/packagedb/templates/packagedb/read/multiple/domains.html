@@ -58,7 +58,7 @@
                     {% endfor %}
                 </td>
                 <td>
-                    {% for subdomain in domain.get_subdomains %}
+                    {% for subdomain in domain.subdomain_set.all %}
                     <a href="/app/packagedb/subdomains/{{ subdomain.id }}">
                         <p>{{ subdomain.name }}</p>
                     </a>

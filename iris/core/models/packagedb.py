@@ -42,7 +42,7 @@ class RolesMixin(object):
     get_integrators = get_users('INTEGRATOR')
 
 
-class Domain(models.Model):
+class Domain(models.Model, RolesMixin):
     """
     Class defining domains, e.g. 'multimedia'.
     """
