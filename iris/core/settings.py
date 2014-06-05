@@ -293,6 +293,9 @@ if 'test' in argv:
 
     TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
+    TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS\
+        + ("django.core.context_processors.request",)
+
 if DEBUG:
     INSTALLED_APPS += (
         'debug_toolbar',

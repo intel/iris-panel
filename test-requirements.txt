@@ -3,3 +3,10 @@ django-nose
 coverage
 nosexcover
 django-debug-toolbar
+python-PyVirtualDisplay
+python-EasyProcess
+xorg-x11-server
+python-needle
+MozillaFirefox
+chromium
+chromedriver
