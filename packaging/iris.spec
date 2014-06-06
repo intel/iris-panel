@@ -166,6 +166,7 @@ fi
 %{python_sitelib}/%{name}-%{version}-*-nspkg.pth
 
 %{_bindir}/generate_django_secret_key.py
+%{_bindir}/import_scm.py
 
 %changelog %{core_name}
 
