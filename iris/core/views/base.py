@@ -12,15 +12,19 @@
 This is the root views module for the iris-core project.
 """
 
-from logging import getLogger
+import logging
 from pkg_resources import iter_entry_points
+
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.utils.datastructures import MultiValueDictKeyError
-from django.contrib import messages
+
 from iris.core.injectors import inject_user_getters
+
+log = logging.getLogger(__name__)
 
 
 def error(request):
@@ -53,8 +57,7 @@ def index(request):
             apps.append(app)
 
         except KeyError as field:
-            logger = getLogger('iris')
-            logger.info('Plugin error, entrypoint field "%s" missing!' % field)
+            log.warn('Plugin error, entrypoint field "%s" missing!' % field)
 
     return render(request, 'core/index.html', {
         'messages': messages,
@@ -80,6 +83,7 @@ def login_view(request):
 
         if user is not None and user.is_active:
             login(request, user)
+            log.info('login|%s|%s', user.username, user.email)
             return redirect(redirect_url)
 
         else:

@@ -150,8 +150,8 @@ LOGGING = {
         }
     },
     'formatters': {
-        'info': {
-            'format': '%(levelname)s %(message)s',
+        'verbose': {
+            'format': '[%(levelname)s] %(asctime)s|%(name)s|%(message)s',
         }
     },
     'handlers': {
@@ -160,14 +160,14 @@ LOGGING = {
             'level': 'DEBUG',
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
-            'formatter': 'info'
+            'formatter': 'verbose'
         },
         # Production handler logs only when DEBUG=False
         'production':{
             'level': 'INFO',
             'filters': ['require_debug_false'],
             'class': 'logging.StreamHandler',
-            'formatter': 'info'
+            'formatter': 'verbose'
         },
         'mail_admins': {
             'level': 'ERROR',
@@ -186,6 +186,10 @@ LOGGING = {
             # Filter logging mode and level on handler levels
             'handlers': ['development', 'production'],
             'level': 'DEBUG'
+        },
+        'django_auth_ldap': {
+            'handlers': ['development', 'production'],
+            'level': 'DEBUG',
         }
     }
 }
