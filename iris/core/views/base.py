@@ -100,7 +100,7 @@ def logout_view(request):
 
     logout(request)
     messages.success(request, 'User logged out.')
-    return redirect('/')
+    return redirect('/login')
 
 
 @login_required
