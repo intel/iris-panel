@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load user_display_name %}
 {% block title %}IRIS - Git Tree list{% endblock %}
 {% block content %}
 <div class="container">
@@ -42,21 +43,21 @@
                 <td>
                     {% for user in gittree.get_maintainers %}
                     <a href="/users/{{ user.id}}">
-                        <p>{{ user.last_name }}, {{ user.first_name }}</p>
+                        <p>{{ user|user_display_name }}</p>
                     </a>
                     {% endfor %}
                 </td>
                 <td>
                     {% for user in gittree.get_integrators %}
                     <a href="/users/{{ user.id}}">
-                        <p>{{ user.last_name }}, {{ user.first_name }}</p>
+                        <p>{{ user|user_display_name }}</p>
                     </a>
                     {% endfor %}
                 </td>
                 <td>
                     {% for user in gittree.get_reviewers %}
                     <a href="/users/{{ user.id}}">
-                        <p>{{ user.last_name }}, {{ user.first_name }}</p>
+                        <p>{{ user|user_display_name }}</p>
                     </a>
                     {% endfor %}
                 </td>

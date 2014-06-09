@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load user_display_name %}
 {% block title %}IRIS - Domain list{% endblock %}
 {% block content %}
 <div class="container">
@@ -39,21 +40,21 @@
                 <td>
                     {% for architect in domain.get_architects %}
                     <a href="/users/{{ architect.id }}">
-                        <p>{{ architect.last_name }}, {{ architect.first_name }}</p>
+                        <p>{{architect|user_display_name}}</p>
                     </a>
                     {% endfor %}
                 </td>
                 <td>
                     {% for maintainer in domain.get_maintainers %}
                     <a href="/users/{{ maintainer.id }}">
-                        <p>{{ maintainer.last_name }}, {{ maintainer.first_name }}</p>
+                        <p>{{maintainer|user_display_name}}</p>
                     </a>
                     {% endfor %}
                 </td>
                 <td>
                     {% for reviewer in domain.get_reviewers %}
                     <a href="/users/{{ reviewer.id }}">
-                        <p>{{ reviewer.last_name }}, {{ reviewer.first_name }}</p>
+                        <p>{{reviewer|user_display_name}}</p>
                     </a>
                     {% endfor %}
                 </td>
