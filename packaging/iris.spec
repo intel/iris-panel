@@ -117,6 +117,7 @@ Requires:       python-django-auth-ldap
 Requires:       python-django-crispy-forms
 Requires:       python-djangorestframework
 Requires:       python-django-rest-swagger
+Requires:       git
 Requires(pre):  pwdutils
 
 %description %{core_name}
@@ -167,6 +168,7 @@ fi
 
 %{_bindir}/generate_django_secret_key.py
 %{_bindir}/import_scm.py
+%{_bindir}/update_iris_data.sh
 
 %changelog %{core_name}
 
