@@ -192,6 +192,11 @@ def transform(domains_data, trees_data):
         """
         return '%s: %s' % (role, name)
 
+    def subrolename(role, dname, sname):
+        """create subdomain role name
+        """
+        return '%s: %s-%s' % (role, dname, sname)
+
     for name, data in domains_data.items():
         if 'PARENT' in data:
             dname, sname = parse_name(name)
@@ -199,7 +204,7 @@ def transform(domains_data, trees_data):
             subdomain = SubDomain(name=sname, domain=domains[dname])
             subdomains[name] = subdomain
             subdomain_roles.update({rolename(role, name):
-                SubDomainRole(name=rolename(role, name), role=role,
+                SubDomainRole(name=subrolename(role, dname, sname), role=role,
                 subdomain=subdomain)for role in ROLES if role in data})
         else:
             domain = Domain(name=name)
