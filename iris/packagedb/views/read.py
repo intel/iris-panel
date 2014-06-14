@@ -89,9 +89,11 @@ def package(request, pkid=None):
 @login_required()
 def product(request, pkid=None):
     if pkid:
-        _product = inject_product(get_object_or_404(Product, id=pkid))
+        _product = get_object_or_404(Product, id=pkid)
+        trees = _product.gittrees.select_related(
+            'subdomain', 'subdomain__domain').all()
         return render(request, 'packagedb/read/single/product.html',
-                {'product': _product})
+                {'product': _product, 'gittrees': trees})
     else:
         _products = [inject_product(p) for p in Product.objects.all()]
         return render(request, 'packagedb/read/multiple/products.html',

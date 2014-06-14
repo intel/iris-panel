@@ -65,7 +65,7 @@
                         </thead>
 
                         <tbody>
-                        {% for gittree in product.gittrees.all %}
+                        {% for gittree in gittrees %}
                             <tr>
                                 <td><a href="/app/packagedb/gittrees/{{ gittree.id }}">{{ gittree.gitpath }}</a></td>
                                 <td><a href="/app/packagedb/domains/{{ gittree.subdomain.domain.id }}">{{ gittree.subdomain.domain.name }}</a></td>

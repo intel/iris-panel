@@ -40,30 +40,32 @@ def inject_user_getters(user):
         >>> inject_user_getters(user).get_user_parties()
         [<Group: Intel>, <Group: Tizen.org>]
     """
+    groups = user.groups.select_related(
+        'userparty',
+        'domainrole', 'domainrole__domain',
+        'subdomainrole', 'subdomainrole__subdomain',
+        'gittreerole', 'gittreerole__gittree',
+        ).all()
 
     def get_userparties():
-        return [up.userparty for up in user.groups.all()
+        return [up.userparty for up in groups
                 if hasattr(up, 'userparty')]
 
     def get_domainroles():
-        return [dr.domainrole for dr in user.groups.all()
+        return [dr.domainrole for dr in groups
                 if hasattr(dr, 'domainrole')]
 
     def get_subdomainroles():
-        return [sdr.subdomainrole for sdr in user.groups.all()
+        return [sdr.subdomainrole for sdr in groups
                 if hasattr(sdr, 'subdomainrole')]
 
     def get_gittreeroles():
-        return [gr.gittreerole for gr in user.groups.all()
+        return [gr.gittreerole for gr in groups
                 if hasattr(gr, 'gittreerole')]
 
-    def get_productroles():
-        return [pr.productrole for pr in user.groups.all()
-                if hasattr(pr, 'productrole')]
-
-    (user.get_userparties, user.get_domainroles, user.get_subdomainroles,
-            user.get_gittreeroles, user.get_productroles) = \
-    (get_userparties, get_domainroles, get_subdomainroles,
-            get_gittreeroles, get_productroles)
+    (user.get_userparties, user.get_domainroles,
+     user.get_subdomainroles, user.get_gittreeroles) = (
+        get_userparties, get_domainroles,
+        get_subdomainroles, get_gittreeroles)
 
     return user
