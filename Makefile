@@ -37,7 +37,10 @@ test:
 		--xunit-file=$(HERE)/nosetests.xml \
 		--with-coverage \
 		--cover-xml \
-		--cover-xml-file=$(HERE)/coverage.xml
+		--cover-xml-file=$(HERE)/coverage.xml \
+		--cover-erase \
+		--cover-branches \
+		--cover-package=.
 
 devel:		
 	bash bin/generate_environment.sh
