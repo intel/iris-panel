@@ -15,10 +15,8 @@ Commonplace views such as index page is contained here.
 """
 
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 
 
-@login_required()
 def index(request):
     """
     This view returns the index page for the packagedb application.

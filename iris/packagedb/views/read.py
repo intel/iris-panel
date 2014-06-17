@@ -17,14 +17,12 @@ Views for listing single and multiple item info is contained here.
 # pylint: disable=E1101,C0111,W0622
 
 from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from iris.core.models import (Domain, SubDomain, License, GitTree, Package,
         Product, Image)
 from iris.packagedb.injectors import (inject_domain, inject_subdomain,
         inject_gittree, inject_product)
 
 
-@login_required()
 def domain(request, pkid=None):
     if pkid:
         _domain = inject_domain(get_object_or_404(Domain, id=pkid))
@@ -36,7 +34,6 @@ def domain(request, pkid=None):
                   {'domains': res})
 
 
-@login_required()
 def subdomain(request, pkid=None):
     if pkid:
         _subdomain = inject_subdomain(get_object_or_404(SubDomain, id=pkid))
@@ -47,7 +44,7 @@ def subdomain(request, pkid=None):
         return render(request, 'packagedb/read/multiple/subdomains.html',
                 {'subdomains': _subdomains})
 
-@login_required()
+
 def license(request, pkid=None):
     if pkid:
         _license = get_object_or_404(License, id=pkid)
@@ -60,7 +57,7 @@ def license(request, pkid=None):
         return render(request, 'packagedb/read/multiple/licenses.html',
                 {'licenses': License.objects.all()})
 
-@login_required()
+
 def gittree(request, pkid=None):
     if pkid:
         _gittree = inject_gittree(get_object_or_404(GitTree, id=pkid))
@@ -74,7 +71,7 @@ def gittree(request, pkid=None):
         return render(request, 'packagedb/read/multiple/gittrees.html',
                 {'gittrees': _gittrees})
 
-@login_required()
+
 def package(request, pkid=None):
     if pkid:
         return render(request, 'packagedb/read/single/package.html',
@@ -86,7 +83,7 @@ def package(request, pkid=None):
         return render(request, 'packagedb/read/multiple/packages.html',
                 {'packages': packs})
 
-@login_required()
+
 def product(request, pkid=None):
     if pkid:
         _product = get_object_or_404(Product, id=pkid)
@@ -99,7 +96,7 @@ def product(request, pkid=None):
         return render(request, 'packagedb/read/multiple/products.html',
                 {'products': _products})
 
-@login_required()
+
 def image(request, pkid=None):
     if pkid:
         return render(request, 'packagedb/read/single/image.html',

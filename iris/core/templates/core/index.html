@@ -1,8 +1,6 @@
 {% extends "core/base.html" %}
 {% block title %}
-{% if user.is_authenticated %} IRIS - signed in
-{% else %} IRIS - sign in
-{% endif %}
+IRIS - Portal
 {% endblock %}
 {% block content %}
 <!--[if lt IE 9]>
@@ -14,19 +12,12 @@
 <div class="container row">
     <div class="jumbotron">
         <br />
-        <h2>IRIS portal</h2>
+        <h2>IRIS Portal</h2>
         <hr />
-        {% if user.is_authenticated %}
         <p>IRIS is a data-aggregation service for release engineering.</p>
         <p>This is the main portal for accessing different applications</p>
-        {% else %}
-        <div class="container col-offset-1">
-            <p>Please <a href="/login/">sign in</a> to access the page.</p>
-        </div>
-        {% endif %}
     </div>
 </div>
-{% if user.is_authenticated %}
 <div class="container">
     <div class="col-xs-12">
         {% for app in apps %}
@@ -42,5 +33,4 @@
         <br />
     </div>
 </div>
-{% endif %}
 {% endblock %}

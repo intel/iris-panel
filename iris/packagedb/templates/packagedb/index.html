@@ -1,8 +1,6 @@
 {% extends "core/base.html" %}
 {% block title %}
-{% if user.is_authenticated %} IRIS - signed in
-{% else %} IRIS - sign in
-{% endif %}
+IRIS - Package Database
 {% endblock %}
 
 {% block content %}
@@ -18,88 +16,80 @@
     <br />
     <h2>IRIS Package Database</h2>
     <hr />
-    {% if user.is_authenticated %}
     <p>IRIS Package Database is a portal for package metadata.</p>
     <p>Here you can view meta information about different package aspects.</p>
-    {% else %}
-    <div class="container col-offset-1">
-      <p>Please <a href="/login/">log in</a> to access the page.</p>
-    </div>
-    {% endif %}
   </div>
 
-{% if user.is_authenticated %}
-    <div class="row">
-        <div class="col-lg-4">
-            <h2>Products</h2>
-            <a class="btn btn-default" href="products">
-                View products »
-            </a>
-            <br />
-            <p>Products page contains data about different Tizen versions,
-            such as Tizen 3.0 and Tizen IVI.</p>
-        </div>
-        <div class="col-lg-4">
-            <h2>Domains</h2>
-            <a class="btn btn-default" href="domains">
-                View domains »
-            </a>
-            <br />
-            <p>Domains page contains data about different application domains
-            for Tizen aps, such as multimedia and SDK.</p>
-        </div>
-        <div class="col-lg-4">
-            <h2>Git trees</h2>
-            <a class="btn btn-default" href="gittrees">
-                View git trees »
-            </a>
-            <br />
-            <p>Trees page contains data of all the different git trees in
-            and the relevant packages produced from the trees.</p>
-        </div>
-        <br />
+  <div class="row">
+    <div class="col-lg-4">
+      <h2>Products</h2>
+      <a class="btn btn-default" href="products">
+        View products »
+      </a>
+      <br />
+      <p>Products page contains data about different Tizen versions,
+        such as Tizen 3.0 and Tizen IVI.</p>
     </div>
-    <div class="row">
-        <div class="col-lg-4">
-            <h2>Images</h2>
-            <a class="btn btn-default" href="images">
-                View Images »
-            </a>
-            <br />
-            <p>Images page contains available product images. You can
-            find image details here.</p>
-        </div>
-        <div class="col-lg-4">
-            <h2>Packages</h2>
-            <a class="btn btn-default" href="packages">
-                View Packages »
-            </a>
-            <br />
-            <p>Packages page contains available product packages. You can
-            find package details here.</p>
-        </div>
-        <div class="col-lg-4">
-            <h2>Licenses</h2>
-            <a class="btn btn-default" href="licenses">
-                View licenses »
-            </a>
-            <br />
-            <p>Licenses page contains available product licenses. You can
-            find license details and packages associations here.</p>
-        </div>
-        <br />
+    <div class="col-lg-4">
+      <h2>Domains</h2>
+      <a class="btn btn-default" href="domains">
+        View domains »
+      </a>
+      <br />
+      <p>Domains page contains data about different application domains
+        for Tizen aps, such as multimedia and SDK.</p>
     </div>
-    <div class="row">
-       <div class="col-lg-4">
-            <h2>Users</h2>
-            <a class="btn btn-default" href="/users">
-                View users »
-            </a>
-            <br />
-            <p>Users page contains data about all available users.</p>
-        </div>
-        <br />
+    <div class="col-lg-4">
+      <h2>Git trees</h2>
+      <a class="btn btn-default" href="gittrees">
+        View git trees »
+      </a>
+      <br />
+      <p>Trees page contains data of all the different git trees in
+        and the relevant packages produced from the trees.</p>
     </div>
-{% endif %}
+    <br />
+  </div>
+  <div class="row">
+    <div class="col-lg-4">
+      <h2>Images</h2>
+      <a class="btn btn-default" href="images">
+        View Images »
+      </a>
+      <br />
+      <p>Images page contains available product images. You can
+        find image details here.</p>
+    </div>
+    <div class="col-lg-4">
+      <h2>Packages</h2>
+      <a class="btn btn-default" href="packages">
+        View Packages »
+      </a>
+      <br />
+      <p>Packages page contains available product packages. You can
+        find package details here.</p>
+    </div>
+    <div class="col-lg-4">
+      <h2>Licenses</h2>
+      <a class="btn btn-default" href="licenses">
+        View licenses »
+      </a>
+      <br />
+      <p>Licenses page contains available product licenses. You can
+        find license details and packages associations here.</p>
+    </div>
+    <br />
+  </div>
+  <div class="row">
+    <div class="col-lg-4">
+      <h2>Users</h2>
+      <a class="btn btn-default" href="/users">
+        View users »
+      </a>
+      <br />
+      <p>Users page contains data about all available users.</p>
+    </div>
+    <br />
+  </div>
 </div>
 {% endblock %}
