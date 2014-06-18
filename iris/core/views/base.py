@@ -60,7 +60,6 @@ def index(request):
             log.warn('Plugin error, entrypoint field "%s" missing!' % field)
 
     return render(request, 'core/index.html', {
-        'messages': messages,
         'apps': apps,
     })
 
@@ -99,8 +98,7 @@ def logout_view(request):
     """
 
     logout(request)
-    messages.success(request, 'User logged out.')
-    return redirect('/login')
+    return redirect('/')
 
 
 @login_required
