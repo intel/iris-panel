@@ -163,6 +163,7 @@ fi
 %{python_sitelib}/%{name}/*.py
 %{python_sitelib}/%{name}/*.pyc
 %{python_sitelib}/%{name}/%{core_name}
+%{python_sitelib}/%{name}/etl
 %{python_sitelib}/%{name}-%{version}-*.egg-info
 %{python_sitelib}/%{name}-%{version}-*-nspkg.pth
 
