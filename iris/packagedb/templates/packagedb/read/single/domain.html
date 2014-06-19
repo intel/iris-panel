@@ -50,13 +50,8 @@
             <div id="collapseOne" class="panel-collapse collapse in">
                 <div class="panel-body">
                     <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Subdomain name</th>
-                            </tr>
-                        </thead>
                         <tbody>
-                        {% for subdomain in domain.get_subdomains %}
+                        {% for subdomain in domain.get_subdomains|dictsort:"name.lower" %}
                         <tr>
                             <td>
                                 <a href="/app/packagedb/subdomains/{{ subdomain.id }}">{{ subdomain.name }}</a>

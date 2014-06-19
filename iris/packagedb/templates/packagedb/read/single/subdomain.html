@@ -47,13 +47,8 @@
             <div id="collapseOne" class="panel-collapse collapse in">
                 <div class="panel-body">
                     <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Git tree</th>
-                            </tr>
-                        </thead>
                         <tbody>
-                        {% for gittree in subdomain.get_gittrees %}
+                        {% for gittree in subdomain.get_gittrees|dictsort:"gitpath.lower" %}
                         <tr>
                             <td>
                                 <a href="/app/packagedb/gittrees/{{ gittree.id }}">{{ gittree.gitpath }}</a>

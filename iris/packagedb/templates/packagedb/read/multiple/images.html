@@ -32,7 +32,7 @@
                 </tr>
             </thead>
             <tbody>
-            {% for image in images %}
+            {% for image in images|dictsort:"name.lower"|dictsort:"arch.lower"|dictsort:"target.lower"|dictsort:"product.name.lower" %}
             <tr>
                 <td>
                     <a href="{{image.id}}">{{ image.name }}</a>

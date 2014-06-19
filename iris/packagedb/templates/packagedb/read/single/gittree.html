@@ -51,19 +51,19 @@
                 <tr>
                     <td>{{ gittree.gitpath }}</td>
                     <td>
-                        {% for product in gittree.get_product %}
+                        {% for product in gittree.get_product|dictsort:"name.lower" %}
                         <p><a href="/app/packagedb/products/{{ product.id }}">{{ product.name }}</a></p>
                         {% endfor %}
                     </td>
                     <td><a href="/app/packagedb/domains/{{ gittree.subdomain.domain.id }}">{{ gittree.subdomain.domain.name }}</a></td>
                     <td><a href="/app/packagedb/subdomains/{{ gittree.subdomain.id }}">{{ gittree.subdomain.name }}</a></td>
                     <td>
-                        {% for package in gittree.get_packages %}
+                        {% for package in gittree.get_packages|dictsort:"name.lower" %}
                         <p><a href="/app/packagedb/packages/{{ package.id }}">{{ package.name }}</a></p>
                         {% endfor %}
                     </td>
                     <td>
-                        {% for license in gittree.licenses.all %}
+                        {% for license in gittree.licenses.all|dictsort:"shortname.lower" %}
                         <p><a href="/app/packagedb/licenses/{{ license.id }}">{{ license }}</a></p>
                         {% endfor %}
                     </td>

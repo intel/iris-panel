@@ -65,7 +65,7 @@
                         </thead>
 
                         <tbody>
-                        {% for gittree in gittrees %}
+                        {% for gittree in gittrees|dictsort:"gitpath"|dictsort:"subdomain.name"|dictsort:"subdomain.domain.name" %}
                             <tr>
                                 <td><a href="/app/packagedb/gittrees/{{ gittree.id }}">{{ gittree.gitpath }}</a></td>
                                 <td><a href="/app/packagedb/domains/{{ gittree.subdomain.domain.id }}">{{ gittree.subdomain.domain.name }}</a></td>

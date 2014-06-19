@@ -30,7 +30,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for product in products %}
+                {% for product in products|dictsort:"name.lower" %}
                 <tr>
                     <td><a href="{{ product.id }}">{{ product.name }}</a></td>
                     <td>{{ product.description }}</td>

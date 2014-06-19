@@ -34,32 +34,32 @@
                 </tr>
             </thead>
             <tbody>
-            {% for domain in domains|dictsort:"name" %}
+            {% for domain in domains|dictsort:"name.lower" %}
             <tr>
                 <td><a href="{{ domain.id }}">{{ domain.name }}</a></td>
                 <td>
-                    {% for architect in domain.get_architects %}
+                    {% for architect in domain.get_architects|dictsort:"last_name.lower" %}
                     <a href="/users/{{ architect.id }}">
                         <p>{{architect|user_display_name}}</p>
                     </a>
                     {% endfor %}
                 </td>
                 <td>
-                    {% for maintainer in domain.get_maintainers %}
+                    {% for maintainer in domain.get_maintainers|dictsort:"last_name.lower" %}
                     <a href="/users/{{ maintainer.id }}">
                         <p>{{maintainer|user_display_name}}</p>
                     </a>
                     {% endfor %}
                 </td>
                 <td>
-                    {% for reviewer in domain.get_reviewers %}
+                    {% for reviewer in domain.get_reviewers|dictsort:"last_name.lower" %}
                     <a href="/users/{{ reviewer.id }}">
                         <p>{{reviewer|user_display_name}}</p>
                     </a>
                     {% endfor %}
                 </td>
                 <td>
-                    {% for subdomain in domain.subdomain_set.all|dictsort:"name" %}
+                    {% for subdomain in domain.subdomain_set.all|dictsort:"name.lower" %}
                     <a href="/app/packagedb/subdomains/{{ subdomain.id }}">
                         <p>{{ subdomain.name }}</p>
                     </a>

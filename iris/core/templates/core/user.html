@@ -60,7 +60,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                        {% for dr in User.get_domainroles %}
+                        {% for dr in User.get_domainroles|dictsort:"domain.name.lower" %}
                         <tr>
                             <td><a href="/app/packagedb/domains/{{ dr.domain.id }}">{{ dr.domain.name }}</a></td>
                             <td>{{ dr.role }}</td>
@@ -89,7 +89,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                        {% for sdr in User.get_subdomainroles %}
+                        {% for sdr in User.get_subdomainroles|dictsort:"subdomain.name.lower" %}
                         <tr>
                             <td><a href="/app/packagedb/subdomains/{{ sdr.subdomain.id }}">{{ sdr.subdomain.name }}</a></td>
                             <td>{{ sdr.role }}</td>
@@ -118,7 +118,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                        {% for gr in User.get_gittreeroles %}
+                        {% for gr in User.get_gittreeroles|dictsort:"gittree.gitpath" %}
                         <tr>
                             <td><a href="/app/packagedb/gittrees/{{ gr.gittree.id }}">{{ gr.gittree.gitpath }}</a></td>
                             <td>{{ gr.role }}</td>

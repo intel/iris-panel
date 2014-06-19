@@ -30,7 +30,7 @@
                 </tr>
             </thead>
             <tbody>
-            {% for license in licenses %}
+            {% for license in licenses|dictsort:"shortname.lower" %}
             <tr>
                 <td><a href="{{ license.id }}">{{ license.shortname }}</a></td>
                 <td>{{ license.fullname }}</td>

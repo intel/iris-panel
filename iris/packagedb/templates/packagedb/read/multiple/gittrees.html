@@ -35,27 +35,27 @@
                 </tr>
             </thead>
             <tbody>
-            {% for gittree in gittrees %}
+            {% for gittree in gittrees|dictsort:"gitpath"|dictsort:"subdomain.name"|dictsort:"subdomain.domain.name" %}
             <tr>
                 <td><a href="{{ gittree.id }}">{{ gittree.gitpath }}</a></td>
                 <td><a href="/app/packagedb/domains/{{ gittree.subdomain.domain.id }}">{{ gittree.subdomain.domain.name }}</a></td>
                 <td><a href="/app/packagedb/subdomains/{{ gittree.subdomain.id }}">{{ gittree.subdomain.name }}</a></td>
                 <td>
-                    {% for user in gittree.get_maintainers %}
+                    {% for user in gittree.get_maintainers|dictsort:"last_name.lower" %}
                     <a href="/users/{{ user.id}}">
                         <p>{{ user|user_display_name }}</p>
                     </a>
                     {% endfor %}
                 </td>
                 <td>
-                    {% for user in gittree.get_integrators %}
+                    {% for user in gittree.get_integrators|dictsort:"last_name.lower" %}
                     <a href="/users/{{ user.id}}">
                         <p>{{ user|user_display_name }}</p>
                     </a>
                     {% endfor %}
                 </td>
                 <td>
-                    {% for user in gittree.get_reviewers %}
+                    {% for user in gittree.get_reviewers|dictsort:"last_name.lower" %}
                     <a href="/users/{{ user.id}}">
                         <p>{{ user|user_display_name }}</p>
                     </a>
