@@ -1,7 +1,7 @@
 python-ldap==2.4.13
 django==1.6.1
 django-auth-ldap==1.1.4
-South==0.7.6
+South==0.8.4
 djangorestframework==2.3.9
 django-rest-swagger==0.1.11
 django-crispy-forms==1.4.0

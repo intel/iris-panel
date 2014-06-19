@@ -38,7 +38,7 @@ BuildRequires:  python-setuptools
 BuildRequires:  jquery-multi-select
 BuildRequires:  python-django
 BuildRequires:  python-django-rest-swagger
-BuildRequires:  python-South
+BuildRequires:  python-South >= 0.8.4
 BuildRequires:  python-xml
 BuildRequires:  python-django-debug-toolbar
 
@@ -111,7 +111,7 @@ Requires:       python-xml
 Requires:       python-setuptools
 Requires:       python-mysql
 Requires:       python-django
-Requires:       python-South
+Requires:       python-South >= 0.8.4
 Requires:       python-ldap
 Requires:       python-django-auth-ldap
 Requires:       python-django-crispy-forms
