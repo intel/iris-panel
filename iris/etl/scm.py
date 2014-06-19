@@ -18,7 +18,6 @@ import re
 from email.utils import parseaddr
 from collections import OrderedDict
 
-from django.db import transaction
 from django.contrib.auth.models import User
 from iris.core.models import Domain, SubDomain, GitTree
 from iris.core.models import DomainRole, SubDomainRole, GitTreeRole, UserParty
@@ -368,11 +367,3 @@ def incremental_import(domain_file, gittree_file):
         ]
     load_relation(user_party_roles, db_user_partyrole,
         lambda (g, u): '%s: %s' % (g.party, u.email))
-
-def import_scm(domain, gittree):
-    '''Import all scm data in one transaction
-       if it fails during importing, it should rollback
-    '''
-    transaction.set_autocommit(False)
-    incremental_import(domain, gittree)
-    transaction.commit()

@@ -12,6 +12,8 @@ import os
 import sys
 import argparse
 
+from django.db import transaction
+
 from iris import manage
 
 PROJECT = os.path.dirname(manage.__file__)
@@ -34,7 +36,9 @@ def main():
     args = parser.parse_args()
 
     print('Starting package data update...')
-    scm.import_scm(args.domain, args.gittree)
+    transaction.set_autocommit(False)
+    scm.incremental_import(args.domain, args.gittree)
+    transaction.commit()
 
 if __name__ == '__main__':
     main()

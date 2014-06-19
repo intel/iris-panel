@@ -1,0 +1,19 @@
+T: adaptation/alsa-scenario-scn-data-0-mc1n2
+D: Multimedia / Media Video
+A: Bibesco Princess Elizabeth <bibesco.princess@hello.com>
+A: Blanchett Cate <blancett.cate@wel.org>
+M: Lucy Lee <lucy.lee@word.com>
+M: Bolívar Simón <bolivar.silon@open.eu.org>
+I: Braque Georges <braque.georges@hello.com>
+R: Capone Al <capone.al@linux.hello.com>
+B: wel_2.0
+B: wel_2.1
+B: wel_2.2
+
+T: dftion/dfsfsdf-data-0-mc1n2
+D: Multimedia / Media Video
+N: Multimedia
+A: Huahua  <huahua.zhang@word.com>
+A: Lihong  Wang<lihong.wang@word.com>
+M: jielun.zhou@word.com
+I: haiyan.li@hello.com

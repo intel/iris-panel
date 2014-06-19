@@ -1,0 +1,23 @@
+D: Multimedia
+A: Aaron Hank <hank.aaron@abc.org>
+A: Abagnale Frank <abagnale.frank@exam.com>
+A: Abbey Edward <abbey.j.edard@hello.com>
+M: Abel Reuben <abel.reuben@hello.com>
+I: Abelson Hal <abelson.hal@word.com>
+I: Abourezk James <abourezk.james@word.com>
+R: Abrams Creighton <abrams.creighton@word.com>
+
+D: Multimedia / Media Video
+N: Multimedia
+A: Bastiat Frédéric <basttia.freederic@word.com>
+A: Baudelaire Charles <baudelaire.charles@word.com>
+M: Baddiel David <baddiel.david@open.ciel.org>
+M: yan.y.zheng@hello.com
+M: bin.jiang@word.com
+R: Peter Lin <peter.j.lin@hello.com>
+I: fang.yuan@hello.com
+
+D: Multimedia / Media Camera
+N: Multimedia
+M: li.zhang@hello.com
+I: feng.wang@hello.com
