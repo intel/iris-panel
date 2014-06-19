@@ -12,4 +12,4 @@ def user_display_name(user):
         names.append(user.first_name)
     if names:
         return ', '.join(names)
-    return user.username
+    return user.username.split('@', 1)[0]
