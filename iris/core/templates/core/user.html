@@ -91,7 +91,8 @@
                         <tbody>
                         {% for sdr in User.get_subdomainroles|dictsort:"subdomain.name.lower" %}
                         <tr>
-                            <td><a href="/app/packagedb/subdomains/{{ sdr.subdomain.id }}">{{ sdr.subdomain.name }}</a></td>
+                            <td><a href="/app/packagedb/subdomains/{{ sdr.subdomain.id }}">
+                                {{sdr.subdomain.domain.name }} / {{ sdr.subdomain.name }}</a></td>
                             <td>{{ sdr.role }}</td>
                         </tr>
                         {% endfor %}
