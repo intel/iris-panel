@@ -77,9 +77,7 @@ def package(request, pkid=None):
         return render(request, 'packagedb/read/single/package.html',
                 {'package': get_object_or_404(Package, id=pkid)})
     else:
-        packs = Package.objects.select_related(
-            'gittree', 'gittree__subdomain', 'gittree__subdomain__domain'
-            ).all()
+        packs = Package.objects.select_related('gittree_set').all()
         return render(request, 'packagedb/read/multiple/packages.html',
                 {'packages': packs})
 

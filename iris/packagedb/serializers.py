@@ -69,7 +69,7 @@ class PackageSerializer(ModelSerializer):
 
     class Meta:
         model = Package
-        fields = ('name', 'gittree')
+        fields = ('name', 'gittree_set')
 
 
 class ProductSerializer(ModelSerializer):

@@ -253,9 +253,9 @@ class PackagesTests(TestCase):
         domain = Domain.objects.create(name='domain')
         subdomain = SubDomain.objects.create(name='subdomain', domain=domain)
         gt = GitTree.objects.create(gitpath='gitpath', subdomain=subdomain)
-        Package.objects.create(name='package', gittree=gt)
-        self.data = [{'name': obj.name, 'gittree': obj.gittree.pk
-                     } for obj in Package.objects.all()]
+        pack = Package.objects.create(name='package')
+        pack.gittree_set.add(gt)
+        self.data = [{'name': pack.name, 'gittree_set': [gt.pk]}]
 
 
     def test_get_info(self):

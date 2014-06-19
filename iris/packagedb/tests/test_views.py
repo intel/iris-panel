@@ -334,8 +334,8 @@ class PackageTest(TestCase):
                 gitpath='/pulseaudio/libpulseaudio',
                 subdomain=self.subdomain)
         self.package = Package.objects.create(
-                name='Pulseaudio',
-                gittree=self.gittree)
+                name='Pulseaudio')
+        self.package.gittree_set.add(self.gittree)
 
     def test_create_package(self):
         """
@@ -344,7 +344,6 @@ class PackageTest(TestCase):
 
         data = {
             'name': '/alsa/libalsa',
-            'gittree': '%d' % self.gittree.id
         }
 
         login(self.client, username='admin', password='admin')

@@ -41,21 +41,15 @@
             <div id="collapseOne" class="panel-collapse collapse in">
                 <div class="panel-body">
                     <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Git tree</th>
-                                <th>Package name</th>
-                            </tr>
-                        </thead>
                         <tbody>
+                        {% for tree in package.gittree_set.all|dictsort:"gitpath" %}
                         <tr>
-                            <td>
-                                <a href="/app/packagedb/gittrees/{{ package.gittree.id }}">{{ package.gittree.gitpath }}</a>
-                            </td>
-                            <td>
-                                {{ package.name }}
-                            </td>
+                          <td>
+                            <a href="/app/packagedb/gittrees/{{tree.id }}">
+                              {{ tree.gitpath }}</a>
+                          </td>
                         </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>

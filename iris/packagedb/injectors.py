@@ -167,32 +167,8 @@ def inject_gittree(gittree):
         roles = GitTreeRole.objects.filter(role=role, gittree=gittree)
         return [user for group in roles for user in group.user_set.all()]
 
-    def _get_product():
-        """
-        Returns Product containing this GitTree object.
-
-        Follows a backward relation from Product model's gittree
-        field into the GitTree object the product belongs to, then
-        back to the GitTree the Product belongs to.
-        """
-
-        return Product.objects.filter(gittrees=gittree)
-
-    def _get_packages():
-        """
-        Returns Packages containing this GitTree object.
-
-        Follows a backward relation from Package model's gittree
-        field into the GitTree object the package belongs to, then
-        back to the GitTree the Package belongs to.
-        """
-
-        return Package.objects.filter(gittree=gittree)
-
-    gittree.get_product = _get_product
-    gittree.get_packages = _get_packages
-
     return inject_base_getters(gittree, _get_users)
+
 
 def inject_product(product):
     """

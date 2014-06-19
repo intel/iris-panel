@@ -98,6 +98,7 @@ class GitTree(models.Model, RolesMixin):
     gitpath = models.CharField(max_length=255, unique=True)
     subdomain = models.ForeignKey(SubDomain)
     licenses = models.ManyToManyField(License)
+    packages = models.ManyToManyField('Package')
 
     def __unicode__(self):
         return self.gitpath
@@ -114,23 +115,10 @@ class Package(models.Model):
     produce packages 'project-base' and 'project-ui'.
     """
 
-    name = models.CharField(max_length=255, db_index=True)
-    gittree = models.ForeignKey(GitTree)
+    name = models.CharField(max_length=255, unique=True)
 
     def __unicode__(self):
         return self.name
-
-    class Meta:
-        app_label = APP_LABEL
-        unique_together = ('name', 'gittree')
-
-
-class PackageBackup(models.Model):
-
-    name = models.CharField(max_length=255, db_index=True)
-    pid = models.IntegerField()
-    tid = models.IntegerField()
-    isdel = models.BooleanField(default=False)
 
     class Meta:
         app_label = APP_LABEL
