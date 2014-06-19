@@ -125,6 +125,17 @@ class Package(models.Model):
         unique_together = ('name', 'gittree')
 
 
+class PackageBackup(models.Model):
+
+    name = models.CharField(max_length=255, db_index=True)
+    pid = models.IntegerField()
+    tid = models.IntegerField()
+    isdel = models.BooleanField(default=False)
+
+    class Meta:
+        app_label = APP_LABEL
+
+
 class Product(models.Model):
     """
     A class defining a single product, e.g. Tizen IVI.
