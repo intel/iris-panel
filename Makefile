@@ -40,7 +40,8 @@ test:
 		--cover-xml-file=$(HERE)/coverage.xml \
 		--cover-erase \
 		--cover-branches \
-		--cover-package=.
+		--cover-package=. \
+		--verbosity=2
 
 devel:		
 	bash bin/generate_environment.sh

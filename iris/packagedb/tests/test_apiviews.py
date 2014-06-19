@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 #This file is part of IRIS: Infrastructure and Release Information System
 #
 # Copyright (C) 2013 Intel Corporation
@@ -7,12 +6,10 @@
 # IRIS is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # version 2.0 as published by the Free Software Foundation.
-
 """
 This is the REST framework test class for the iris-packagedb project REST API.
 """
-
-# pylint: disable=E1101,E1103,R0904,C0103
+#pylint: skip-file
 
 import base64
 from django.test import TestCase

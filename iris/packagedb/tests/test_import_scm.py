@@ -1,7 +1,8 @@
 # -*- encoding: utf-8 -*-
 '''
-    This module is used to test Domain Model changes
+This module is used to test Domain Model changes
 '''
+#pylint: skip-file
 
 import os
 import copy

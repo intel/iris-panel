@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # This file is part of IRIS: Infrastructure and Release Information System
 #
 # Copyright (C) 2013 Intel Corporation
@@ -7,15 +6,13 @@
 # IRIS is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # version 2.0 as published by the Free Software Foundation.
-
 """
 This is the test module for the vanilla Django views for IRIS Package Database.
 
 The tests included are mostly smoke tests for verifying that all views
 indeed work correctly with legal input and produce a HTTP response code 200.
 """
-
-# pylint: disable=E1101,E1103,R0904,C0103
+#pylint: skip-file
 
 from django.test import Client, TestCase
 from django.contrib.auth.models import User

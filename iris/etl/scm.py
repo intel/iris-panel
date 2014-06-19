@@ -1,29 +1,25 @@
 # -*- encoding: utf-8 -*-
-
 """
 Module for importing git scm data into IRIS.
 
 Data is available from:
     https://review.tizen.org/gerrit/gitweb?p=scm/meta/git.git
 """
-
 # pylint: disable=E0611,E1101,F0401,R0914
 #E0611: No name 'manage' in module 'iris'
 #E1101: Class 'Domain' has no 'objects' member
 #F0401: Unable to import 'iris.core.models'
 #C0321: More than one statement on a single line
 
-
-import re
-from email.utils import parseaddr
-from collections import OrderedDict
-
 from django.contrib.auth.models import User
-from iris.core.models import Domain, SubDomain, GitTree
-from iris.core.models import DomainRole, SubDomainRole, GitTreeRole, UserParty
+
+from iris.core.models import (
+    Domain, SubDomain, GitTree, DomainRole,
+    SubDomainRole, GitTreeRole, UserParty)
+from iris.etl.parser import parse_blocks, parse_user
 
 
-MAPPINGS = {
+MAPPING = {
     'A': 'ARCHITECT',
     'B': 'BRANCH',
     'C': 'COMMENTS',
@@ -40,51 +36,7 @@ MAPPINGS = {
 
 ROLES = ['ARCHITECT', 'INTEGRATOR', 'MAINTAINER', 'REVIEWER']
 
-EMAIL_PATTERN = re.compile(r'[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*')
-
 NONAME = 'Uncategorized'
-
-
-def parse_data(content, starter):
-    """
-    parse data into python dictionary
-    """
-
-    result = OrderedDict()
-    item = None
-
-    state = 'INITIAL'
-    value_list = None
-
-    for lno, line in enumerate(content.splitlines()):
-        if not line:
-            continue
-        split = line.split(':', 1)
-        mark, value = split[0].strip(), split[1].strip()
-        if state == 'INITIAL':
-            if mark == starter:
-                if item:
-                    result.update(item)
-                state = 'NEW'
-            elif not item:
-                raise SyntaxError('Syntax error in line %d!' % (lno,))
-            else:
-                state = 'UPDATE'
-        if state == 'NEW':
-            value_list = {}
-            item = {value: value_list}
-            state = 'UPDATE'
-        if state == 'UPDATE':
-            if MAPPINGS[mark] in value_list:
-                value_list[MAPPINGS[mark]].append(value)
-            else:
-                value_list[MAPPINGS[mark]] = [value]
-            state = 'INITIAL'
-
-    if item:
-        result.update(item)
-
-    return result
 
 
 def parse_name(name):
@@ -139,13 +91,10 @@ def transform(domains_data, trees_data):
     def update_user(addr):
         """update user information
         """
-        name, email = parseaddr(addr)
-
-        email = email.strip()
-        if not email or not EMAIL_PATTERN.match(email):
+        email, first, last = parse_user(addr)
+        if not email:
             return
 
-        first, last = [i.strip() for i in (name.split(None, 1) + ['', ''])[:2]]
         if email in users:
             user = users[email]
             user.first_name = user.first_name or first
@@ -181,7 +130,8 @@ def transform(domains_data, trees_data):
         """
         return '%s: %s-%s' % (role, dname, sname)
 
-    for name, data in domains_data.items():
+    for data in domains_data:
+        name = data['DOMAIN']
         if 'PARENT' in data:
             dname, sname = parse_name(name)
             # assume that a submain can't appear before its parent
@@ -214,7 +164,8 @@ def transform(domains_data, trees_data):
     trees = []
     tree_roles = []
     user_gittreerole = []
-    for path, data in trees_data.items():
+    for data in trees_data:
+        path = data['TREE PATH']
         # assume that DOMAIN key has and must only has one item
         name = data['DOMAIN'][0] or NONAME
         if ' / ' not in name: # will be removed in future
@@ -237,7 +188,8 @@ def transform(domains_data, trees_data):
     # user-domainrole
     user_domainrole = []
     user_subdomainrole = []
-    for name, data in domains_data.items():
+    for data in domains_data:
+        name = data['DOMAIN']
         if 'PARENT' not in data:
             for role in ROLES:
                 if role in data:
@@ -293,8 +245,8 @@ def load_relation(new, old, key):
 def incremental_import(domain_file, gittree_file):
     """import data
     """
-    domains_data = parse_data(domain_file.read(), 'D')
-    trees_data = parse_data(gittree_file.read(), 'T')
+    domains_data = parse_blocks(domain_file.read(), 'D', MAPPING)
+    trees_data = parse_blocks(gittree_file.read(), 'T', MAPPING)
 
     (domains, subdomains, trees,
      domain_roles, subdomain_roles, users,
