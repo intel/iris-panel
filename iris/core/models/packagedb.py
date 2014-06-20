@@ -129,7 +129,7 @@ class Product(models.Model):
     A class defining a single product, e.g. Tizen IVI.
     """
 
-    name = models.CharField(max_length=255, db_index=True)
+    name = models.CharField(max_length=255, unique=True)
     description = models.TextField()
     gittrees = models.ManyToManyField(GitTree)
 
