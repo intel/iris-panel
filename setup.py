@@ -67,6 +67,7 @@ setup(
         'bin/generate_django_secret_key.py',
         'bin/import_scm.py',
         'bin/update_iris_data.sh',
+        'bin/import_snapshot.py',
     ],
 )
 

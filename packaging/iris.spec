@@ -170,6 +170,7 @@ fi
 %{_bindir}/generate_django_secret_key.py
 %{_bindir}/import_scm.py
 %{_bindir}/update_iris_data.sh
+%{_bindir}/import_snapshot.py
 
 %changelog %{core_name}
 

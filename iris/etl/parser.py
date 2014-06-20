@@ -1,4 +1,15 @@
+# -*- encoding: utf-8 -*-
+
+
+"""Parse IRIS data
+"""
+
+import os
+import glob
+import gzip
+
 from email.utils import parseaddr
+from xml.dom import minidom
 
 from django.core.validators import validate_email, ValidationError
 
@@ -49,7 +60,7 @@ def parse_blocks(content, starter, mapping=()):
     mapping = dict(mapping)
 
     res = []
-    st = 0
+    state = 0
     item = None
     for line in content.splitlines():
         line = line.rstrip()
@@ -60,12 +71,12 @@ def parse_blocks(content, starter, mapping=()):
         mark, val = mark.strip(), val.strip()
         field = mapping.get(mark, mark)
 
-        if st == 0:
+        if state == 0:
             if mark not in starter:
                 raise ValueError("Syntax error: unexpected {} "
                                  "outside of {}".format(mark, starter))
-            st = 1
-        if st == 1:
+            state = 1
+        if state == 1:
             if mark == starter:
                 if item:
                     res.append(item)
@@ -78,3 +89,82 @@ def parse_blocks(content, starter, mapping=()):
     if item:
         res.append(item)
     return res
+
+
+def parse_xml(file_path, node):
+    """parse xml file into a list of Element instances.
+    """
+    xmldoc = minidom.parse(file_path)
+    itemlist = xmldoc.getElementsByTagName(node)
+
+    return itemlist
+
+
+def parse_str_xml(xml_str, node):
+    """parse xml string into a list of Element instances.
+    """
+    xmldoc = minidom.parseString(xml_str)
+    itemlist = xmldoc.getElementsByTagName(node)
+
+    return itemlist
+
+
+def parse_buildxml(file_path):
+    """get build tatgets of xml items.
+    """
+    targets = []
+
+    for item in parse_xml(file_path, 'buildtarget'):
+        targets.append(item.attributes['name'].value)
+
+    return targets
+
+
+def parse_packages(file_path):
+    """parse packages from xml.
+    """
+    packages = []
+
+    for pkg_file in glob.glob(os.path.join(file_path, '*-primary.xml.gz')):
+        with gzip.open(os.path.join(file_path, pkg_file)) as pdata:
+            content = pdata.read()
+        for item in parse_str_xml(content, 'package'):
+            pkg = item.getElementsByTagName('name')[0].firstChild.data
+            tree = item.getElementsByTagName('version')[0]. \
+                attributes['vcs'].value.split('#')[0]
+            packages.append((pkg, tree))
+
+    return packages
+
+
+def parse_images(file_path, prod, target):
+    """parse images from xml.
+    """
+    images = []
+
+    if not os.path.isfile(file_path):
+        return images
+
+    for item in parse_xml(file_path, 'config'):
+        name = item.getElementsByTagName('name')[0].firstChild.data. \
+            split('.')[0]
+        arch = item.getElementsByTagName('arch')[0].firstChild.data
+        images.append((prod, target, arch, name))
+
+    return images
+
+
+def parse_trees_of_prod(tree_dir):
+    """get trees of products from xml.
+    """
+    trees = []
+
+    files = os.listdir(tree_dir)
+
+    for t_file in files:
+        file_path = os.path.join(tree_dir, t_file)
+        for item in parse_xml(file_path, 'project'):
+            tree = item.attributes['path'].value
+            trees.append(tree)
+
+    return list(set(trees))
