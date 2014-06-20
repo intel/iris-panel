@@ -213,9 +213,9 @@ def transform(domains_data, trees_data):
 def load_entity(new, old, key, delete=True, update_fields=None):
     """load entity into database
     """
-    assert new
     added, thesame, deleted = diff(new, old, key)
-    print '{:>15}: added={:<5} thesame={:<5} deleted={:<5} {:<5}'.format(
+    if new:
+        print '{:>15}: added={:<5} thesame={:<5} deleted={:<5} {:<5}'.format(
         new[0].__class__.__name__, len(added), len(thesame),
         len(deleted), delete)
     for i in added:
@@ -231,9 +231,9 @@ def load_entity(new, old, key, delete=True, update_fields=None):
 def load_relation(new, old, key):
     """load relation into database
     """
-    assert new
     added, thesame, deleted = diff(new, old, key)
-    print '{:>15} users: added={:<5} thesame={:<5} deleted={:<5}'.format(
+    if new:
+        print '{:>15} users: added={:<5} thesame={:<5} deleted={:<5}'.format(
         new[0][0].__class__.__name__, len(added), len(thesame), len(deleted))
     for role, user in added:
         role.__class__.objects.get(name=role.name).user_set.add(
@@ -241,12 +241,11 @@ def load_relation(new, old, key):
     for role, user in deleted:
         role.__class__.objects.get(name=role.name).user_set.remove(user)
 
-
-def incremental_import(domain_file, gittree_file):
+def incremental_import_core(domain_str, gittree_str):
     """import data
     """
-    domains_data = parse_blocks(domain_file.read(), 'D', MAPPING)
-    trees_data = parse_blocks(gittree_file.read(), 'T', MAPPING)
+    domains_data = parse_blocks(domain_str, 'D', MAPPING)
+    trees_data = parse_blocks(gittree_str, 'T', MAPPING)
 
     (domains, subdomains, trees,
      domain_roles, subdomain_roles, users,
@@ -319,3 +318,6 @@ def incremental_import(domain_file, gittree_file):
         ]
     load_relation(user_party_roles, db_user_partyrole,
         lambda (g, u): '%s: %s' % (g.party, u.email))
+
+def incremental_import(domain_file, gittree_file):
+    incremental_import_core(domain_file.read(), gittree_file.read())
