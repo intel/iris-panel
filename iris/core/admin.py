@@ -21,7 +21,7 @@ from django.contrib.auth.models import User
 from iris.core.models import (
     Domain, SubDomain, License, GitTree, Package, Product, Image, Log,
     PackageBuild, ImageBuild, TestResult, Submission, SubmissionGroup,
-    UserProfile, UserParty, DomainRole, SubDomainRole, ProductRole, GitTreeRole)
+    UserProfile, UserParty, DomainRole, SubDomainRole, GitTreeRole)
 
 
 class UserProfileInline(admin.StackedInline):
@@ -50,7 +50,6 @@ admin.site.register(User, UserAdmin)
 admin.site.register(UserParty)
 admin.site.register(DomainRole)
 admin.site.register(SubDomainRole)
-admin.site.register(ProductRole)
 admin.site.register(GitTreeRole)
 admin.site.register(Domain)
 admin.site.register(SubDomain)

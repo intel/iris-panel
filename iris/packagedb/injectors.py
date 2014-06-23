@@ -15,8 +15,7 @@ This module contains helpers such as property injectors for models.
 # pylint: disable=E1101,C0111
 
 from iris.core.models import SubDomain, Package, GitTree, Product
-from iris.core.models import (DomainRole, SubDomainRole,
-                              GitTreeRole, ProductRole)
+from iris.core.models import (DomainRole, SubDomainRole, GitTreeRole)
 
 
 def inject_base_getters(obj, user_resolver):
@@ -168,24 +167,3 @@ def inject_gittree(gittree):
         return [user for group in roles for user in group.user_set.all()]
 
     return inject_base_getters(gittree, _get_users)
-
-
-def inject_product(product):
-    """
-    An injector for setting Product object's user getter methods for templates.
-
-    For additional documentation see inject_domain from same module.
-
-    :param  product:    Product to inject the getter methods into
-    :type   product:    Product model object
-    """
-
-    def _get_users(role):
-        """
-        Returns a list of users with given role for the Product object.
-        """
-
-        roles = ProductRole.objects.filter(role=role, product=product)
-        return [user for group in roles for user in group.user_set.all()]
-
-    return inject_base_getters(product, _get_users)

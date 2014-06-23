@@ -20,7 +20,7 @@ from django.shortcuts import render, get_object_or_404
 from iris.core.models import (Domain, SubDomain, License, GitTree, Package,
         Product, Image)
 from iris.packagedb.injectors import (inject_domain, inject_subdomain,
-        inject_gittree, inject_product)
+        inject_gittree)
 
 
 def domain(request, pkid=None):
@@ -90,9 +90,8 @@ def product(request, pkid=None):
         return render(request, 'packagedb/read/single/product.html',
                 {'product': _product, 'gittrees': trees})
     else:
-        _products = [inject_product(p) for p in Product.objects.all()]
         return render(request, 'packagedb/read/multiple/products.html',
-                {'products': _products})
+                      {'products': Product.objects.all()})
 
 
 def image(request, pkid=None):

@@ -32,7 +32,7 @@ from iris.core.models.packagedb import (Domain, SubDomain, License,
 from iris.core.models.submissions import (Log, PackageBuild,
         ImageBuild, TestResult, Submission, SubmissionGroup)
 from iris.core.models.user import (UserProfile, UserParty,
-        ProductRole, DomainRole, SubDomainRole, GitTreeRole)
+        DomainRole, SubDomainRole, GitTreeRole)
 
 
 __all__.extend(['Domain', 'SubDomain', 'License', 'GitTree', 'Package',
@@ -40,4 +40,4 @@ __all__.extend(['Domain', 'SubDomain', 'License', 'GitTree', 'Package',
 __all__.extend(['Log', 'PackageBuild', 'ImageBuild',
                 'TestResult', 'Submission', 'SubmissionGroup', ])
 __all__.extend(['UserProfile', 'UserParty',
-                'ProductRole', 'DomainRole', 'SubDomainRole', 'GitTreeRole', ])
+                'DomainRole', 'SubDomainRole', 'GitTreeRole', ])

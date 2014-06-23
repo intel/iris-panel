@@ -27,7 +27,6 @@ def inject_user_getters(user):
         * get_user_parties
         * get_domain_roles
         * get_gittree_roles
-        * get_product_roles
 
     :param  user:           User to inject methods into
     :type   type:           Django User class instance

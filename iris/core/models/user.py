@@ -75,7 +75,7 @@ class UserParty(Group):
     User could be e.g. part of both Intel and Tizen OS initiative.
     """
 
-    party = models.CharField(max_length=15, choices=parties())
+    party = models.CharField(max_length=15, choices=parties(), unique=True)
 
     def __unicode__(self):
         return self.party
@@ -100,21 +100,6 @@ def roles():
     return _roles
 
 
-class ProductRole(Group):
-    """
-    Group role model concerning a product such as Tizen IVI etc.
-    """
-
-    role = models.CharField(max_length=15, choices=roles(), db_index=True)
-    product = models.ForeignKey(Product)
-
-    def __unicode__(self):
-        return '%s: %s' % (self.role, self.product.name)
-
-    class Meta:
-        app_label = APP_LABEL
-
-
 class DomainRole(Group):
     """
     Group role model concerning a domain such as Security etc.
@@ -128,6 +113,7 @@ class DomainRole(Group):
 
     class Meta:
         app_label = APP_LABEL
+        unique_together = ('role', 'domain')
 
 
 class SubDomainRole(Group):
@@ -143,6 +129,7 @@ class SubDomainRole(Group):
 
     class Meta:
         app_label = APP_LABEL
+        unique_together = ('role', 'subdomain')
 
 
 class GitTreeRole(Group):
@@ -158,3 +145,4 @@ class GitTreeRole(Group):
 
     class Meta:
         app_label = APP_LABEL
+        unique_together = ('role', 'gittree')
