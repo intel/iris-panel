@@ -31,14 +31,15 @@ class DomainTest(unittest.TestCase):
         ''', '')
         assert Domain.objects.get(name="Another")
 
-    def test_add_domains_count(self):
+    def test_add_two_domains(self):
         scm.incremental_import_core('''
             D: Another
             D: System
             ''', '')
-        self.assertEqual(['Another', 'System'], [domain.name for domain in
-            Domain.objects.all().exclude(name='Uncategorized').order_by('name')
-            ])
+        self.assertEqual(
+            [('Another',), ('System',), ('Uncategorized',)],
+            list(Domain.objects.all().order_by('name').values_list('name'))
+            )
 
     def test_delete_domain(self):
         scm.incremental_import_core('''
@@ -46,11 +47,13 @@ class DomainTest(unittest.TestCase):
             D: System
             D: App Framework
             ''', '')
-        scm.incremental_import_core('''D: App Framework''', '')
+        scm.incremental_import_core('D: App Framework', '')
 
-        self.assertEqual(['App Framework'], [domain.name for domain in
-            Domain.objects.all().exclude(name='Uncategorized').order_by('name')
-            ])
+        self.assertEqual(
+            [('App Framework',)],
+            list(Domain.objects.exclude(name='Uncategorized').values_list('name'))
+            )
+
 
 class SubDomainTest(unittest.TestCase):
 
@@ -65,9 +68,12 @@ class SubDomainTest(unittest.TestCase):
         D: System / Alarm
         N: System
         ''', '')
-        d = Domain.objects.get(name='System')
-        assert 'Alarm' == SubDomain.objects.filter(domain=d).\
-                          exclude(name='Uncategorized')[0].name
+        self.assertEquals(
+            [('Alarm', )],
+            list(SubDomain.objects.filter(
+                    domain__name='System').exclude(
+                    name='Uncategorized').values_list('name'))
+            )
 
     def test_add_subdomain_dont_delete_others(self):
         scm.incremental_import_core('''
@@ -87,8 +93,7 @@ class SubDomainTest(unittest.TestCase):
         N: System
         ''', '')
 
-        d = Domain.objects.get(name='System')
-        assert 'Alarm' in [ i.name for i in SubDomain.objects.filter(domain=d)]
+        assert SubDomain.objects.get(domain__name='System', name='Alarm')
 
     def test_add_subdomains_count(self):
         scm.incremental_import_core('''
@@ -100,10 +105,13 @@ class SubDomainTest(unittest.TestCase):
         D: System / Call
         N: System
         ''', '')
-        d = Domain.objects.get(name='System')
-        assert ['Alarm', 'Call' ]  == [ i.name for i in
-                                SubDomain.objects.filter(domain=d).\
-                                exclude(name='Uncategorized').order_by('name')]
+        self.assertEqual(
+            [('Alarm',), ('Call',)],
+            list(SubDomain.objects.filter(
+                    domain__name='System').exclude(
+                    name='Uncategorized').order_by(
+                    'name').values_list('name'))
+            )
 
     def test_delete_subdomain(self):
         scm.incremental_import_core('''
@@ -122,9 +130,13 @@ class SubDomainTest(unittest.TestCase):
         N: System
         ''', '')
 
-        d = Domain.objects.get(name='System')
-        assert 'Call' == SubDomain.objects.filter(domain=d).\
-                          exclude(name='Uncategorized')[0].name
+        self.assertEqual(
+            'Call',
+            SubDomain.objects.filter(
+                domain__name='System').exclude(
+                name='Uncategorized')[0].name
+            )
+
 
 class GitTreeTest(unittest.TestCase):
 
@@ -298,9 +310,13 @@ class TestDomainRole(unittest.TestCase):
         M: Mike <mike@i.com>
         ''', '')
 
-        d = Domain.objects.get(name='System')
-        dr = DomainRole.objects.get(domain=d, role="MAINTAINER")
-        assert ['mike@i.com'] == [i.email for i in dr.user_set.all()]
+        self.assertEquals(
+            [('mike@i.com',)],
+            list(DomainRole.objects.get(
+                    domain__name='System',
+                    role='MAINTAINER').user_set.all(
+                    ).values_list('email'))
+            )
 
     def test_adding_two_domain_reviewers(self):
         scm.incremental_import_core('''
@@ -309,11 +325,13 @@ class TestDomainRole(unittest.TestCase):
         R: Lucy David <lucy.david@inher.com>
         ''', '')
 
-        d = Domain.objects.get(name='System')
-        dr = DomainRole.objects.get(domain=d, role="REVIEWER")
-        self.assertEqual(['Lucy', 'Mike'],
-                         [i.first_name.encode('utf8')
-                          for i in dr.user_set.all().order_by('first_name')])
+        self.assertEqual(
+            [(u'Lucy',), (u'Mike',)],
+            list(DomainRole.objects.get(
+                    domain__name='System',
+                    role='REVIEWER').user_set.all(
+                    ).order_by('first_name').values_list('first_name'))
+            )
 
     def test_delete_integrators(self):
         scm.incremental_import_core('''
@@ -328,30 +346,34 @@ class TestDomainRole(unittest.TestCase):
         I: <lily.edurd@inher.com>
         ''', '')
 
-        d = Domain.objects.get(name='System')
-        dr = DomainRole.objects.get(domain=d, role="INTEGRATOR")
-
-        self.assertEqual(['lily.edurd@inher.com', 'lucy.david@inher.com'],
-        [i.email for i in dr.user_set.all().order_by('email')])
+        self.assertEqual(
+            [('lily.edurd@inher.com',), ('lucy.david@inher.com',)],
+            list(DomainRole.objects.get(
+                    domain__name='System', role="INTEGRATOR").user_set.all(
+                    ).order_by('email').values_list('email'))
+            )
 
     def test_update_architectures(self):
         scm.incremental_import_core('''
         D: System
         A: Mike <mike@i.com>
         ''', '')
-        self.assertEqual(['mike@i.com'], [u.email for u in
-        User.objects.all()])
+        self.assertEqual(
+            ['mike@i.com'],
+            [u.email for u in User.objects.all()])
 
         scm.incremental_import_core('''
         D: System
         A: Mike Chung <mike@i.com>
         ''', '')
 
-        d = Domain.objects.get(name='System')
-        dr = DomainRole.objects.get(domain=d, role="ARCHITECT")
-        self.assertEqual(['Chung'], [i.last_name.encode('utf8')
-                                     for i in dr.user_set.all()])
-        self.assertEqual(['mike@i.com'], [u.email for u in User.objects.all()])
+        self.assertEqual(
+            [u'Chung'],
+            [i.last_name for i in DomainRole.objects.get(
+                    domain__name='System', role="ARCHITECT").user_set.all()])
+        self.assertEqual(
+            ['mike@i.com'],
+            [u.email for u in User.objects.all()])
 
     def test_add_same_user_in_different_domain(self):
         scm.incremental_import_core('''
@@ -362,15 +384,19 @@ class TestDomainRole(unittest.TestCase):
         M: Mike <mike@i.com>
         ''', '')
 
-        d = Domain.objects.get(name='System')
-        dr = DomainRole.objects.get(domain=d, role="ARCHITECT")
-        self.assertEqual(['mike@i.com'], [i.email for i in dr.user_set.all()])
+        self.assertEqual(
+            ['mike@i.com'],
+            [i.email for i in DomainRole.objects.get(
+                    domain__name='System', role="ARCHITECT").user_set.all()])
 
-        d = Domain.objects.get(name='Appframework')
-        dr = DomainRole.objects.get(domain=d, role="MAINTAINER")
-        self.assertEqual(['mike@i.com'], [i.email for i in dr.user_set.all()])
+        self.assertEqual(
+            ['mike@i.com'],
+            [i.email for i in DomainRole.objects.get(
+                    domain__name='Appframework', role="MAINTAINER").user_set.all()])
 
-        self.assertEqual(['mike@i.com'], [u.email for u in User.objects.all()])
+        self.assertEqual(
+            ['mike@i.com'],
+            [u.email for u in User.objects.all()])
 
     def test_roles_transform(self):
         scm.incremental_import_core('''
@@ -386,17 +412,23 @@ class TestDomainRole(unittest.TestCase):
         R: Lily David <lily.david@hello.com>
         A: <lucy.chung@wel.com>
         ''', '')
-        d = Domain.objects.get(name='System')
-        dr = DomainRole.objects.get(domain=d, role="ARCHITECT")
-        self.assertEqual(['lucy.chung@wel.com'],
-                         [i.email for i in dr.user_set.all()])
-        dr = DomainRole.objects.get(domain=d, role="REVIEWER")
-        self.assertEqual(['lily.david@hello.com'],
-                         [i.email for i in dr.user_set.all()])
-        dr = DomainRole.objects.get(domain=d, role="MAINTAINER")
-        self.assertEqual(['mike@i.com'],
-                         [i.email for i in dr.user_set.all()])
-        self.assertEqual(['lily.david@hello.com',
-                          'lucy.chung@wel.com',
-                          'mike@i.com'],
-        [u.email for u in User.objects.all().order_by('email')])
+        self.assertEqual(
+            ['lucy.chung@wel.com'],
+            [i.email for i in DomainRole.objects.get(
+                    domain__name='System', role="ARCHITECT").user_set.all()])
+
+        self.assertEqual(
+            ['lily.david@hello.com'],
+            [i.email for i in DomainRole.objects.get(
+                    domain__name='System', role="REVIEWER").user_set.all()])
+
+        self.assertEqual(
+            ['mike@i.com'],
+            [i.email for i in DomainRole.objects.get(
+                    domain__name='System', role="MAINTAINER").user_set.all()])
+
+        self.assertEqual(
+            ['lily.david@hello.com',
+             'lucy.chung@wel.com',
+             'mike@i.com'],
+            [u.email for u in User.objects.all().order_by('email')])
