@@ -95,6 +95,32 @@ class SubDomainTest(unittest.TestCase):
                 name='Uncategorized')[0].name
             )
 
+    def test_update_subdomain(self):
+        scm.incremental_import_core('''
+        D: System
+
+        D: System / Alarm
+        N: System
+        ''', '')
+        scm.incremental_import_core('''
+        D: System
+        D: App
+
+        D: App / Alarm
+        N: App
+        ''', '')
+
+        self.assertEqual(
+            'Alarm',
+            SubDomain.objects.filter(
+                domain__name='App').exclude(
+                name='Uncategorized')[0].name
+            )
+        self.assertFalse(
+            SubDomain.objects.filter(
+                domain__name='System').exclude(
+                name='Uncategorized')
+            )
 
 class TestSubDomainRole(unittest.TestCase):
     def tearDown(self):
