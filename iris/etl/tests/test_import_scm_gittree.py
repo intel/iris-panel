@@ -7,7 +7,7 @@ import unittest
 
 from django.contrib.auth.models import User
 
-from iris.core.models import Domain, SubDomain, GitTree
+from iris.core.models import Domain, SubDomain, GitTree, License
 from iris.core.models import GitTreeRole
 from iris.etl import scm
 
@@ -373,3 +373,124 @@ class TestGitTreeRole(unittest.TestCase):
                           'mike@i.com',
                           'tom.adwel@hello.com'],
                         [u.email for u in User.objects.all().order_by('email')])
+
+class GitTreeLicenseTest(unittest.TestCase):
+
+    def tearDown(self):
+        License.objects.all().delete()
+        GitTree.objects.all().delete()
+        SubDomain.objects.all().delete()
+        Domain.objects.all().delete()
+
+    def test_add_one_license_for_gittree(self):
+        License.objects.create(shortname='BSD-2-Clause')
+        scm.incremental_import_core('''
+        D: System
+
+        D: System / Alarm
+        N: System
+        ''',
+        '''
+        T: dapt/alsa
+        D: System / Alarm
+        L: BSD-2-Clause
+        ''')
+        self.assertEqual(
+            ['BSD-2-Clause'],
+            [l.shortname for l in License.objects.filter(
+                gittree__gitpath='dapt/alsa')])
+
+    def test_add_three_licenses_for_gittree(self):
+        License.objects.bulk_create([
+            License(shortname='BSD-2-Clause'),
+            License(shortname='CC-BY-NC-2.5'),
+            License(shortname='Epinions')
+        ])
+        scm.incremental_import_core('''
+        D: System
+
+        D: System / Alarm
+        N: System
+        ''',
+        '''
+         T: adaptation/face-engine
+         D: System / Alarm
+         L: BSD-2-Clause
+         L: CC-BY-NC-2.5
+         L: Epinions
+        ''')
+        self.assertEqual(
+            ['BSD-2-Clause', 'CC-BY-NC-2.5', 'Epinions'],
+            [l.shortname for l in License.objects.filter(
+                gittree__gitpath='adaptation/face-engine')])
+
+    def test_delete_license_for_gittree(self):
+        ''' left one license '''
+        License.objects.bulk_create([
+            License(shortname='BSD-2-Clause'),
+            License(shortname='CC-BY-NC-2.5'),
+            License(shortname='Epinions')
+        ])
+        scm.incremental_import_core('''
+        D: System
+
+        D: System / Alarm
+        N: System
+        ''',
+        '''
+         T: adaptation/face-engine
+         D: System / Alarm
+         L: BSD-2-Clause
+         L: CC-BY-NC-2.5
+         L: Epinions
+        ''')
+        scm.incremental_import_core('''
+        D: System
+
+        D: System / Alarm
+        N: System
+        ''',
+        '''
+         T: adaptation/face-engine
+         D: System / Alarm
+         L: Epinions
+        ''')
+
+        self.assertEqual(
+            ['Epinions'],
+            [l.shortname for l in License.objects.filter(
+                gittree__gitpath='adaptation/face-engine')])
+
+    def test_delete_all_license_for_gittree(self):
+        License.objects.bulk_create([
+            License(shortname='BSD-2-Clause'),
+            License(shortname='CC-BY-NC-2.5'),
+            License(shortname='Epinions')
+        ])
+        scm.incremental_import_core('''
+        D: System
+
+        D: System / Alarm
+        N: System
+        ''',
+        '''
+         T: adaptation/face-engine
+         D: System / Alarm
+         L: BSD-2-Clause
+         L: CC-BY-NC-2.5
+         L: Epinions
+        ''')
+        scm.incremental_import_core('''
+        D: System
+
+        D: System / Alarm
+        N: System
+        ''',
+        '''
+         T: adaptation/face-engine
+         D: System / Alarm
+        ''')
+        self.assertEqual(
+            [],
+            [l.shortname for l in License.objects.filter(
+                gittree__gitpath='adaptation/face-engine')])
