@@ -14,7 +14,7 @@ Data is available from:
 from django.contrib.auth.models import User
 
 from iris.core.models import (
-    Domain, SubDomain, GitTree, DomainRole,
+    Domain, SubDomain, GitTree, DomainRole, License,
     SubDomainRole, GitTreeRole, UserParty)
 from iris.etl.parser import parse_blocks, parse_user
 
@@ -162,6 +162,7 @@ def transform(domains_data, trees_data):
 
     # Gittree, User
     trees = []
+    trees_licenses = []
     tree_roles = []
     user_gittreerole = []
     for data in trees_data:
@@ -172,6 +173,9 @@ def transform(domains_data, trees_data):
             name = ' / '.join([name, NONAME])
         tree = GitTree(gitpath=path, subdomain=subdomains[name])
         trees.append(tree)
+        for licen in data.get('LICENSES', ()):
+            license_obj = License.objects.get(shortname=licen)
+            trees_licenses.append((tree, license_obj))
 
         for role in ROLES:
             if role in data:
@@ -203,7 +207,7 @@ def transform(domains_data, trees_data):
                     user_subdomainrole.extend((subdomain_role, i)
                         for i in data[role] if i)
 
-    return (domains.values(), subdomains.values(), trees,
+    return (domains.values(), subdomains.values(), trees, trees_licenses,
             domain_roles.values(), subdomain_roles.values(), users.values(),
             tree_roles, user_domainrole, user_subdomainrole,
             user_gittreerole, party_roles, user_party_roles
@@ -241,13 +245,25 @@ def load_relation(new, old, key):
     for role, user in deleted:
         role.__class__.objects.get(name=role.name).user_set.remove(user)
 
+def load_license(new, old, key):
+    """load license into database
+    """
+    added, thesame, deleted = diff(new, old, key)
+    if new:
+        print '{:>15} license: added={:<5} thesame={:<5} deleted={:<5}'.format(
+        new[0][0].__class__.__name__, len(added), len(thesame), len(deleted))
+    for tree, licen in added:
+        tree.licenses.add(licen)
+    for tree, licen in deleted:
+        tree.licenses.remove(licen)
+
 def incremental_import_core(domain_str, gittree_str):
     """import data
     """
     domains_data = parse_blocks(domain_str, 'D', MAPPING)
     trees_data = parse_blocks(gittree_str, 'T', MAPPING)
 
-    (domains, subdomains, trees,
+    (domains, subdomains, trees, trees_licenses,
      domain_roles, subdomain_roles, users,
      tree_roles, user_domainrole, user_subdomainrole,
      user_treerole, party_roles, user_party_roles,
@@ -318,6 +334,11 @@ def incremental_import_core(domain_str, gittree_str):
         ]
     load_relation(user_party_roles, db_user_partyrole,
         lambda (g, u): '%s: %s' % (g.party, u.email))
+
+    db_gitree_licenses = [(t, l) for t in GitTree.objects.all().
+        prefetch_related('licenses') for l in t.licenses.all()]
+    load_license(trees_licenses, db_gitree_licenses,
+        lambda (t, l): '%s: %s' %(t.gitpath, l.shortname))
 
 def incremental_import(domain_file, gittree_file):
     incremental_import_core(domain_file.read(), gittree_file.read())
