@@ -17,6 +17,7 @@ import os
 from os import path
 from sys import prefix, argv
 from pkg_resources import iter_entry_points
+from django.conf import global_settings
 
 # ConfigParser was renamed to configparser in Python 3
 try:
@@ -216,6 +217,10 @@ KEYFILE = '/etc/iris/secret.txt'
 if path.isfile(KEYFILE) and os.access(KEYFILE, os.R_OK):
     with open(KEYFILE) as secret:
         SECRET_KEY = secret.read()
+
+TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
+    'core.context_processors.version',
+    )
 
 # Attempt to load overrides to common settings.
 # Settings in /etc/iris/iris.conf are pure Python code
