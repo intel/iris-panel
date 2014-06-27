@@ -56,7 +56,7 @@ def parse_blocks(content, starter, mapping=()):
         if not line:
             continue
 
-        mark, val = line.split(':')
+        mark, val = line.split(':', 1)
         mark, val = mark.strip(), val.strip()
         field = mapping.get(mark, mark)
 
