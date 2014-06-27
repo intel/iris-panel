@@ -117,6 +117,7 @@ Requires:       python-django-auth-ldap
 Requires:       python-django-crispy-forms
 Requires:       python-djangorestframework
 Requires:       python-django-rest-swagger
+Requires:       python-pyquery
 Requires:       git
 Requires(pre):  pwdutils
 
