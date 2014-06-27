@@ -42,7 +42,7 @@ NONAME = 'Uncategorized'
 def parse_name(name):
     """parse domain name and subdomain name from the given name
     """
-    names = name.split(' / ')
+    names = name.split(' / ', 1)
     domain = names[0]
     subdomain = names[1] if len(names) > 1 else 'Uncategorized'
 
