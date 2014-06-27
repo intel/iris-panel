@@ -32,6 +32,20 @@ class SubDomainTest(unittest.TestCase):
                     domain__name='System').exclude(
                     name='Uncategorized').values_list('name'))
             )
+    def test_subdomain_includes_slash_colon(self):
+        scm.incremental_import_core('''
+        D: System
+
+        D: System / Alarm:Clock/Hash
+        N: System
+        ''', '')
+        self.assertEquals(
+            [('Alarm:Clock/Hash', )],
+            list(SubDomain.objects.filter(
+                    domain__name='System').exclude(
+                    name='Uncategorized').values_list('name'))
+            )
+
 
     def test_add_subdomain_dont_delete_others(self):
         scm.incremental_import_core('''

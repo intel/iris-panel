@@ -23,6 +23,10 @@ class DomainTest(unittest.TestCase):
         scm.incremental_import_core("D: System", "")
         assert Domain.objects.get(name='System')
 
+    def test_domain_name_include_colon(self):
+        scm.incremental_import_core("D: System:Test", "")
+        assert Domain.objects.get(name='System:Test')
+
     def test_add_domain_dont_delete_others(self):
         scm.incremental_import_core("D: Another", "")
 

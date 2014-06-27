@@ -36,6 +36,22 @@ class GitTreeTest(unittest.TestCase):
             [g.gitpath for g in GitTree.objects.filter(
                 subdomain__name='Alarm')])
 
+    def test_gitpath_include_colon(self):
+        scm.incremental_import_core('''
+        D: System
+
+        D: System / Alarm
+        N: System
+        ''',
+        '''
+        T: dapt/alsa:sde
+        D: System / Alarm
+        ''')
+        self.assertEqual(
+            ['dapt/alsa:sde'],
+            [g.gitpath for g in GitTree.objects.filter(
+                subdomain__name='Alarm')])
+
     def test_add_gittree_dont_delete_others(self):
         scm.incremental_import_core('''
          D: System
