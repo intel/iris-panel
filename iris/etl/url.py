@@ -1,10 +1,4 @@
 "This module provides URL component to parse and download http url"
-
-
-# pylint: disable=E1101
-#E1101: Instance of 'URL' has no 'href' member
-
-
 import os
 import re
 import base64
@@ -15,6 +9,10 @@ from subprocess import check_call, CalledProcessError
 from urlparse import urlsplit, urlunsplit
 from collections import namedtuple
 
+# pylint: disable=E1101,W0232,E1002
+# E1101: Instance of 'URL' has no 'href' member
+# W0232: 22,0:URL: Class has no __init__ method
+# E1002: 25,4:URL.__new__: Use of super on an old style class
 
 __ALL__ = ('URL', )
 

@@ -7,9 +7,8 @@ import unittest
 
 from django.contrib.auth.models import User
 
-from iris.core.models import Domain, SubDomain
-from iris.core.models import SubDomainRole
-from iris.etl import scm
+from iris.core.models import Domain, SubDomain, SubDomainRole
+from iris.etl.scm import from_string, ROLES
 
 #pylint: skip-file
 
@@ -20,7 +19,7 @@ class SubDomainTest(unittest.TestCase):
         Domain.objects.all().delete()
 
     def test_add_one_subdomain(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -33,7 +32,7 @@ class SubDomainTest(unittest.TestCase):
                     name='Uncategorized').values_list('name'))
             )
     def test_subdomain_includes_slash_colon(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm:Clock/Hash
@@ -48,14 +47,14 @@ class SubDomainTest(unittest.TestCase):
 
 
     def test_add_subdomain_dont_delete_others(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
         N: System
         ''', '')
 
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -68,7 +67,7 @@ class SubDomainTest(unittest.TestCase):
         assert SubDomain.objects.get(domain__name='System', name='Alarm')
 
     def test_add_two_subdomains(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -86,7 +85,7 @@ class SubDomainTest(unittest.TestCase):
             )
 
     def test_delete_one_subdomain(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -95,7 +94,7 @@ class SubDomainTest(unittest.TestCase):
         D: System / Call
         N: System
         ''', '')
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Call
@@ -110,7 +109,7 @@ class SubDomainTest(unittest.TestCase):
             )
 
     def test_delete_all_subdomains(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -119,22 +118,20 @@ class SubDomainTest(unittest.TestCase):
         D: System / Call
         N: System
         ''', '')
-        scm.incremental_import_core('''
-        D: System
-        ''', '')
+        from_string('D: System', '')
 
         self.assertEqual(
             ['Uncategorized'],
             [s.name for s in SubDomain.objects.filter(domain__name='System')])
 
     def test_update_subdomain(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
         N: System
         ''', '')
-        scm.incremental_import_core('''
+        from_string('''
         D: System
         D: App
 
@@ -162,7 +159,7 @@ class TestSubDomainRole(unittest.TestCase):
         User.objects.all().delete()
 
     def test_add_subdomain_maintainer(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -175,7 +172,7 @@ class TestSubDomainRole(unittest.TestCase):
                subdomain__name='Clock', role="MAINTAINER").user_set.all()])
 
     def test_adding_two_subdomain_reviewers(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -192,7 +189,7 @@ class TestSubDomainRole(unittest.TestCase):
     def test_delete_integrators(self):
         ''' delete integrator: Mike <mike@i.com> '''
 
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -201,7 +198,7 @@ class TestSubDomainRole(unittest.TestCase):
         I: Lucy David <lucy.david@inher.com>
         I: <lily.edurd@inher.com>
         ''', '')
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -216,7 +213,7 @@ class TestSubDomainRole(unittest.TestCase):
                 role='INTEGRATOR').user_set.all().order_by('email')])
 
     def test_delete_all_roles(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -226,20 +223,20 @@ class TestSubDomainRole(unittest.TestCase):
         M: <lily.edurd@inher.com>
         A: <tom.edurd@inher.com>
         ''', '')
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
         N: System
         ''', '')
-        for role in scm.ROLES:
+        for role in ROLES:
             self.assertEqual(
               [],
               [r.role for r in SubDomainRole.objects.filter(
                 subdomain__name='Clock', role=role)])
 
     def test_update_architectures(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -250,7 +247,7 @@ class TestSubDomainRole(unittest.TestCase):
             ['mike@i.com'],
             [u.email for u in User.objects.all()])
 
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -267,7 +264,7 @@ class TestSubDomainRole(unittest.TestCase):
             [u.email for u in User.objects.all()])
 
     def test_add_same_user_in_different_subdomain(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -294,7 +291,7 @@ class TestSubDomainRole(unittest.TestCase):
             [u.email for u in User.objects.all()])
 
     def test_roles_transform(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -305,7 +302,7 @@ class TestSubDomainRole(unittest.TestCase):
         R: Tom Frédéric <tom.adwel@hello.com>
         ''', '')
 
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock

@@ -1,11 +1,15 @@
-#!/usr/bin/env python
 # -*- encoding: utf-8 -*-
-
-
 """
 Module for importing Product, Package, Image data into IRIS.
 """
+import os
+import logging
 
+from iris.core.models import GitTree, Product, Package, Image
+from iris.etl.loader import get_default_loader
+from iris.etl.parser import (
+    parse_buildxml, parse_trees_of_prod, parse_packages, parse_images
+    )
 
 # pylint: disable=E0611,E1101,F0401,R0914,C0103
 #E0611: No name 'manage' in module 'iris'
@@ -14,99 +18,30 @@ Module for importing Product, Package, Image data into IRIS.
 #C0321: More than one statement on a single line
 #C0103: Invalid name "logger"
 
-
-import os
-import logging
-
-from django.core.exceptions import ObjectDoesNotExist
-from iris.core.models import GitTree, Product, Package, Image
-from iris.etl import scm
-from iris.etl import parser
-
-
 logger = logging.getLogger(__name__)
 
 
 def transform(prod, prod_path):
     """transform data
     """
-    prod_tree = []
-    package_data = []
-    pkg_tree = []
-    image_data = []
+    trees, pkgs, imgs = get_prod_data(prod, prod_path)
 
-    product = Product.objects.get(name=prod)
-    # get data from Tizen path by product name
-    trees, packages, images = get_prod_data(product, prod_path)
+    product_trees = [({'name': prod}, {'gitpath': gitpath})
+                     for gitpath in trees]
 
-    for tree in trees:
-        try:
-            gittree = GitTree.objects.get(gitpath=tree)
-        except ObjectDoesNotExist:
-            logger.warning("%s GitTree object is not existing in DB!", tree)
-            continue
-        prod_tree.append(gittree)
+    packages = [{'name': name} for name in
+                {pkgname for pkgname, _ in pkgs}]
 
-    for pkg, tree in packages:
-        try:
-            gittree = GitTree.objects.get(gitpath=tree)
-        except ObjectDoesNotExist:
-            logger.warning("%s releated %s is not existing in DB!", pkg, tree)
-            continue
-        package = Package(name=pkg)
-        package_data.append(package)
-        pkg_tree.append((gittree, package))
+    trees_packages = [({'gitpath': gitpath}, {'name': pkgname})
+                      for pkgname, gitpath in pkgs]
 
-    for prod, target, arch, name in images:
-        image = Image(product=product, target=target, arch=arch, name=name)
-        image_data.append(image)
+    images = [{'name': name,
+               'target': target,
+               'arch': arch,
+               'product__name': prod,
+               } for target, arch, name in imgs]
 
-    return product, package_data, image_data, pkg_tree, prod_tree
-
-
-def incremental_import(prod, prod_path):
-    """import data
-    """
-    product, packages, images, pkg_tree, prod_tree = transform(prod, prod_path)
-
-    scm.load_entity(packages, Package.objects.all(),
-        lambda i: i.name, delete=False)
-
-    scm.load_entity(images, Image.objects.select_related('product').all(),
-        lambda i: '%s: %s-%s' % (i.product.name, i.target, i.name),
-        delete=False)
-
-    db_prod_tree = [t for t in product.gittrees.all()]
-    load_prod_tree(product, prod_tree, db_prod_tree, lambda t: t.gitpath)
-
-    db_pkg_tree = [(t, p) for t in product.gittrees.all()
-        for p in t.packages.all()]
-    load_pkg_tree(pkg_tree, db_pkg_tree, lambda (t, p): '%s: %s' % (t.gitpath,
-        p.name))
-
-
-def load_pkg_tree(new, old, key):
-    """load relations of packages and gittrees into database
-    """
-    assert new
-    added, thesame, deleted = scm.diff(new, old, key)
-    print '{:>15} added={:<5} thesame={:<5} deleted={:<5}'.format(
-        'GitTree of Package', len(added), len(thesame), len(deleted))
-    for tree, obj in added:
-        tree.packages.add(obj.__class__.objects.get(name=obj.name))
-
-
-def load_prod_tree(product, new, old, key):
-    """load relations products and trees into database
-    """
-    assert new
-    added, thesame, deleted = scm.diff(new, old, key)
-    print '{:>15} added={:<5} thesame={:<5} deleted={:<5}'.format(
-        'GitTree of Product', len(added), len(thesame), len(deleted))
-    for obj in added:
-        product.gittrees.add(obj)
-    for obj in deleted:
-        product.gittrees.remove(obj)
+    return product_trees, packages, trees_packages, images
 
 
 def get_prod_data(prod, prod_path):
@@ -115,17 +50,34 @@ def get_prod_data(prod, prod_path):
     packages = []
     images = []
     build_file = os.path.join(prod_path, 'build.xml')
-    repo_file = os.path.join(prod_path,
-        'repos/%s/packages/repodata/')
+    repo_file = os.path.join(prod_path, 'repos/%s/packages/repodata/')
     image_file = os.path.join(prod_path, 'builddata/images/%s/images.xml')
     tree_dir = os.path.join(prod_path, 'builddata/manifest')
 
-    targets = parser.parse_buildxml(build_file)
-    trees = parser.parse_trees_of_prod(tree_dir)
+    targets = parse_buildxml(build_file)
+    trees = parse_trees_of_prod(tree_dir)
 
     for target in targets:
-        packages.extend(parser.parse_packages(repo_file % target))
-        images.extend(parser.parse_images(image_file % target,
-            prod.name, target))
+        packages.extend(parse_packages(repo_file % target))
+        images.extend(parse_images(image_file % target, target))
 
     return trees, packages, images
+
+
+def from_dir(prod, prod_path):
+    """
+    Load snapshot related data into database, which includes project-trees
+    relationship, trees-packages relationship and images.
+    """
+    # 1.transform
+    (products_trees,
+     packages, trees_packages,
+     images) = transform(prod, prod_path)
+
+    # 2.load
+    loader = get_default_loader()
+    loader.sync_entity(packages, Package)
+    loader.sync_entity(images, Image)
+
+    loader.sync_nnr(products_trees, Product, GitTree)
+    loader.sync_nnr(trees_packages, GitTree, Package)

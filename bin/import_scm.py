@@ -37,7 +37,7 @@ def main():
 
     print('Starting package data update...')
     transaction.set_autocommit(False)
-    scm.incremental_import(args.domain, args.gittree)
+    scm.from_file(args.domain, args.gittree)
     transaction.commit()
 
 if __name__ == '__main__':

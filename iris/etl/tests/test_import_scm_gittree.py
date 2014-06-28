@@ -7,9 +7,8 @@ import unittest
 
 from django.contrib.auth.models import User
 
-from iris.core.models import Domain, SubDomain, GitTree, License
-from iris.core.models import GitTreeRole
-from iris.etl import scm
+from iris.core.models import Domain, SubDomain, GitTree, License, GitTreeRole
+from iris.etl.scm import from_string, ROLES
 
 #pylint: skip-file
 
@@ -21,7 +20,7 @@ class GitTreeTest(unittest.TestCase):
         Domain.objects.all().delete()
 
     def test_add_one_GitTree(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -37,7 +36,7 @@ class GitTreeTest(unittest.TestCase):
                 subdomain__name='Alarm')])
 
     def test_add_one_GitTree_with_empty_domain(self):
-        scm.incremental_import_core('''
+        from_string('''
         ''',
         '''
         T: dapt/alsa
@@ -50,7 +49,7 @@ class GitTreeTest(unittest.TestCase):
                 subdomain__domain__name='Uncategorized')])
 
     def test_add_one_GitTree_without_domain(self):
-        scm.incremental_import_core('''
+        from_string('''
         ''',
         '''
         T: dapt/alsa
@@ -62,7 +61,7 @@ class GitTreeTest(unittest.TestCase):
                 subdomain__domain__name='Uncategorized')])
 
     def test_add_one_GitTree_with_domain(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
         ''',
         '''
@@ -76,7 +75,7 @@ class GitTreeTest(unittest.TestCase):
                 subdomain__domain__name='System')])
 
     def test_gitpath_include_colon(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -92,7 +91,7 @@ class GitTreeTest(unittest.TestCase):
                 subdomain__name='Alarm')])
 
     def test_add_gittree_dont_delete_others(self):
-        scm.incremental_import_core('''
+        from_string('''
          D: System
 
          D: System / Alarm
@@ -102,7 +101,7 @@ class GitTreeTest(unittest.TestCase):
          T: dapt/alsa
          D: System / Alarm
          ''')
-        scm.incremental_import_core('''
+        from_string('''
          D: System
 
          D: System / Alarm
@@ -121,7 +120,7 @@ class GitTreeTest(unittest.TestCase):
                 subdomain__name='Alarm').order_by('gitpath')])
 
     def test_add_three_gittrees(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -148,7 +147,7 @@ class GitTreeTest(unittest.TestCase):
 
     def test_delete_gittree(self):
         ''' delete gitree: ad/alsa '''
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -168,7 +167,7 @@ class GitTreeTest(unittest.TestCase):
          D: System / Call
         ''')
 
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -198,7 +197,7 @@ class GitTreeTest(unittest.TestCase):
 
     def test_update_GitTree(self):
         '''Change gitree's subdomain from "System / Alarm" to "System / Call" '''
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -208,7 +207,7 @@ class GitTreeTest(unittest.TestCase):
         T: adaptation/alsa-scenario-scn-data-0-base
         D: System / Alarm
         ''')
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -238,7 +237,7 @@ class TestGitTreeRole(unittest.TestCase):
         User.objects.all().delete()
 
     def test_add_gittree_maintainer(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -255,7 +254,7 @@ class TestGitTreeRole(unittest.TestCase):
                gittree__gitpath='a/b', role="MAINTAINER").user_set.all()])
 
     def test_add_two_gittree_reviewers(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -276,7 +275,7 @@ class TestGitTreeRole(unittest.TestCase):
     def test_delete_integrators(self):
         ''' delete integrator: Mike <mike@i.com> '''
 
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -289,7 +288,7 @@ class TestGitTreeRole(unittest.TestCase):
         I: Lucy David <lucy.david@inher.com>
         I: <lily.edurd@inher.com>
         ''')
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -308,7 +307,7 @@ class TestGitTreeRole(unittest.TestCase):
                 role='INTEGRATOR').user_set.all().order_by('email')])
 
     def test_delete_all_roles(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -322,7 +321,7 @@ class TestGitTreeRole(unittest.TestCase):
         I: <lily.edurd@inher.com>
         M: <tom.edurd@inher.com>
         ''')
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -332,7 +331,7 @@ class TestGitTreeRole(unittest.TestCase):
         T: a/b
         D: System / Clock
         ''')
-        for role in scm.ROLES:
+        for role in ROLES:
             self.assertEqual(
             [],
             [r.role for r in GitTreeRole.objects.filter(
@@ -340,7 +339,7 @@ class TestGitTreeRole(unittest.TestCase):
             role=role)])
 
     def test_update_architectures(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -355,7 +354,7 @@ class TestGitTreeRole(unittest.TestCase):
             ['mike@i.com'],
             [u.email for u in User.objects.all()])
 
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -376,7 +375,7 @@ class TestGitTreeRole(unittest.TestCase):
             [u.email for u in User.objects.all()])
 
     def test_add_same_user_in_different_gittree(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -410,7 +409,7 @@ class TestGitTreeRole(unittest.TestCase):
             [u.email for u in User.objects.all()])
 
     def test_roles_transform(self):
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -425,7 +424,7 @@ class TestGitTreeRole(unittest.TestCase):
         R: Tom Frédéric <tom.adwel@hello.com>
         ''')
 
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Clock
@@ -471,7 +470,7 @@ class GitTreeLicenseTest(unittest.TestCase):
 
     def test_add_one_license_for_gittree(self):
         License.objects.create(shortname='BSD-2-Clause')
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -493,7 +492,7 @@ class GitTreeLicenseTest(unittest.TestCase):
             License(shortname='CC-BY-NC-2.5'),
             License(shortname='Epinions')
         ])
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -518,7 +517,7 @@ class GitTreeLicenseTest(unittest.TestCase):
             License(shortname='CC-BY-NC-2.5'),
             License(shortname='Epinions')
         ])
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -531,7 +530,7 @@ class GitTreeLicenseTest(unittest.TestCase):
          L: CC-BY-NC-2.5
          L: Epinions
         ''')
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -554,7 +553,7 @@ class GitTreeLicenseTest(unittest.TestCase):
             License(shortname='CC-BY-NC-2.5'),
             License(shortname='Epinions')
         ])
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm
@@ -567,7 +566,7 @@ class GitTreeLicenseTest(unittest.TestCase):
          L: CC-BY-NC-2.5
          L: Epinions
         ''')
-        scm.incremental_import_core('''
+        from_string('''
         D: System
 
         D: System / Alarm

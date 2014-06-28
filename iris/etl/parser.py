@@ -1,9 +1,7 @@
 # -*- encoding: utf-8 -*-
-
-
-"""Parse IRIS data
 """
-
+Parsing code for scm text
+"""
 import os
 import glob
 import gzip
@@ -12,6 +10,60 @@ from email.utils import parseaddr
 from xml.dom import minidom
 
 from django.core.validators import validate_email, ValidationError
+
+
+class UserCache(object):
+    """Cache user string to merge duplication"""
+    def __init__(self):
+        self.groups = []
+        self.index = {}
+
+    def update(self, ustring):
+        """Update user string into cache"""
+        def _eq(user1, user2):
+            "compare two users"
+            email1, first1, last1 = user1
+            email2, first2, last2 = user2
+            return email1 == email2 or (first1, last1) == (first2, last2)
+
+        def _is_group_match(group, name):
+            "is there any user equals in a group"
+            for i, _ in group:
+                if _eq(name, i):
+                    return True
+
+        name = parse_user(ustring)
+        newg = set()
+        ngs = []
+        for group in self.groups:
+            if _is_group_match(group, name):
+                newg |= group
+            else:
+                ngs.append(group)
+        newg.add((name, ustring))
+        ngs.append(newg)
+        self.groups = ngs
+
+        user = self._make_user(newg)
+        for _, ustring in newg:
+            self.index[ustring] = user
+
+    def all(self):
+        """Returns all users"""
+        return [self._make_user(i) for i in self.groups]
+
+    def get(self, ustring):
+        """Get a user by a given user string"""
+        return self.index.get(ustring)
+
+    @staticmethod
+    def _make_user(group):
+        """Make full user fields from cache"""
+        keys = ('email', 'first_name', 'last_name')
+        user = dict(zip(keys, ('', '', '')))
+        for i, _ in group:
+            user.update({k: v for k, v in zip(keys, i) if v})
+        return user
 
 
 def parse_user(ustring):
@@ -126,7 +178,7 @@ def parse_packages(file_path):
     packages = []
 
     for pkg_file in glob.glob(os.path.join(file_path, '*-primary.xml.gz')):
-        with gzip.open(os.path.join(file_path, pkg_file)) as pdata:
+        with gzip.open(pkg_file) as pdata:
             content = pdata.read()
         for item in parse_str_xml(content, 'package'):
             pkg = item.getElementsByTagName('name')[0].firstChild.data
@@ -137,7 +189,7 @@ def parse_packages(file_path):
     return packages
 
 
-def parse_images(file_path, prod, target):
+def parse_images(file_path, target):
     """parse images from xml.
     """
     images = []
@@ -149,7 +201,7 @@ def parse_images(file_path, prod, target):
         name = item.getElementsByTagName('name')[0].firstChild.data. \
             split('.')[0]
         arch = item.getElementsByTagName('arch')[0].firstChild.data
-        images.append((prod, target, arch, name))
+        images.append((target, arch, name))
 
     return images
 
