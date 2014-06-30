@@ -46,7 +46,7 @@ class DomainTest(unittest.TestCase):
             list(Domain.objects.all().order_by('name').values_list('name'))
             )
 
-    def test_delete_domain(self):
+    def test_delete_two_domains(self):
         scm.incremental_import_core('''
             D: Another
             D: System
@@ -58,6 +58,20 @@ class DomainTest(unittest.TestCase):
             [('App Framework',)],
             list(Domain.objects.exclude(name='Uncategorized').values_list('name'))
             )
+
+    def test_delete_all_domains(self):
+        scm.incremental_import_core('''
+            D: Another
+            D: System
+            D: App Framework
+            ''', '')
+        scm.incremental_import_core('', '')
+
+        self.assertEqual(
+            [('Uncategorized',)],
+            list(Domain.objects.all().values_list('name'))
+            )
+
 
 
 class TestDomainRole(unittest.TestCase):
@@ -114,6 +128,23 @@ class TestDomainRole(unittest.TestCase):
                     domain__name='System', role="INTEGRATOR").user_set.all(
                     ).order_by('email').values_list('email'))
             )
+
+    def test_delete_all_roles(self):
+        scm.incremental_import_core('''
+        D: System
+        R: Mike <mike@i.com>
+        A: Lucy David <lucy.david@inher.com>
+        I: <lily.edurd@inher.com>
+        M: <tom.edurd@inher.com>
+        ''', '')
+        scm.incremental_import_core('''
+        D: System
+        ''', '')
+        for role in scm.ROLES:
+            self.assertEqual(
+            [],
+            [r.role for r in DomainRole.objects.filter(
+                domain__name='System', role=role)])
 
     def test_update_architectures(self):
         scm.incremental_import_core('''
