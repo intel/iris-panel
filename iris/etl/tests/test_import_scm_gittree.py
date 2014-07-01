@@ -36,6 +36,45 @@ class GitTreeTest(unittest.TestCase):
             [g.gitpath for g in GitTree.objects.filter(
                 subdomain__name='Alarm')])
 
+    def test_add_one_GitTree_with_empty_domain(self):
+        scm.incremental_import_core('''
+        ''',
+        '''
+        T: dapt/alsa
+        D:
+        ''')
+        self.assertEqual(
+            ['dapt/alsa'],
+            [g.gitpath for g in GitTree.objects.filter(
+                subdomain__name='Uncategorized',
+                subdomain__domain__name='Uncategorized')])
+
+    def test_add_one_GitTree_without_domain(self):
+        scm.incremental_import_core('''
+        ''',
+        '''
+        T: dapt/alsa
+        ''')
+        self.assertEqual(
+            ['dapt/alsa'],
+            [g.gitpath for g in GitTree.objects.filter(
+                subdomain__name='Uncategorized',
+                subdomain__domain__name='Uncategorized')])
+
+    def test_add_one_GitTree_with_domain(self):
+        scm.incremental_import_core('''
+        D: System
+        ''',
+        '''
+        T: dapt/alsa
+        D: System
+        ''')
+        self.assertEqual(
+            ['dapt/alsa'],
+            [g.gitpath for g in GitTree.objects.filter(
+                subdomain__name='Uncategorized',
+                subdomain__domain__name='System')])
+
     def test_gitpath_include_colon(self):
         scm.incremental_import_core('''
         D: System
@@ -267,6 +306,38 @@ class TestGitTreeRole(unittest.TestCase):
             [i.email for i in GitTreeRole.objects.get(
                 gittree__gitpath='a/b',
                 role='INTEGRATOR').user_set.all().order_by('email')])
+
+    def test_delete_all_roles(self):
+        scm.incremental_import_core('''
+        D: System
+
+        D: System / Clock
+        N: System
+        ''',
+        '''
+        T: a/b
+        D: System / Clock
+        R: Mike <mike@i.com>
+        A: Lucy David <lucy.david@inher.com>
+        I: <lily.edurd@inher.com>
+        M: <tom.edurd@inher.com>
+        ''')
+        scm.incremental_import_core('''
+        D: System
+
+        D: System / Clock
+        N: System
+        ''',
+        '''
+        T: a/b
+        D: System / Clock
+        ''')
+        for role in scm.ROLES:
+            self.assertEqual(
+            [],
+            [r.role for r in GitTreeRole.objects.filter(
+            gittree__gitpath='a/b',
+            role=role)])
 
     def test_update_architectures(self):
         scm.incremental_import_core('''

@@ -167,8 +167,8 @@ def transform(domains_data, trees_data):
     user_gittreerole = []
     for data in trees_data:
         path = data['TREE PATH']
-        # assume that DOMAIN key has and must only has one item
-        name = data['DOMAIN'][0] or NONAME
+        # DOMAIN key exists or not, if exists, its values has only one item
+        name = data.get('DOMAIN', [NONAME])[0] or NONAME
         if ' / ' not in name: # will be removed in future
             name = ' / '.join([name, NONAME])
         tree = GitTree(gitpath=path, subdomain=subdomains[name])
