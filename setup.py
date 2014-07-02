@@ -68,6 +68,7 @@ setup(
         'bin/import_scm.py',
         'bin/update_iris_data.sh',
         'bin/import_snapshot.py',
+        'bin/download_snapshots.py',
     ],
 )
 
