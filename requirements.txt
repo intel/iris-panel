@@ -6,4 +6,4 @@ djangorestframework==2.3.9
 django-rest-swagger==0.1.11
 django-crispy-forms==1.4.0
 MySQL-python==1.2.3
-pyquery==1.2.4
+pyquery==1.2.8
