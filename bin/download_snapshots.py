@@ -17,18 +17,18 @@ from iris.etl.url import URL
 # Add Django settings for the sake of imports
 os.environ['DJANGO_SETTINGS_MODULE'] = 'iris.core.settings'
 
-WORKDIR = '/tmp/tizen_snapshots/'
-
 
 def main():
     """download snapshots and call import_packages script
     """
-    desc = "Download Tizen snapshots to %s on your file system." % WORKDIR
+    desc = "Download Tizen snapshots to the given workdir on your file system."
     parser = argparse.ArgumentParser(description=desc)
-    parser.parse_args()
+    parser.add_argument('workdir', type=str, help='Use for saving Snapshots')
+    args = parser.parse_args()
+    workdir = args.workdir
 
-    if not os.path.exists(WORKDIR):
-        os.makedirs(WORKDIR)
+    if not os.path.exists(workdir):
+        os.makedirs(workdir)
 
     def get_lastid(ppath):
         """get latest timestamp of downloading snapshots
@@ -54,7 +54,7 @@ def main():
 
     for pname, urlstring in settings.IRIS_PRODUCT_MAPPING:
         baseurl = URL(urlstring)
-        pdir = os.path.join(WORKDIR, baseurl.href.split('//')[1])
+        pdir = os.path.join(workdir, baseurl.href.split('//')[1])
         buildurl = baseurl.join('build.xml')
 
         text = pq(buildurl.fetch())
@@ -66,7 +66,7 @@ def main():
             print "Last download timestamp: %s" % lastid
             continue
 
-        buildurl.download(WORKDIR)
+        buildurl.download(workdir)
 
         for target in each(text, 'buildtarget', 'name'):
 
@@ -74,17 +74,17 @@ def main():
             image_path = os.path.join('builddata', 'images', target,
                 'images.xml')
             imgxmlurl = baseurl.join(image_path)
-            imgxmlurl.download(WORKDIR)
+            imgxmlurl.download(workdir)
 
             # Packages
             package_path = os.path.join('repos', target, 'packages', 'repodata')
             for url in baseurl.join(package_path).glob('*-primary.xml.gz'):
-                url.download(WORKDIR)
+                url.download(workdir)
 
         # Manifest
         manifest_path = os.path.join('builddata', 'manifest')
         for url in baseurl.join(manifest_path).listdir():
-            url.download(WORKDIR)
+            url.download(workdir)
 
         os.system('import_snapshot.py %s %s' % (pname, pdir))
 
