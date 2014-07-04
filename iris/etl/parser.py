@@ -106,7 +106,7 @@ def parse_user(ustring):
     return email, first, last
 
 
-def parse_blocks(content, starter, mapping=()):
+def parse_blocks(content, mapping=()):
     """
     Parse blocks of scm/meta/git info into a list of py dicts.
 
@@ -116,43 +116,48 @@ def parse_blocks(content, starter, mapping=()):
     ...
     ... D: SCM / BB
     ... N: SCM
-    ... R: Michael@i.com
-    ... ''', 'D', {'D':'Domain', 'M':'Maintainer',
-    ...            'N':'Parent', 'R':'Reviewer'})
-    [{'Domain': 'SCM', 'Maintainer': ['Alice@i.com']}, \
-{'Reviewer': ['Michael@i.com'], 'Domain': 'SCM / BB', 'Parent': ['SCM']}]
+    ... R: Michael
+    ...
+    ... T: scm/meta/git
+    ... D: SCM / BB
+    ... M: Bob@a.com
+    ... ''', {'D':'Domain', 'T': 'Tree', 'M':'Maintainer',
+    ...       'N':'Parent', 'R':'Reviewer'})
+    [('Domain', {'Domain': ['SCM'], 'Maintainer': ['Alice@i.com']}), \
+('Domain', {'Reviewer': ['Michael'], 'Domain': ['SCM / BB'], \
+'Parent': ['SCM']}), \
+('Tree', {'Maintainer': ['Bob@a.com'], 'Domain': ['SCM / BB'], \
+'Tree': ['scm/meta/git']})]
     """
-    mapping = dict(mapping)
+    # add \n\n at the end to close the last block which simplify parsing code
+    content = ''.join([content, os.linesep, os.linesep])
+    mapping = dict(mapping or ())
 
-    res = []
-    state = 0
-    item = None
-    for line in content.splitlines():
-        line = line.rstrip()
-        if not line:
-            continue
-
+    def parse_kv(line):
         mark, val = line.split(':', 1)
         mark, val = mark.strip(), val.strip()
         field = mapping.get(mark, mark)
+        return field, val
 
-        if state == 0:
-            if mark not in starter:
-                raise ValueError("Syntax error: unexpected {} "
-                                 "outside of {}".format(mark, starter))
+    res = []
+    state = 0
+    typ, item = None, None
+    for line in content.splitlines():
+        line = line.rstrip()
+        if state == 0 and line:
             state = 1
-        if state == 1:
-            if mark == starter:
-                if item:
-                    res.append(item)
-                item = {field: val}
-            elif field in item:
+            field, val = parse_kv(line)
+            typ = field
+            item = {field: [val]}
+        elif state == 1 and line:
+            field, val = parse_kv(line)
+            if field in item:
                 item[field].append(val)
             else:
                 item[field] = [val]
-
-    if item:
-        res.append(item)
+        elif state == 1 and not line:
+            state = 0
+            res.append((typ, item))
     return res
 
 

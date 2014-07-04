@@ -24,7 +24,7 @@ class SubDomainTest(unittest.TestCase):
 
         D: System / Alarm
         N: System
-        ''', '')
+        ''')
         self.assertEquals(
             [('Alarm', )],
             list(SubDomain.objects.filter(
@@ -37,7 +37,7 @@ class SubDomainTest(unittest.TestCase):
 
         D: System / Alarm:Clock/Hash
         N: System
-        ''', '')
+        ''')
         self.assertEquals(
             [('Alarm:Clock/Hash', )],
             list(SubDomain.objects.filter(
@@ -52,7 +52,7 @@ class SubDomainTest(unittest.TestCase):
 
         D: System / Alarm
         N: System
-        ''', '')
+        ''')
 
         from_string('''
         D: System
@@ -62,7 +62,7 @@ class SubDomainTest(unittest.TestCase):
 
         D: System / Call
         N: System
-        ''', '')
+        ''')
 
         assert SubDomain.objects.get(domain__name='System', name='Alarm')
 
@@ -75,7 +75,7 @@ class SubDomainTest(unittest.TestCase):
 
         D: System / Call
         N: System
-        ''', '')
+        ''')
         self.assertEqual(
             [('Alarm',), ('Call',)],
             list(SubDomain.objects.filter(
@@ -93,13 +93,13 @@ class SubDomainTest(unittest.TestCase):
 
         D: System / Call
         N: System
-        ''', '')
+        ''')
         from_string('''
         D: System
 
         D: System / Call
         N: System
-        ''', '')
+        ''')
 
         self.assertEqual(
             'Call',
@@ -117,8 +117,8 @@ class SubDomainTest(unittest.TestCase):
 
         D: System / Call
         N: System
-        ''', '')
-        from_string('D: System', '')
+        ''')
+        from_string('D: System')
 
         self.assertEqual(
             ['Uncategorized'],
@@ -130,14 +130,15 @@ class SubDomainTest(unittest.TestCase):
 
         D: System / Alarm
         N: System
-        ''', '')
+        ''')
         from_string('''
         D: System
+
         D: App
 
         D: App / Alarm
         N: App
-        ''', '')
+        ''')
 
         self.assertEqual(
             'Alarm',
@@ -165,7 +166,7 @@ class TestSubDomainRole(unittest.TestCase):
         D: System / Clock
         N: System
         M: Mike <mike@i.com>
-        ''', '')
+        ''')
         self.assertEqual(
                ['mike@i.com'],
                [i.email for i in SubDomainRole.objects.get(
@@ -179,7 +180,7 @@ class TestSubDomainRole(unittest.TestCase):
         N: System
         R: Mike <mike@i.com>
         R: Lucy David <lucy.david@inher.com>
-        ''', '')
+        ''')
         self.assertEqual(
              ['Lucy', 'Mike'],
              [i.first_name.encode('utf8') for i in SubDomainRole.objects.get(
@@ -197,7 +198,7 @@ class TestSubDomainRole(unittest.TestCase):
         I: Mike <mike@i.com>
         I: Lucy David <lucy.david@inher.com>
         I: <lily.edurd@inher.com>
-        ''', '')
+        ''')
         from_string('''
         D: System
 
@@ -205,7 +206,7 @@ class TestSubDomainRole(unittest.TestCase):
         N: System
         I: Lucy David <lucy.david@inher.com>
         I: <lily.edurd@inher.com>
-        ''', '')
+        ''')
         self.assertEqual(
             ['lily.edurd@inher.com', 'lucy.david@inher.com'],
             [i.email for i in SubDomainRole.objects.get(
@@ -222,13 +223,13 @@ class TestSubDomainRole(unittest.TestCase):
         I: Lucy David <lucy.david@inher.com>
         M: <lily.edurd@inher.com>
         A: <tom.edurd@inher.com>
-        ''', '')
+        ''')
         from_string('''
         D: System
 
         D: System / Clock
         N: System
-        ''', '')
+        ''')
         for role in ROLES:
             self.assertEqual(
               [],
@@ -242,7 +243,7 @@ class TestSubDomainRole(unittest.TestCase):
         D: System / Clock
         N: System
         A: Mike <mike@i.com>
-        ''', '')
+        ''')
         self.assertEqual(
             ['mike@i.com'],
             [u.email for u in User.objects.all()])
@@ -253,7 +254,7 @@ class TestSubDomainRole(unittest.TestCase):
         D: System / Clock
         N: System
         A: Mike Frédéric <mike@i.com>
-        ''', '')
+        ''')
 
         self.assertEqual(
             ['Frédéric'],
@@ -276,7 +277,7 @@ class TestSubDomainRole(unittest.TestCase):
         D: Appframework / Gallery
         N: Appframework
         M: Mike <mike@i.com>
-        ''', '')
+        ''')
 
         self.assertEqual(
             ['mike@i.com'],
@@ -300,7 +301,7 @@ class TestSubDomainRole(unittest.TestCase):
         M: Lily David <lily.david@hello.com>
         I: <lucy.chung@wel.com>
         R: Tom Frédéric <tom.adwel@hello.com>
-        ''', '')
+        ''')
 
         from_string('''
         D: System
@@ -311,7 +312,7 @@ class TestSubDomainRole(unittest.TestCase):
         R: Lily David <lily.david@hello.com>
         A: <lucy.chung@wel.com>
         I: Tom Frédéric <tom.adwel@hello.com>
-        ''', '')
+        ''')
         self.assertEqual(
                 ['lucy.chung@wel.com'],
                 [i.email for i in SubDomainRole.objects.get(

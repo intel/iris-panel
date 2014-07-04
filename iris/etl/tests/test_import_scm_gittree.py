@@ -25,8 +25,7 @@ class GitTreeTest(unittest.TestCase):
 
         D: System / Alarm
         N: System
-        ''',
-        '''
+
         T: dapt/alsa
         D: System / Alarm
         ''')
@@ -37,8 +36,6 @@ class GitTreeTest(unittest.TestCase):
 
     def test_add_one_GitTree_with_empty_domain(self):
         from_string('''
-        ''',
-        '''
         T: dapt/alsa
         D:
         ''')
@@ -50,8 +47,6 @@ class GitTreeTest(unittest.TestCase):
 
     def test_add_one_GitTree_without_domain(self):
         from_string('''
-        ''',
-        '''
         T: dapt/alsa
         ''')
         self.assertEqual(
@@ -63,8 +58,7 @@ class GitTreeTest(unittest.TestCase):
     def test_add_one_GitTree_with_domain(self):
         from_string('''
         D: System
-        ''',
-        '''
+
         T: dapt/alsa
         D: System
         ''')
@@ -80,8 +74,7 @@ class GitTreeTest(unittest.TestCase):
 
         D: System / Alarm
         N: System
-        ''',
-        '''
+
         T: dapt/alsa:sde
         D: System / Alarm
         ''')
@@ -96,8 +89,7 @@ class GitTreeTest(unittest.TestCase):
 
          D: System / Alarm
          N: System
-         ''',
-         '''
+
          T: dapt/alsa
          D: System / Alarm
          ''')
@@ -106,8 +98,7 @@ class GitTreeTest(unittest.TestCase):
 
          D: System / Alarm
          N: System
-         ''',
-         '''
+
          T: dapt/alsa
          D: System / Alarm
 
@@ -128,16 +119,15 @@ class GitTreeTest(unittest.TestCase):
 
         D: System / Call
         N: System
-        ''',
-        '''
-         T: adaptation/face-engine
-         D: System / Alarm
 
-         T: adaptation/alsa-scen
-         D: System / Alarm
+        T: adaptation/face-engine
+        D: System / Alarm
 
-         T: apps/core/preloaded/email
-         D: System / Call
+        T: adaptation/alsa-scen
+        D: System / Alarm
+
+        T: apps/core/preloaded/email
+        D: System / Call
         ''')
         self.assertEqual(
             ['adaptation/alsa-scen',
@@ -155,16 +145,15 @@ class GitTreeTest(unittest.TestCase):
 
         D: System / Call
         N: System
-        ''',
-        '''
-         T: ad/face
-         D: System / Alarm
 
-         T: ad/alsa
-         D: System / Alarm
+        T: ad/face
+        D: System / Alarm
 
-         T: apps/core/preloaded/email
-         D: System / Call
+        T: ad/alsa
+        D: System / Alarm
+
+        T: apps/core/preloaded/email
+        D: System / Call
         ''')
 
         from_string('''
@@ -175,13 +164,12 @@ class GitTreeTest(unittest.TestCase):
 
         D: System / Call
         N: System
-        ''',
-        '''
-         T: ad/face
-         D: System / Alarm
 
-         T: apps/core/preloaded/email
-         D: System / Call
+        T: ad/face
+        D: System / Alarm
+
+        T: apps/core/preloaded/email
+        D: System / Call
         ''')
 
         self.assertEqual(
@@ -202,8 +190,7 @@ class GitTreeTest(unittest.TestCase):
 
         D: System / Alarm
         N: System
-        ''',
-        '''
+
         T: adaptation/alsa-scenario-scn-data-0-base
         D: System / Alarm
         ''')
@@ -215,8 +202,7 @@ class GitTreeTest(unittest.TestCase):
 
         D: System / Call
         N: System
-        ''',
-        '''
+
         T: adaptation/alsa-scenario-scn-data-0-base
         D: System / Call
         ''')
@@ -242,8 +228,7 @@ class TestGitTreeRole(unittest.TestCase):
 
         D: System / Clock
         N: System
-        ''',
-        '''
+
         T: a/b
         D: System / Clock
         M: Mike <mike@i.com>
@@ -259,8 +244,7 @@ class TestGitTreeRole(unittest.TestCase):
 
         D: System / Clock
         N: System
-        ''',
-        '''
+
         T: a/b
         D: System / Clock
         R: Mike <mike@i.com>
@@ -280,8 +264,7 @@ class TestGitTreeRole(unittest.TestCase):
 
         D: System / Clock
         N: System
-        ''',
-        '''
+
         T: a/b
         D: System / Clock
         I: Mike <mike@i.com>
@@ -293,8 +276,7 @@ class TestGitTreeRole(unittest.TestCase):
 
         D: System / Clock
         N: System
-        ''',
-        '''
+
         T: a/b
         D: System / Clock
         I: Lucy David <lucy.david@inher.com>
@@ -312,8 +294,7 @@ class TestGitTreeRole(unittest.TestCase):
 
         D: System / Clock
         N: System
-        ''',
-        '''
+
         T: a/b
         D: System / Clock
         R: Mike <mike@i.com>
@@ -326,8 +307,7 @@ class TestGitTreeRole(unittest.TestCase):
 
         D: System / Clock
         N: System
-        ''',
-        '''
+
         T: a/b
         D: System / Clock
         ''')
@@ -344,8 +324,7 @@ class TestGitTreeRole(unittest.TestCase):
 
         D: System / Clock
         N: System
-        ''',
-        '''
+
         T: a/b
         D: System / Clock
         A: Mike <mike@i.com>
@@ -359,8 +338,7 @@ class TestGitTreeRole(unittest.TestCase):
 
         D: System / Clock
         N: System
-        ''',
-        '''
+
         T: a/b
         D: System / Clock
         A: Mike Frédéric <mike@i.com>
@@ -385,8 +363,7 @@ class TestGitTreeRole(unittest.TestCase):
 
         D: Appframework / Gallery
         N: Appframework
-        ''',
-        '''
+
         T: a/b
         D: System / Clock
         A: Mike <mike@i.com>
@@ -414,8 +391,7 @@ class TestGitTreeRole(unittest.TestCase):
 
         D: System / Clock
         N: System
-        ''',
-        '''
+
         T: a/b
         D: System / Clock
         A: Mike <mike@i.com>
@@ -429,8 +405,7 @@ class TestGitTreeRole(unittest.TestCase):
 
         D: System / Clock
         N: System
-        ''',
-        '''
+
         T: a/b
         D: System / Clock
         M: Mike <mike@i.com>
@@ -475,8 +450,7 @@ class GitTreeLicenseTest(unittest.TestCase):
 
         D: System / Alarm
         N: System
-        ''',
-        '''
+
         T: dapt/alsa
         D: System / Alarm
         L: BSD-2-Clause
@@ -497,13 +471,12 @@ class GitTreeLicenseTest(unittest.TestCase):
 
         D: System / Alarm
         N: System
-        ''',
-        '''
-         T: adaptation/face-engine
-         D: System / Alarm
-         L: BSD-2-Clause
-         L: CC-BY-NC-2.5
-         L: Epinions
+
+        T: adaptation/face-engine
+        D: System / Alarm
+        L: BSD-2-Clause
+        L: CC-BY-NC-2.5
+        L: Epinions
         ''')
         self.assertEqual(
             ['BSD-2-Clause', 'CC-BY-NC-2.5', 'Epinions'],
@@ -522,24 +495,22 @@ class GitTreeLicenseTest(unittest.TestCase):
 
         D: System / Alarm
         N: System
-        ''',
-        '''
-         T: adaptation/face-engine
-         D: System / Alarm
-         L: BSD-2-Clause
-         L: CC-BY-NC-2.5
-         L: Epinions
+
+        T: adaptation/face-engine
+        D: System / Alarm
+        L: BSD-2-Clause
+        L: CC-BY-NC-2.5
+        L: Epinions
         ''')
         from_string('''
         D: System
 
         D: System / Alarm
         N: System
-        ''',
-        '''
-         T: adaptation/face-engine
-         D: System / Alarm
-         L: Epinions
+
+        T: adaptation/face-engine
+        D: System / Alarm
+        L: Epinions
         ''')
 
         self.assertEqual(
@@ -558,23 +529,21 @@ class GitTreeLicenseTest(unittest.TestCase):
 
         D: System / Alarm
         N: System
-        ''',
-        '''
-         T: adaptation/face-engine
-         D: System / Alarm
-         L: BSD-2-Clause
-         L: CC-BY-NC-2.5
-         L: Epinions
+
+        T: adaptation/face-engine
+        D: System / Alarm
+        L: BSD-2-Clause
+        L: CC-BY-NC-2.5
+        L: Epinions
         ''')
         from_string('''
         D: System
 
         D: System / Alarm
         N: System
-        ''',
-        '''
-         T: adaptation/face-engine
-         D: System / Alarm
+
+        T: adaptation/face-engine
+        D: System / Alarm
         ''')
         self.assertEqual(
             [],

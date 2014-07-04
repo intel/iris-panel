@@ -12,7 +12,7 @@ Data is available from:
 # C0321: More than one statement on a single line
 # C0103: Invalid name "uc"
 # W0142: Used * or ** magic
-
+import os
 from django.contrib.auth.models import User
 
 from iris.core.models import (
@@ -36,7 +36,7 @@ MAPPING = {
     'N': 'PARENT',
     'O': 'DESCRIPTION',
     'R': 'REVIEWER',
-    'T': 'TREE PATH',
+    'T': 'TREE',
     'SL': 'SUBDOMAIN_LEADER',
 }
 
@@ -56,16 +56,12 @@ def parse_name(name):
     return parts
 
 
-def build_user_cache(domains_data, trees_data):
+def build_user_cache(rawdata):
     """
     Go over all scm data to build a full UserCache
     """
     uc = UserCache()
-    for data in domains_data:
-        for role in ROLES & set(data.keys()):
-            for ustring in data[role]:
-                uc.update(ustring)
-    for data in trees_data:
+    for typ, data in rawdata:
         for role in ROLES & set(data.keys()):
             for ustring in data[role]:
                 uc.update(ustring)
@@ -84,7 +80,7 @@ def subrolename(role, dname, sname):
     return '%s: %s-%s' % (role, dname, sname)
 
 
-def transform_domains(domains_data, uc):
+def transform_domains(rawdata, uc):
     """
     Transform to Domain, SubDomain,
     DomainRole, SubDomainRole,
@@ -96,7 +92,7 @@ def transform_domains(domains_data, uc):
 
     def _trans_subdomain(data):
         """transform subdomain item"""
-        dname, sname = parse_name(data['DOMAIN'])
+        dname, sname = parse_name(data['DOMAIN'][0])
         subdomains.append({'name': sname, 'domain__name': dname})
         for role in ROLES & set(data.keys()):
             sr = {'role': role,
@@ -111,7 +107,7 @@ def transform_domains(domains_data, uc):
 
     def _trans_domain(data):
         """transform domain item"""
-        name = data['DOMAIN']
+        name = data['DOMAIN'][0]
         domains.append({'name': name})
         for role in ROLES & set(data.keys()):
             dr = {'role': role,
@@ -122,8 +118,10 @@ def transform_domains(domains_data, uc):
                 if user:
                     domainrole_users.append((dr, user))
 
-    for data in domains_data:
-        if 'PARENT' in data:
+    for typ, data in rawdata:
+        if typ != 'DOMAIN':
+            continue
+        elif 'PARENT' in data:
             # assume that a submain can't appear before its parent
             _trans_subdomain(data)
         else:
@@ -137,7 +135,7 @@ def transform_domains(domains_data, uc):
             domainrole_users, subdomainrole_users)
 
 
-def transform_trees(trees_data, uc):
+def transform_trees(rawdata, uc):
     """
     Transform to GitTree, GitTree.licenses
     GitTreeRole, GitTreeRole.user_set
@@ -145,8 +143,10 @@ def transform_trees(trees_data, uc):
     trees, tree_licenses = [], []
     treeroles, treerole_users = [], []
     no_domain = ' / '.join([NONAME, NONAME])
-    for data in trees_data:
-        path = data['TREE PATH']
+    for typ, data in rawdata:
+        if typ != 'TREE':
+            continue
+        path = data['TREE'][0]
         # if DOMAIN exists it must only have one value
         name = data.get('DOMAIN', [no_domain])[0] or no_domain
         if ' / ' not in name:
@@ -200,20 +200,18 @@ def transform_users(ucusers):
     return [dict(username=i['email'], **i) for i in ucusers]
 
 
-def from_string(domain_str, gittree_str, coding='utf8'):
+def from_string(scm_str, coding='utf8'):
     """
     Import scm data from string.
 
     If input string is not unicode, try to decode them using `coding`
     """
-    if isinstance(domain_str, str):
-        domain_str = domain_str.decode(coding)
-    if isinstance(gittree_str, str):
-        gittree_str = gittree_str.decode(coding)
-    return from_unicode(domain_str, gittree_str)
+    if isinstance(scm_str, str):
+        scm_str = scm_str.decode(coding)
+    return from_unicode(scm_str)
 
 
-def from_unicode(domain_str, gittree_str):
+def from_unicode(scm_unicode):
     """
     Import scm data from unicode string.
 
@@ -221,21 +219,20 @@ def from_unicode(domain_str, gittree_str):
     easier to only deal with unicode string.
     """
     # 1.parse
-    domains_data = parse_blocks(domain_str, 'D', MAPPING)
-    trees_data = parse_blocks(gittree_str, 'T', MAPPING)
+    rawdata = parse_blocks(scm_unicode, MAPPING)
 
     # 2.extract and transform
-    uc = build_user_cache(domains_data, trees_data)
+    uc = build_user_cache(rawdata)
     users = transform_users(uc.all())
 
     (domains, subdomains,
      domainroles, subdomainroles,
      domainrole_users, subdomainrole_users,
-     ) = transform_domains(domains_data, uc)
+     ) = transform_domains(rawdata, uc)
 
     (trees, tree_licenses,
      treeroles, treerole_users,
-     ) = transform_trees(trees_data, uc)
+     ) = transform_trees(rawdata, uc)
 
     parties, party_users = transform_parties(users)
 
@@ -270,4 +267,6 @@ def from_file(dfile, tfile):
     import scm data from file.
     `dfile` and `tfile` should be file objects not file names.
     """
-    return from_string(dfile.read(), tfile.read())
+    return from_string(''.join([dfile.read(),
+                                os.linesep, os.linesep,
+                                tfile.read()]))

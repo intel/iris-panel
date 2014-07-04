@@ -20,27 +20,29 @@ class DomainTest(unittest.TestCase):
         Domain.objects.all().delete()
 
     def test_add_one_domain(self):
-        from_string("D: System", "")
+        from_string("D: System")
         assert Domain.objects.get(name='System')
 
     def test_domain_name_include_colon(self):
-        from_string("D: System:Test", "")
+        from_string("D: System:Test")
         assert Domain.objects.get(name='System:Test')
 
     def test_add_domain_dont_delete_others(self):
-        from_string("D: Another", "")
+        from_string("D: Another")
 
         from_string('''
         D: Another
+
         D: System
-        ''', '')
+        ''')
         assert Domain.objects.get(name="Another")
 
     def test_add_two_domains(self):
         from_string('''
             D: Another
+
             D: System
-            ''', '')
+            ''')
         self.assertEqual(
             [('Another',), ('System',), ('Uncategorized',)],
             list(Domain.objects.all().order_by('name').values_list('name'))
@@ -49,10 +51,12 @@ class DomainTest(unittest.TestCase):
     def test_delete_two_domains(self):
         from_string('''
             D: Another
+
             D: System
+
             D: App Framework
-            ''', '')
-        from_string('D: App Framework', '')
+            ''')
+        from_string('D: App Framework')
 
         self.assertEqual(
             [('App Framework',)],
@@ -62,16 +66,17 @@ class DomainTest(unittest.TestCase):
     def test_delete_all_domains(self):
         from_string('''
             D: Another
+
             D: System
+
             D: App Framework
-            ''', '')
-        from_string('', '')
+            ''')
+        from_string('')
 
         self.assertEqual(
             [('Uncategorized',)],
             list(Domain.objects.all().values_list('name'))
             )
-
 
 
 class TestDomainRole(unittest.TestCase):
@@ -84,7 +89,7 @@ class TestDomainRole(unittest.TestCase):
         from_string('''
         D: System
         M: Mike <mike@i.com>
-        ''', '')
+        ''')
 
         self.assertEquals(
             [('mike@i.com',)],
@@ -99,7 +104,7 @@ class TestDomainRole(unittest.TestCase):
         D: System
         R: Mike <mike@i.com>
         R: Lucy David <lucy.david@inher.com>
-        ''', '')
+        ''')
 
         self.assertEqual(
             [(u'Lucy',), (u'Mike',)],
@@ -115,12 +120,12 @@ class TestDomainRole(unittest.TestCase):
         I: Mike <mike@i.com>
         I: Lucy David <lucy.david@inher.com>
         I: <lily.edurd@inher.com>
-        ''', '')
+        ''')
         from_string('''
         D: System
         I: Lucy David <lucy.david@inher.com>
         I: <lily.edurd@inher.com>
-        ''', '')
+        ''')
 
         self.assertEqual(
             [('lily.edurd@inher.com',), ('lucy.david@inher.com',)],
@@ -136,10 +141,10 @@ class TestDomainRole(unittest.TestCase):
         A: Lucy David <lucy.david@inher.com>
         I: <lily.edurd@inher.com>
         M: <tom.edurd@inher.com>
-        ''', '')
+        ''')
         from_string('''
         D: System
-        ''', '')
+        ''')
         for role in ROLES:
             self.assertEqual(
             [],
@@ -150,7 +155,7 @@ class TestDomainRole(unittest.TestCase):
         from_string('''
         D: System
         A: Mike <mike@i.com>
-        ''', '')
+        ''')
         self.assertEqual(
             ['mike@i.com'],
             [u.email for u in User.objects.all()])
@@ -158,7 +163,7 @@ class TestDomainRole(unittest.TestCase):
         from_string('''
         D: System
         A: Mike Chung <mike@i.com>
-        ''', '')
+        ''')
 
         self.assertEqual(
             [u'Chung'],
@@ -175,7 +180,7 @@ class TestDomainRole(unittest.TestCase):
 
         D: Appframework
         M: Mike <mike@i.com>
-        ''', '')
+        ''')
 
         self.assertEqual(
             ['mike@i.com'],
@@ -198,7 +203,7 @@ class TestDomainRole(unittest.TestCase):
         M: Lily David <lily.david@hello.com>
         R: Tom Frédéric <tom.adwel@hello.com>
         I: <lucy.chung@wel.com>
-        ''', '')
+        ''')
 
         from_string('''
         D: System
@@ -206,7 +211,7 @@ class TestDomainRole(unittest.TestCase):
         R: Lily David <lily.david@hello.com>
         A: <lucy.chung@wel.com>
         I: Tom Frédéric <tom.adwel@hello.com>
-        ''', '')
+        ''')
         self.assertEqual(
             ['lucy.chung@wel.com'],
             [i.email for i in DomainRole.objects.get(

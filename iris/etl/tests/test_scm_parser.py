@@ -1,22 +1,10 @@
+#coding: utf8
 #pylint: skip-file
 from iris.etl.parser import parse_blocks, parse_user
 
 
 def test_empty_string():
-    assert [] == parse_blocks('', None)
-
-
-def test_ignore_empty_lines():
-    content = '''
-
-    D: Security
-
-    M: Mark
-
-    '''
-    assert parse_blocks(content, 'D') == [
-        {'D': 'Security', 'M': ['Mark']}
-        ]
+    assert [] == parse_blocks('')
 
 
 def test_multi_attrs():
@@ -25,30 +13,17 @@ def test_multi_attrs():
     M: Markus
     M: Mickey
     '''
-    assert parse_blocks(content, 'D') == [
-        {'D': 'System', 'M': ['Markus', 'Mickey']}
+    assert parse_blocks(content) == [
+        ('D', {'D': ['System'], 'M': ['Markus', 'Mickey']})
         ]
-
-
-def test_syntax_error():
-    content = '''
-    M: Manson
-    D: App Framework
-    '''
-    try:
-        parse_blocks(content, 'D')
-    except ValueError:
-        pass
-    else:
-        assert False, "It must raise exception for syntax error"
 
 
 def test_mapping():
     content = '''
     D: Native API
     '''
-    assert parse_blocks(content, 'D', {'D': 'Domain'}) == [
-        {'Domain': 'Native API'}
+    assert parse_blocks(content, {'D': 'Domain'}) == [
+        ('Domain', {'Domain': ['Native API']})
         ]
 
 
@@ -56,8 +31,8 @@ def test_mapping_not_found():
     content = '''
     D: Native API
     '''
-    assert parse_blocks(content, 'D', {'M': 'Maintainer'}) == [
-        {'D': 'Native API'}
+    assert parse_blocks(content, {'M': 'Maintainer'}) == [
+        ('D', {'D': ['Native API']})
         ]
 
 
@@ -65,14 +40,24 @@ def test_multi_blocks():
     content = '''
     D: App Framework
     M: Maggie
+
     D: System
     R: Ray
-    D: Security
+
+    T: upstream/syslinux
+    D: Base
     '''
-    assert parse_blocks(content, 'D') == [
-        {'D': 'App Framework', 'M': ['Maggie']},
-        {'D': 'System', 'R': ['Ray']},
-        {'D': 'Security'}
+    assert parse_blocks(content) == [
+        ('D', {'D': ['App Framework'], 'M': ['Maggie']}),
+        ('D', {'D': ['System'], 'R': ['Ray']}),
+        ('T', {'D': ['Base'], 'T': ['upstream/syslinux']}),
+        ]
+
+
+def test_unicode():
+    content = 'D: 安全'
+    assert parse_blocks(content) == [
+        ('D', {'D': ['安全']})
         ]
 
 
