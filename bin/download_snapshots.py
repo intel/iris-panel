@@ -3,10 +3,9 @@
 
 """Download Tizen products snapshots
 """
-# pylint: disable=E1103
-#E1103: Instance of 'URL' has no 'href' member
 
 import os
+import re
 import argparse
 
 from django.conf import settings
@@ -14,8 +13,15 @@ from pyquery import PyQuery as pq
 
 from iris.etl.url import URL
 
+# pylint: disable=E1103
+# E1103: Instance of 'URL' has no 'href' member
+
 # Add Django settings for the sake of imports
 os.environ['DJANGO_SETTINGS_MODULE'] = 'iris.core.settings'
+
+NAME_AND_LAST_MODIFIED = re.compile(
+    r'<a .*?href=(["\'])(.*?)\1.*?>\2</a>\s*'
+    r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2})')
 
 
 def main():
@@ -30,20 +36,16 @@ def main():
     if not os.path.exists(workdir):
         os.makedirs(workdir)
 
-    def get_lastid(ppath):
+    def get_lastid(filename):
         """get latest timestamp of downloading snapshots
         """
-        filename = os.path.join(ppath, 'latest.timestamp')
         if os.path.exists(filename):
             with open(filename) as reader:
                 return reader.read()
 
-    def save_lastid(ppath, lastid):
+    def save_lastid(filename, lastid):
         """set timesttamp of downloading snapshots
         """
-        filename = os.path.join(ppath, 'latest.timestamp')
-        if not os.path.exists(ppath):
-            os.makedirs(ppath)
         with open(filename, 'w') as writer:
             writer.write(lastid)
 
@@ -52,14 +54,34 @@ def main():
         """
         return [pq(i).attr(name) for i in data(element)]
 
-    for pname, urlstring in settings.IRIS_PRODUCT_MAPPING:
-        baseurl = URL(urlstring)
-        pdir = os.path.join(workdir, baseurl.href.split('//')[1])
-        buildurl = baseurl.join('build.xml')
+    def guess_latest(baseurl):
+        """Guess the real path of latest from last modified info.
+        """
+        url = baseurl.join('..')
+        page = url.asdir().fetch()
+        idx = {}
+        latest_mod = None
+        for _quote, name, lastmod in NAME_AND_LAST_MODIFIED.findall(page):
+            if name.startswith('latest'):
+                latest_mod = lastmod
+            else:
+                idx[lastmod] = name
+        if latest_mod and latest_mod in idx:
+            return url.join(idx[latest_mod])
+        raise Exception("Can't find latest snapshot in:%s" % url)
 
+    for pname, urlstring in settings.IRIS_PRODUCT_MAPPING:
+
+        baseurl = URL(urlstring)
+        latesturl = guess_latest(baseurl)
+        pdir = os.path.join(workdir, latesturl.href.split('//')[1])
+
+        buildurl = latesturl.join('build.xml')
         text = pq(buildurl.fetch())
+
+        idfile = os.path.join(workdir, '%s.latest.timestamp' % pname)
         newid = text('id').text()
-        lastid = get_lastid(pdir)
+        lastid = get_lastid(idfile)
 
         if lastid and newid <= lastid:
             print "%s has no update yet!" % pname
@@ -73,22 +95,23 @@ def main():
             # Image
             image_path = os.path.join('builddata', 'images', target,
                 'images.xml')
-            imgxmlurl = baseurl.join(image_path)
+            imgxmlurl = latesturl.join(image_path)
             imgxmlurl.download(workdir)
 
             # Packages
-            package_path = os.path.join('repos', target, 'packages', 'repodata')
-            for url in baseurl.join(package_path).glob('*-primary.xml.gz'):
+            pkg_path = os.path.join('repos', target, 'packages', 'repodata')
+            for url in latesturl.join(pkg_path).glob('*-primary.xml.gz'):
                 url.download(workdir)
 
         # Manifest
         manifest_path = os.path.join('builddata', 'manifest')
-        for url in baseurl.join(manifest_path).listdir():
+        for url in latesturl.join(manifest_path).listdir():
             url.download(workdir)
 
         os.system('import_snapshot.py %s %s' % (pname, pdir))
 
-        save_lastid(pdir, newid)
+        save_lastid(idfile, newid)
+
 
 if __name__ == '__main__':
     main()

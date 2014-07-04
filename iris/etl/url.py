@@ -1,4 +1,5 @@
 "This module provides URL component to parse and download http url"
+
 import os
 import re
 import base64
@@ -88,7 +89,6 @@ class URL(namedtuple("URL", "href user passwd full netloc path basename")):
                 raise err
             raise
 
-    #-------------------------------
     def _replace_path(self, path):
         "Clone self and update path"
         parts = list(urlsplit(self.href))
@@ -100,6 +100,7 @@ class URL(namedtuple("URL", "href user passwd full netloc path basename")):
     # \1 is quote
     # \2 href and text
     SUBDIR_PATTERN = re.compile(r'<a .*?href=(["\'])(.*?)\1.*?>\2</a>')
+
     def _parse_dir(self, page):
         '''Parse html page return sub-directory names'''
         for _quote, href_or_text in re.findall(self.SUBDIR_PATTERN, page):
@@ -132,6 +133,7 @@ def join_userpass(href, user, passwd):
     comps[1] = netloc
     return urlunsplit(comps)
 
+
 def split_userpass(href):
     "Returns (href, user, passwd) of an authenticated URL"
     parts = urlsplit(href)
@@ -141,8 +143,8 @@ def split_userpass(href):
 
     userpass, netloc = netloc.split('@', 1)
     if ':' in userpass:
-        user, passwd = [ urllib.unquote(i)
-                           for i in userpass.split(':', 1) ]
+        user, passwd = [urllib.unquote(i)
+                           for i in userpass.split(':', 1)]
     else:
         user, passwd = userpass, None
 
