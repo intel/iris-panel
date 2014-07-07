@@ -192,15 +192,12 @@ def transform_parties(users):
 def transform_users(ucusers):
     """
     Transform cached users to database compatible users
+
+    Field username is used for login and it's an unique field. The
+    correct value of this field is stored in LDAP server, we can't
+    get it here, so we use email as username when importing data.
     """
-    def give_username(user):
-        "make the username field"
-        if 'email' in user and user['email']:
-            return user['email']
-        return ''.join([user.get('first_name', ''),
-                        user.get('last_name', '')])
-    return [dict(username=give_username(user), **user)
-            for user in ucusers]
+    return [dict(username=i['email'], **i) for i in ucusers]
 
 
 def from_string(domain_str, gittree_str, coding='utf8'):

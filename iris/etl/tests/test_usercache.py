@@ -42,13 +42,29 @@ def test_cannot_merge_name_and_email():
     uc.update('David Bowie')
     uc.update('david.bowie@i.com')
 
-    assert sorted(uc.all(), key=lambda x: x['email']) == [
-        {'first_name': 'David',
-         'last_name': 'Bowie',
-         'email': ''},
+    assert uc.all() == [
         {'first_name': '',
          'last_name': '',
          'email': 'david.bowie@i.com'},
+        ]
+
+
+def test_cannot_merge_diff_names():
+    uc = UserCache()
+    uc.update('Eric Clapton')
+    uc.update('Eric Johnson')
+
+    assert uc.all() == []
+
+
+def test_cannot_merge_diff_emails():
+    uc = UserCache()
+    uc.update('joe@satriani.com')
+    uc.update('steve@vai.com')
+
+    assert uc.all() == [
+        {'first_name': '', 'last_name': '', 'email': 'joe@satriani.com'},
+        {'first_name': '', 'last_name': '', 'email': 'steve@vai.com'},
         ]
 
 
@@ -58,6 +74,7 @@ def test_different_names_with_the_same_email():
     uc.update('David Robert Jones <david.bowie@i.com>')
     uc.update('David Bowie <david.bowie@i.com>')
     uc.update('David Robert Jones')
+    uc.update('Bowie David <david.bowie@i.com>')
 
     users = uc.all()
     assert len(users) == 1 and users[0]['email'] == 'david.bowie@i.com'
@@ -93,3 +110,17 @@ def test_get_by_full():
         'first_name': 'David',
         'last_name': 'Bowie',
         'email': 'david.bowie@i.com'}
+
+
+def test_user_without_email_will_be_ignored():
+    uc = UserCache()
+    uc.update('Brian May')
+    uc.update('Roger Taylor')
+    uc.update('Freddie Mercury <freddie@queen.com>')
+
+    assert uc.get('Brian May') is None
+    assert uc.all() == [
+        {'first_name': 'Freddie',
+         'last_name': 'Mercury',
+         'email': 'freddie@queen.com'}
+        ]

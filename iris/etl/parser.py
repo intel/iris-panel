@@ -21,16 +21,20 @@ class UserCache(object):
     def update(self, ustring):
         """Update user string into cache"""
         def _eq(user1, user2):
-            "compare two users"
+            """
+            True if two users are equal.
+
+            If they both have email, then compare emails;
+            Else if they have name, then compare names.
+            """
             email1, first1, last1 = user1
             email2, first2, last2 = user2
-            return email1 == email2 or (first1, last1) == (first2, last2)
+            return (email1 and email1 == email2) or \
+                (first1 or last1) and (first1, last1) == (first2, last2)
 
         def _is_group_match(group, name):
-            "is there any user equals in a group"
-            for i, _ in group:
-                if _eq(name, i):
-                    return True
+            """is there any user equals in a group"""
+            return any((_eq(name, i) for i in group))
 
         name = parse_user(ustring)
         newg = set()
@@ -40,28 +44,37 @@ class UserCache(object):
                 newg |= group
             else:
                 ngs.append(group)
-        newg.add((name, ustring))
+        newg.add(name)
         ngs.append(newg)
         self.groups = ngs
 
         user = self._make_user(newg)
-        for _, ustring in newg:
-            self.index[ustring] = user
+        for name in newg:
+            self.index[name] = user
+
+    @staticmethod
+    def is_user_valid(user):
+        """Only consider users with email"""
+        return 'email' in user and user['email']
 
     def all(self):
         """Returns all users"""
-        return [self._make_user(i) for i in self.groups]
+        return [j for j in
+                [self._make_user(i) for i in self.groups]
+                if self.is_user_valid(j)]
 
     def get(self, ustring):
         """Get a user by a given user string"""
-        return self.index.get(ustring)
+        user = self.index.get(parse_user(ustring))
+        if self.is_user_valid(user):
+            return user
 
     @staticmethod
     def _make_user(group):
         """Make full user fields from cache"""
         keys = ('email', 'first_name', 'last_name')
         user = dict(zip(keys, ('', '', '')))
-        for i, _ in group:
+        for i in group:
             user.update({k: v for k, v in zip(keys, i) if v})
         return user
 

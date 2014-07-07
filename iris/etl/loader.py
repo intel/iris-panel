@@ -85,7 +85,7 @@ class Loader(object):
     def register_entity(self, model, ckey, pk='id'):
         """
         Register a entity model
-          `pk`: primary key
+        `pk`: primary key
         `ckey`: candidate key, could be combined keys
         """
         name = mname(model)
