@@ -10,11 +10,12 @@ to make records in db are all the same as given data.
 from collections import defaultdict
 import logging
 
-# pylint: disable=W0142,C0103,W0511,R0914
+# pylint: disable=W0142,C0103,W0511,R0914i,R0912
 # W0142: Used * or ** magic
 # C0103: Invalid name "x"
 # W0511: FIXME: select_related
 # R0914: Loader.sync_nnr: Too many local variables (25/15)
+# R0912:138,4:Loader.sync_nnr: Too many branches (13/12)
 
 log = logging.getLogger(__name__)
 
@@ -135,7 +136,7 @@ class Loader(object):
             model.objects.filter(pk__in=[i['pk'] for i in ronly]).delete()
         return delete
 
-    def sync_nnr(self, data, model1, model2):
+    def sync_nnr(self, data, model1, model2, remove=True):
         """
         Sync many to many relationship between `model1` and `model2`
         """
@@ -188,8 +189,9 @@ class Loader(object):
 
         for pk1, pk2s in toadd.items():
             getattr(model1(pk=pk1), nnm_name).add(*pk2s)
-        for pk1, pk2s in todel.items():
-            getattr(model1(pk=pk1), nnm_name).remove(*pk2s)
+        if remove:
+            for pk1, pk2s in todel.items():
+                getattr(model1(pk=pk1), nnm_name).remove(*pk2s)
 
     def _shrink_to_pk(self, data, cgroup=None, model=None):
         '''
@@ -283,7 +285,7 @@ def get_default_loader():
     loader.register_entity(GitTree, 'gitpath')
     loader.register_entity(Package, 'name')
     loader.register_entity(Product, 'name')
-    loader.register_entity(Image, 'name')
+    loader.register_entity(Image, ('name', 'target', 'product__name'))
     loader.register_entity(License, 'shortname')
     loader.register_entity(UserParty, 'party')
 

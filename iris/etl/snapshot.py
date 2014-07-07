@@ -79,5 +79,5 @@ def from_dir(prod, prod_path):
     loader.sync_entity(packages, Package)
     loader.sync_entity(images, Image)
 
-    loader.sync_nnr(products_trees, Product, GitTree)
-    loader.sync_nnr(trees_packages, GitTree, Package)
+    loader.sync_nnr(products_trees, Product, GitTree, remove=False)
+    loader.sync_nnr(trees_packages, GitTree, Package, remove=False)
