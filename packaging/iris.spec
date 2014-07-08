@@ -118,6 +118,7 @@ Requires:       python-django-crispy-forms
 Requires:       python-djangorestframework
 Requires:       python-django-rest-swagger
 Requires:       python-pyquery
+Requires:       python-requests
 Requires:       git
 Requires(pre):  pwdutils
 
