@@ -2,13 +2,14 @@
 
 import os
 import re
-import base64
 import urllib
-import urllib2
 import fnmatch
 from subprocess import check_call, CalledProcessError
 from urlparse import urlsplit, urlunsplit
 from collections import namedtuple
+
+import requests
+from requests.auth import HTTPBasicAuth
 
 # pylint: disable=E1101,W0232,E1002
 # E1101: Instance of 'URL' has no 'href' member
@@ -60,7 +61,7 @@ class URL(namedtuple("URL", "href user passwd full netloc path basename")):
 
     def fetch(self):
         "Returns HTTP response body"
-        return urllib2.urlopen(self._make_request()).read()
+        return requests.get(self.href, auth=self._make_auth()).text
 
     def glob(self, pattern):
         "find files matching a specify pattern"
@@ -106,14 +107,10 @@ class URL(namedtuple("URL", "href user passwd full netloc path basename")):
         for _quote, href_or_text in re.findall(self.SUBDIR_PATTERN, page):
             yield href_or_text.strip()
 
-    def _make_request(self):
-        "Make urllib2.Request object"
-        req = urllib2.Request(self.href)
+    def _make_auth(self):
+        "Make HTTPBasicAuth object"
         if self.user and self.passwd:
-            auth = base64.encodestring('%s:%s'
-                % (self.user, self.passwd)).rstrip()
-            req.add_header("Authorization", "Basic %s" % auth)
-        return req
+            return HTTPBasicAuth(self.user, self.passwd)
 
 
 def join_userpass(href, user, passwd):
