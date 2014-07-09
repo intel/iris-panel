@@ -15,7 +15,8 @@ Models related to packaging and version control go here.
 """
 
 # Disabling class checks for the sake of Django specific Meta classes.
-# pylint: disable=W0232, C0111, R0903
+# pylint: disable=W0232, C0111, R0903, E0213
+# E0213: 29,4:RolesMixin.get_users: Method should have "self" as first argument
 
 # This signifies that these models belong to core application.
 # Required for splitting up the applications to multiple files.
@@ -146,9 +147,9 @@ class Image(models.Model):
     architecture relating to a product.
     """
 
-    name = models.TextField()
-    target = models.TextField()
-    arch = models.TextField()
+    name = models.CharField(max_length=255)
+    target = models.CharField(max_length=255)
+    arch = models.CharField(max_length=255)
     product = models.ForeignKey(Product)
 
     def __unicode__(self):
@@ -156,3 +157,4 @@ class Image(models.Model):
 
     class Meta:
         app_label = APP_LABEL
+        unique_together = ('name', 'target', 'product')
