@@ -49,7 +49,7 @@ def license(request, pkid=None):
     if pkid:
         _license = get_object_or_404(License, id=pkid)
         _packages = [p for g in _license.gittree_set.all()
-                      for p in g.package_set.all()]
+                      for p in g.packages.all()]
         return render(request, 'packagedb/read/single/license.html',
                 {'license': _license,
                  'packages': _packages})
