@@ -1,3 +1,28 @@
+Release notes for IRIS 0.1.2
+============================
+
+- Release Date: 2014-07
+
+- Major features and enhancements added:
+  * Task #1964: Automatically sync real Package, Product, Image and License data into database
+  * Feature #1974: Import License information in scm/meta/git to database
+  * Bug #1991: [TINF-624] package information is partially wrong
+  * Feature #1975: Add number of count into column header
+  * Bug #2000: Template tag "user_display_name" may expose user's email to public world
+  * Task #1981: Add API link
+  * Feature #1973: Input focus should be automatically set to input field in login page
+  * Feature #1986: Show domain name in the page or item for subdomain
+
+Release notes for IRIS 0.1.1
+============================
+
+- Release Date: 2014-06
+
+- Major features and enhancements added:
+  * Task #1928: import meta/scm/git meta data into database
+  * Task #1912: Use CDN version of javascript files
+  * Bug #1915: Page loading is too slow
+
 Release notes for IRIS 0.1
 ==========================
 
