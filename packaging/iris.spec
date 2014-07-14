@@ -104,8 +104,6 @@ Summary:        Core
 
 Requires:       apache2
 Requires:       apache2-mod_wsgi
-Requires:       mysql-community-server
-Requires:       mysql-community-server-client
 Requires:       python >= 2.6
 Requires:       python-xml
 Requires:       python-setuptools
