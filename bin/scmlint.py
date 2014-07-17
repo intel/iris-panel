@@ -28,7 +28,9 @@ def main():
     logger.debug('Starting check git scm data...')
     res = file_import(args.domain, args.gittree)
     if res > 0:
-        logger.warn('check git scm data end. %s failed.', res)
+        logger.warn('Check complete. %s failures found.', res)
+    else:
+        logger.debug('Check complete. OK')
     return res
 
 
