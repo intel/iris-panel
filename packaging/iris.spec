@@ -172,6 +172,7 @@ fi
 %{_bindir}/update_iris_data.sh
 %{_bindir}/import_snapshot.py
 %{_bindir}/download_snapshots.py
+%{_bindir}/scmlint.py
 
 %changelog %{core_name}
 
