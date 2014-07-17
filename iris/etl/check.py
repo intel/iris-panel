@@ -1,22 +1,5 @@
 """
 Module for checking git scm data.
-
-DOMAINS:
-    ERROR:
-        1. Lack of Domain.
-        2. Domain is not unique.
-        3. SubDomain lack of parent.
-        4. SubDomain and parent do not match.
-        5. user lack of email info.
-        6. user's email is invalid.
-GIT-TREE:
-    ERROR:
-        1. lack of domain.
-        2. domain is not unique.
-        3. lack of tree path.
-        4. tree path is not unique.
-        5. user lack of email info.
-        6. user's email is invalid.
 """
 import logging
 
@@ -66,39 +49,34 @@ def check_domain(domains_data):
     * Unknown parent domain name
     """
     names = set()
-    block_num = 0
-    for _typ, block in domains_data:
-        block_num += 1
+    for block_num, (_typ, block) in enumerate(domains_data):
         domain = block.get("DOMAIN")
         if domain is None:
-            error("(DOMAINS): Lack of DOMAIN in block %s" % (block_num))
+            error("(DOMAINS): Lack of DOMAIN in block %s", block_num)
         elif len(domain) > 1:
-            error("(DOMAINS): DOMAIN is not unique in block "
-                  "%s %s" % (block_num, domain))
+            error("(DOMAINS): Multi domain names: %s", domain)
 
-        name = domain[0]
-        if name in names:
-            error("(DOMAINS): Duplicated domain name: %s", name)
-        names.add(name)
+        domain = domain[0]
+        if domain in names:
+            error("(DOMAINS): Duplicated domain name: %s", domain)
+        names.add(domain)
 
-        if '/' in name:
+        if '/' in domain:
             if "PARENT" not in block:
-                error("(DOMAINS): SUBDOMAIN %s lack of parent "
-                      "information", name)
+                error("(DOMAINS): Lack of parent for domain %s", domain)
             else:
-                parent = name.split('/')[0].strip()
-                if not parent == block.get("PARENT")[0].strip():
-                    error('(DOMAINS): DOMAIN "%s" and Parent'
-                          ' "%s" do not match'
-                          % (domain[0], block.get("PARENT")[0]))
-
+                parent = block.get("PARENT")[0].strip()
+                domainname = domain.split('/')[0].strip()
+                if parent != domainname:
+                    error('(DOMAINS): DOMAIN "%s" and Parent "%s" do not match'
+                          % (domainname, parent))
                 if parent not in names:
                     error("(DOMAINS): Unknown parent domain name: %s", parent)
 
-        for role, val in block.iteritems():
+        for role, val in block.items():
             if role in ROLES:
                 for user in val:
-                    check_user(user, "DOMAINS", block_num)
+                    check_user(user, "DOMAINS")
     return names
 
 
@@ -113,40 +91,34 @@ def check_gittree(trees_data, domains):
     * Duplicated git path
     * Unknown domain name
     """
-    block_num = 0
     pathes = set()
 
-    for _typ, block in trees_data:
-        block_num += 1
+    for block_num, (_typ, block) in enumerate(trees_data):
+        tree = block.get("TREE")
+        if tree is None:
+            error("(TREE): Lack of TREE PATH in block %s", block_num)
+        elif len(tree) > 1:
+            error("(TREE): Multi tree pathes: %s", tree)
+        tree = tree[0]
+        if tree in pathes:
+            error("(TREE): Duplicated git path: %s", tree)
+
         domain = block.get("DOMAIN")
         if domain is None:
-            error("(TREE): Lack of DOMAIN in block %s:%s"
-                  % (block_num, block.get("TREE")))
+            error("(TREE): Lack of DOMAIN for git tree %s", tree)
         elif len(domain) > 1:
-            error("(TREE): DOMAIN is not unique in block "
-                  "%s %s" % (block_num, domain))
+            error("(TREE): Multi DOMAIN for git tree %s", tree)
         domain = domain[0]
         if domain not in domains:
             error("(TREE): Unknown domain name: %s", domain)
 
-        tree = block.get("TREE")
-        if tree is None:
-            error("(TREE): Lack of TREE PATH in block %s:%s"
-                  % (block_num, block.get("DOMAIN")))
-        elif len(tree) > 1:
-            error("(TREE): TREE PATH is not unique in block "
-                  "%s %s" % (block_num, tree))
-        tree = tree[0]
-        if tree in pathes:
-            error("(TREE): Duplicate git path: %s", tree)
-
         for role, val in block.iteritems():
             if role in ROLES:
                 for user in val:
-                    check_user(user, "TREE", block_num)
+                    check_user(user, "TREE")
 
 
-def check_user(ustring, data_typ, block_num):
+def check_user(ustring, data_typ):
     """
     Check user string is valid or not.
     ERROR: The email of user is blank or invalid.
@@ -154,6 +126,6 @@ def check_user(ustring, data_typ, block_num):
     try:
         parse_user(ustring, True)
     except ValueError as err:
-        error("(%s): %s in block %s", data_typ, err, block_num)
+        error("(%s): %s", data_typ, err)
         return 1
     return 0

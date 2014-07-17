@@ -95,7 +95,7 @@ def parse_user(ustring, validate=False):
         try:
             validate_email(email)
         except ValidationError:
-            raise ValueError('Invalid email "%s" of user "%s"' % (
+            raise ValueError('Invalid email "%s" for user "%s"' % (
                     email, ustring))
 
     first, last = '', ''
