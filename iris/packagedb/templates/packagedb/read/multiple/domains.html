@@ -29,6 +29,7 @@
                     <th>Domain name</th>
                     <th>Architects</th>
                     <th>Maintainers</th>
+                    <th>Integrators</th>
                     <th>Reviewers</th>
                     <th>Subdomains</th>
                 </tr>
@@ -48,6 +49,13 @@
                     {% for maintainer in domain.get_maintainers|dictsort:"last_name.lower" %}
                     <a href="/users/{{ maintainer.id }}">
                         <p>{{maintainer|user_display_name}}</p>
+                    </a>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for integrator in domain.get_integrators|dictsort:"last_name.lower" %}
+                    <a href="/users/{{ integrator.id }}">
+                        <p>{{integrator|user_display_name}}</p>
                     </a>
                     {% endfor %}
                 </td>
