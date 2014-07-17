@@ -275,7 +275,7 @@ def get_default_loader():
     from django.contrib.auth.models import User
     from iris.core.models import (
         Domain, SubDomain, GitTree, Package, Product, Image, License,
-        DomainRole, SubDomainRole, GitTreeRole, UserParty,
+        DomainRole, SubDomainRole, GitTreeRole,
         )
     loader = Loader()
     loader.register_entity(User, 'email')
@@ -287,7 +287,6 @@ def get_default_loader():
     loader.register_entity(Product, 'name')
     loader.register_entity(Image, ('name', 'target', 'product__name'))
     loader.register_entity(License, 'shortname')
-    loader.register_entity(UserParty, 'party')
 
     loader.register_entity(
         DomainRole, ('role', 'domain__name'), 'group_ptr_id')
@@ -304,6 +303,5 @@ def get_default_loader():
     loader.register_nnr(DomainRole, User, 'user_set')
     loader.register_nnr(SubDomainRole, User, 'user_set')
     loader.register_nnr(GitTreeRole, User, 'user_set')
-    loader.register_nnr(UserParty, User, 'user_set')
 
     return loader

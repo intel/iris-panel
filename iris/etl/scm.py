@@ -17,7 +17,7 @@ from django.contrib.auth.models import User
 
 from iris.core.models import (
     Domain, SubDomain, GitTree, License,
-    DomainRole, SubDomainRole, GitTreeRole, UserParty)
+    DomainRole, SubDomainRole, GitTreeRole)
 from iris.core.models.user import (
     parties as party_choices, roles as role_choices)
 
@@ -171,24 +171,6 @@ def transform_trees(rawdata, uc):
             treeroles, treerole_users)
 
 
-def transform_parties(users):
-    """
-    Transform to UserParty and UserParty.user_set
-    """
-    parties = [dict(zip(['party', 'name'], i)) for i in party_choices()]
-    party_users = []
-    for user in users:
-        suffix = user['email'].split('@', 1)[1].lower()
-        if suffix.endswith('intel.com'):
-            party = 'INTEL'
-        elif suffix.endswith('samsung.com'):
-            party = 'SAMSUNG'
-        else:
-            party = 'TIZEN'
-        party_users.append(({'party': party}, user))
-    return parties, party_users
-
-
 def transform_users(ucusers):
     """
     Transform cached users to database compatible users
@@ -234,7 +216,6 @@ def from_unicode(scm_unicode):
      treeroles, treerole_users,
      ) = transform_trees(rawdata, uc)
 
-    parties, party_users = transform_parties(users)
 
     # 3.load
     loader = get_default_loader()
@@ -245,15 +226,12 @@ def from_unicode(scm_unicode):
     delete_subdomainroles = loader.sync_entity(subdomainroles, SubDomainRole)
     delete_trees = loader.sync_entity(trees, GitTree)
     delete_treeroles = loader.sync_entity(treeroles, GitTreeRole)
-    delete_partyroles = loader.sync_entity(parties, UserParty)
 
     loader.sync_nnr(domainrole_users, DomainRole, User)
     loader.sync_nnr(subdomainrole_users, SubDomainRole, User)
     loader.sync_nnr(tree_licenses, GitTree, License)
     loader.sync_nnr(treerole_users, GitTreeRole, User)
-    loader.sync_nnr(party_users, UserParty, User)
 
-    delete_partyroles()
     delete_treeroles()
     delete_subdomainroles()
     delete_domainroles()

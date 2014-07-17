@@ -23,7 +23,6 @@
                     <th>Last name</th>
                     <th>First name</th>
                     <th>Email</th>
-                    <th>Organizations</th>
                 </tr>
             </thead>
             <tbody>
@@ -31,11 +30,6 @@
                     <td>{{ User.last_name }}</td>
                     <td>{{ User.first_name }}</td>
                     <td><a href="mailto:{{ User.email }}">{{ User.email }}</a></td>
-                    <td>
-                        {% for party in User.get_userparties %}
-                        <p>{{ party.name }}</p>
-                        {% endfor %}
-                    </td>
                 </tr>
             </tbody>
         </table>
