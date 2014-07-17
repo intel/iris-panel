@@ -97,5 +97,9 @@ def test_first_middle_last_email():
 
 
 def test_invalid_email():
-    assert parse_user('John 5 <john5.>') == (
-        '', 'John', '5')
+    try:
+        parse_user('John 5 <john5.>', True)
+    except ValueError:
+        assert True
+    else:
+        assert False, "invalid email should raise validation exception"

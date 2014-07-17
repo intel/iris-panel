@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-
 """
 Module for checking git scm data.
 
@@ -24,10 +21,13 @@ GIT-TREE:
 import logging
 from email.utils import parseaddr
 
-from django.core.validators import validate_email, ValidationError
+from django.core.validators import ValidationError
+
 from iris.etl.scm import MAPPING
 from iris.etl.scm import ROLES
-from iris.etl.parser import parse_blocks
+from iris.etl.parser import parse_blocks, parse_user
+
+logger = logging.getLogger(__name__)
 
 
 def check_scm(domain_str, gittree_str):
@@ -53,7 +53,6 @@ def check_domain(domains_data):
     """
     err_num = 0
     block_num = 0
-    logger = logging.getLogger(__name__)
     for typ, block in domains_data:
         block_num += 1
         domain = block.get("DOMAIN")
@@ -93,7 +92,7 @@ def check_gittree(trees_data):
     """
     block_num = 0
     err_num = 0
-    logger = logging.getLogger(__name__)
+
     for typ, block in trees_data:
         block_num += 1
         domain = block.get("DOMAIN")
@@ -126,14 +125,9 @@ def check_user(ustring, data_typ, block_num):
     Check user string is valid or not.
     ERROR: The email of user is blank or invalid.
     """
-    err_num = 0
-    logger = logging.getLogger(__name__)
-    user, email = parseaddr(ustring)
-    user, email = user.strip(), email.strip()
     try:
-        validate_email(email)
-    except ValidationError:
-        logger.error("(%s): The email of user \"%s\" is blank or invalid in"
-                     " block %s" % (data_typ, ustring, block_num))
-        err_num = 1
-    return err_num
+        parse_user(ustring, True)
+    except ValueError as err:
+        logger.error("(%s): %s in block %s", data_typ, err, block_num)
+        return 1
+    return 0

@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 """
 Parsing code for scm text
 """
@@ -79,7 +78,7 @@ class UserCache(object):
         return user
 
 
-def parse_user(ustring):
+def parse_user(ustring, validate=False):
     """
     Parse user string like To or Cc field.
 
@@ -91,10 +90,13 @@ def parse_user(ustring):
         user, email = ustring, ''
     else:
         user, email = user.strip(), email.strip()
+
+    if validate and email:
         try:
             validate_email(email)
         except ValidationError:
-            email = ''
+            raise ValueError('Invalid email "%s" of user "%s"' % (
+                    email, ustring))
 
     first, last = '', ''
     parts = user.split(None, 1)

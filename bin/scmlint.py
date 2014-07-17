@@ -1,14 +1,18 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
-
 """
 Module for checking git scm data before importing.
 """
 import os
+os.environ['DJANGO_SETTINGS_MODULE'] = 'iris.core.settings'
+
 import sys
 import argparse
-os.environ['DJANGO_SETTINGS_MODULE'] = 'iris.core.settings'
+import logging
+
 from iris.etl.check import check_scm
+
+logger = logging.getLogger("iris.scmlint")
 
 
 def main():
@@ -21,9 +25,10 @@ def main():
     parser.add_argument('gittree', type=file, help='git tree data file')
     args = parser.parse_args()
 
-    print('Starting check git scm data...')
+    logger.debug('Starting check git scm data...')
     res = file_import(args.domain, args.gittree)
-    print('check git scm data end. %s failed.' % (res))
+    if res > 0:
+        logger.warn('check git scm data end. %s failed.', res)
     return res
 
 
