@@ -23,6 +23,7 @@ from django.contrib.auth.models import User
 from django.utils.datastructures import MultiValueDictKeyError
 
 from iris.core.injectors import inject_user_getters
+from iris.etl.scm import merge_users
 
 log = logging.getLogger(__name__)
 
@@ -81,6 +82,9 @@ def login_view(request):
         user = authenticate(username=username, password=password)
 
         if user is not None and user.is_active:
+            # merge LDAP user and scm user which with same email in database
+            merge_users(user.email)
+
             login(request, user)
             log.info('login|%s|%s', user.username, user.email)
             return redirect(redirect_url)

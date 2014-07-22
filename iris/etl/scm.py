@@ -20,6 +20,7 @@ from iris.core.models import (
     DomainRole, SubDomainRole, GitTreeRole)
 from iris.core.models.user import (
     parties as party_choices, roles as role_choices)
+from iris.core.injectors import inject_user_getters
 
 from iris.etl.parser import parse_blocks, UserCache
 from iris.etl.loader import get_default_loader
@@ -248,3 +249,33 @@ def from_file(dfile, tfile):
     return from_string(''.join([dfile.read(),
                                 os.linesep, os.linesep,
                                 tfile.read()]))
+
+
+def merge_users(email):
+    """merge the scm user into ldap user
+    """
+    if not email:
+        return
+
+    # get the user which is from LDAP
+    users = User.objects.filter(email=email).exclude(username=email)
+
+    def updata_role(role, old, new):
+        role.user_set.remove(old)
+        role.user_set.add(new)
+
+    if len(users) == 1:
+        user = users[0]
+        # get the user which is from scm
+        ur = User.objects.get(username=email)
+
+        if user.username != ur.email:
+            # merge it into ldap user then delete it
+            ogetter = inject_user_getters(ur)
+            for role in ogetter.get_domainroles():
+                updata_role(role, ur, user)
+            for role in ogetter.get_subdomainroles():
+                updata_role(role, ur, user)
+            for role in ogetter.get_gittreeroles():
+                updata_role(role, ur, user)
+            ur.delete()
