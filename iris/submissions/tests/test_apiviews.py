@@ -34,7 +34,7 @@ def basic_auth_header(username, password):
     return 'Basic %s' % base64_credentials
 
 
-class AuthTests(TestCase):
+class _AuthTests(object):
     """
     The REST framework test case class of Authorization
     """
@@ -70,7 +70,7 @@ class AuthTests(TestCase):
         self.assertTrue(response)
 
 
-class SubmissionsTests(TestCase):
+class _SubmissionsTests(object):
     """
     The REST framework test case class of Submissions APIView
     """

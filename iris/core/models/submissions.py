@@ -23,8 +23,6 @@ APP_LABEL = 'core'
 
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from iris.core.models import GitTree, Package, Product, Image
 
 
 class Log(models.Model):
@@ -53,17 +51,22 @@ class PackageBuild(models.Model):
     a single package for a relevant architectures, e.g. amd_64 and i386.
     """
 
-    BUILDSTATUS = (
-        ('SUCCESS', 'Succeeded'),
-        ('FAILURE', 'Failed'),
-    )
+    STATUS = {
+        'SUCCESS': 'Succeeded',
+        'FAILURE': 'Failed',
+        }
 
-    package = models.ForeignKey(Package)
+    package = models.ForeignKey('Package')
+
     target = models.TextField()
     arch = models.TextField()
-    log = models.OneToOneField(Log, blank=True, null=True,
-                                on_delete=models.SET_NULL)
-    status = models.CharField(max_length=8, choices=BUILDSTATUS)
+    status = models.CharField(max_length=64, choices=STATUS.items())
+
+    log = models.URLField()
+
+    @property
+    def display_status(self):
+        return self.STATUS[self.status]
 
     def __unicode__(self):
         return self.status
@@ -77,16 +80,23 @@ class ImageBuild(models.Model):
     Class representing the image building step of the build process.
     """
 
-    BUILDSTATUS = (
-        ('SUCCESS', 'Succeeded'),
-        ('FAILURE', 'Failed'),
-    )
+    STATUS = {
+        'SUCCESS': 'Succeeded',
+        'FAILURE': 'Failed',
+        }
 
-    image = models.ForeignKey(Image)
     name = models.TextField()
-    log = models.OneToOneField(Log, blank=True, null=True,
-                                on_delete=models.SET_NULL)
-    status = models.CharField(max_length=8, choices=BUILDSTATUS)
+    repo = models.CharField(max_length=255)
+    status = models.CharField(max_length=64, choices=STATUS.items())
+
+    group = models.ForeignKey('BuildGroup')
+
+    url = models.URLField()
+    log = models.URLField()
+
+    @property
+    def display_status(self):
+        return self.STATUS[self.status]
 
     def __unicode__(self):
         return self.status
@@ -109,7 +119,7 @@ class TestResult(models.Model):
     name = models.TextField()
     log = models.OneToOneField(Log, blank=True, null=True,
                                 on_delete=models.SET_NULL)
-    status = models.CharField(max_length=16, choices=TESTSTATUS)
+    status = models.CharField(max_length=64, choices=TESTSTATUS)
 
     def __unicode__(self):
         return self.status
@@ -125,48 +135,99 @@ class Submission(models.Model):
     A single submission is a tag pushed for e.g. review or release.
     """
 
-    SUBMISSIONSTATUS = (
-        ('SUBMITTED', 'Submitted'),
-        ('PKGBUILDING', 'Package building'),
-        ('PKGFAILED', 'Package building failed'),
-        ('IMGBUILDING', 'Image building'),
-        ('IMGFAILED', 'Image build failed'),
-        ('TESTING', 'Testing package'),
-        ('TESTINGFAILED', 'Testing failed'),
-        ('READY', 'Ready for acceptance'),
-        ('ACCEPTED', 'Accepted'),
-        ('REJECTED', 'Rejected'),
-        ('LOCKED', 'Locked'),
-    )
+    STATUS = {
+        'SUBMITTED': 'Submitted',
+        'PROCESSING': 'Processing',
+        'DONE': 'Done',
+        }
+    # when all build groups related to this submission are in final states
+    # this submission can be set to DONE state
 
-    name = models.CharField(max_length=80, db_index=True)
-    commit = models.CharField(max_length=40)
+    # tag name, submissions with the same name is a submission group
+    name = models.CharField(max_length=255, db_index=True)
+
+    status = models.CharField(max_length=64, db_index=True,
+                              choices=STATUS.items())
+
+    owner = models.ForeignKey(User)
+    gittree = models.ForeignKey('GitTree')
+    commit = models.CharField(max_length=255, db_index=True)
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    status = models.CharField(max_length=16, choices=SUBMISSIONSTATUS,
-                              db_index=True)
-    product = models.ForeignKey(Product, blank=True, null=True,
-                                on_delete=models.SET_NULL)
-    gittree = models.ManyToManyField(GitTree, blank=True)
-    pbuilds = models.ManyToManyField(PackageBuild, blank=True)
-    ibuilds = models.ManyToManyField(ImageBuild, blank=True)
-    testresults = models.ManyToManyField(TestResult, blank=True)
-    submitters = models.ManyToManyField(User)
-    comment = models.TextField(blank=True)
-    obj_type = 'Submission'
 
     def __unicode__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('read_submissions', args=(self.id,))
+    @property
+    def display_status(self):
+        return self.STATUS[self.status]
+
+    class Meta:
+        app_label = APP_LABEL
+        unique_together = ('name', 'gittree')
+
+
+class SubmissionBuild(models.Model):
+    """
+    Class representing a build of a submission against certain product.
+    """
+
+    submission = models.ForeignKey('Submission')
+    product = models.ForeignKey('Product')
+
+    group = models.ForeignKey('BuildGroup')
+    pbuilds = models.ManyToManyField('PackageBuild')
+
+    class Meta:
+        app_label = APP_LABEL
+        unique_together = ('submission', 'product')
+
+
+class BuildGroup(models.Model):
+    """
+    Class representing a group of builds which could be accepted
+    together by a release engineer.
+    """
+
+    STATUS = {
+        '10_PKGBUILDING': 'Package building',
+        '15_PKGFAILED': 'Package building failed',
+
+        '20_IMGBUILDING': 'Image building',
+        '25_IMGFAILED': 'Image build failed',
+
+        '30_READY': 'Ready for acceptance',
+        '33_ACCEPTED': 'Accepted',
+        '36_REJECTED': 'Rejected',
+        }
+    # Final states are: ACCEPTED, REJECTED
+
+    # pre-release project name
+    name = models.CharField(max_length=255, unique=True)
+    status = models.CharField(max_length=64, db_index=True,
+                              choices=STATUS.items())
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    # repa operator: accepted/rejected by
+    operator = models.ForeignKey(User)
+    operated_on = models.DateTimeField(null=True)
+    operate_reason = models.TextField()
+
+    snapshot = models.URLField()
+
+    def __unicode__(self):
+        return self.name
+
+    @property
+    def display_status(self):
+        return self.STATUS[self.status]
 
     class Meta:
         app_label = APP_LABEL
 
-    # workaround to stop pylint complaint
-    # class 'Submission' has no 'objects' name
-    objects = models.Manager()
 
 class SubmissionGroup(models.Model):
     """
@@ -186,7 +247,7 @@ class SubmissionGroup(models.Model):
 
     name = models.CharField(max_length=80, db_index=True)
     author = models.ForeignKey(User)
-    product = models.ForeignKey(Product, blank=True, null=True,
+    product = models.ForeignKey('Product', blank=True, null=True,
                                 on_delete=models.SET_NULL)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

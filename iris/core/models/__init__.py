@@ -28,16 +28,17 @@ __all__ = []
 
 # Package Database related model imports:
 from iris.core.models.packagedb import (Domain, SubDomain, License,
-        GitTree, Package, Product, Image)
-from iris.core.models.submissions import (Log, PackageBuild,
-        ImageBuild, TestResult, Submission, SubmissionGroup)
+    GitTree, Package, Product, Image)
+from iris.core.models.submissions import (
+    PackageBuild, ImageBuild, Submission, SubmissionBuild, BuildGroup,
+    Log, TestResult, SubmissionGroup)
 from iris.core.models.user import (UserProfile, UserParty,
-        DomainRole, SubDomainRole, GitTreeRole)
+    DomainRole, SubDomainRole, GitTreeRole)
 
 
 __all__.extend(['Domain', 'SubDomain', 'License', 'GitTree', 'Package',
                 'Product', 'Image', ])
-__all__.extend(['Log', 'PackageBuild', 'ImageBuild',
-                'TestResult', 'Submission', 'SubmissionGroup', ])
+__all__.extend(['PackageBuild', 'ImageBuild', 'Submission', 'SubmissionBuild',
+                'BuildGroup', 'Log', 'TestResult', 'SubmissionGroup'])
 __all__.extend(['UserProfile', 'UserParty',
                 'DomainRole', 'SubDomainRole', 'GitTreeRole', ])
