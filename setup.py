@@ -35,7 +35,7 @@ def get_version():
 
 # Allow setup.py to be run from any path:
 chdir(path.normpath(path.join(path.abspath(__file__), pardir)))
-README = open(path.join(path.dirname(__file__), 'README')).read()
+README = open(path.join(path.dirname(__file__), 'README.md')).read()
 VERSION = get_version()
 
 # Core package project setup

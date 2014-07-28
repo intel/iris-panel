@@ -1,16 +1,20 @@
 IRIS
 ====
 
-This is the IRIS package.
+[![Build Status](https://travis-ci.org/01org/iris-panel.svg?branch=master)](https://travis-ci.org/01org/iris-panel)
 
-The purpose of this package is to provide an extensible
-web server for release engineering services.
+IRIS is a data-aggregation web service for Tizen development.
+By collecting original data from backend systems and presenting
+processed data in web GUI, IRIS enables all stakeholders of
+Tizen to query and manage the information they need.
 
-License is GPLv2.
+License
+-------
 
+GPLv2
 
 Contribute
-==========
+----------
 
 For new requirements and bug reports, please create tickets
 in this JIRA with reasonable detail information.

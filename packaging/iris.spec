@@ -73,7 +73,7 @@ from django.core.management import call_command
 call_command('collectstatic', interactive=False)
 EOF
 
-install -D      README                              %{buildroot}%{_prefix}/share/doc/packages/%{name}/README
+install -D      README.md                           %{buildroot}%{_prefix}/share/doc/packages/%{name}/README.md
 install -D      doc/iris/example.conf               %{buildroot}%{_prefix}/share/doc/packages/%{name}/iris.conf
 install -D      etc/%{name}/%{name}.conf            %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
 install -D      etc/apache2/vhosts.d/%{name}.conf   %{buildroot}%{_sysconfdir}/apache2/vhosts.d/%{name}.conf
@@ -146,7 +146,7 @@ fi
 %files %{core_name}
 %defattr(-,root,root,-)
 %dir                                                %{_datadir}/doc/packages/%{name}
-%doc                %attr(0644, root, root)         %{_datadir}/doc/packages/%{name}/README
+%doc                %attr(0644, root, root)         %{_datadir}/doc/packages/%{name}/README.md
 %doc doc/RELEASE_NOTES
 %doc                %attr(0644, root, root)         %{_datadir}/doc/packages/%{name}/iris.conf
 %dir                                                %{_sysconfdir}/%{name}
