@@ -82,3 +82,9 @@ urlpatterns += patterns(
     url(r'^images(?:/(?P<pkid>\d+))?/delete/$',
         'image', name='image.delete'),
 )
+
+urlpatterns += patterns(
+    'iris.packagedb.views.scm',
+    url(r'^scm/update', 'update', name='scm.update'),
+    url(r'^scm/check', 'check', name='scm.update'),
+)

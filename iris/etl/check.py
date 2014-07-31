@@ -13,12 +13,13 @@ from iris.etl.parser import parse_blocks, parse_user
 
 logger = logging.getLogger(__name__)
 
-_error = 0
+_message = []
+
 
 def error(*args, **kw):
     "increase error count and log message"
-    global _error
-    _error += 1
+    global _message
+    _message.append(*args)
     return logger.error(*args, **kw)
 
 
@@ -28,13 +29,13 @@ def check_scm(domain_str, gittree_str):
     The return value: zero means everything is ok, non-zero means something
     is wrong, and the number is the error num in total.
     """
-    global _error
-    _error = 0
+    global _error, _message
+    _message = []
     domains_data = parse_blocks(domain_str, MAPPING)
     trees_data = parse_blocks(gittree_str, MAPPING)
     domains = check_domain(domains_data)
     check_gittree(trees_data, domains)
-    return _error
+    return {'errors': len(_message), 'messages': _message}
 
 
 def check_domain(domains_data):
@@ -52,18 +53,18 @@ def check_domain(domains_data):
     for block_num, (_typ, block) in enumerate(domains_data):
         domain = block.get("DOMAIN")
         if domain is None:
-            error("(DOMAINS): Lack of DOMAIN in block %s", block_num)
+            error("(DOMAINS): Lack of DOMAIN in block %s" % block_num)
         elif len(domain) > 1:
-            error("(DOMAINS): Multi domain names: %s", domain)
+            error("(DOMAINS): Multi domain names: %s" % domain)
 
         domain = domain[0]
         if domain in names:
-            error("(DOMAINS): Duplicated domain name: %s", domain)
+            error("(DOMAINS): Duplicated domain name: %s" % domain)
         names.add(domain)
 
         if '/' in domain:
             if "PARENT" not in block:
-                error("(DOMAINS): Lack of parent for domain %s", domain)
+                error("(DOMAINS): Lack of parent for domain %s" % domain)
             else:
                 parent = block.get("PARENT")[0].strip()
                 domainname = domain.split('/')[0].strip()
@@ -71,7 +72,7 @@ def check_domain(domains_data):
                     error('(DOMAINS): DOMAIN "%s" and Parent "%s" do not match'
                           % (domainname, parent))
                 if parent not in names:
-                    error("(DOMAINS): Unknown parent domain name: %s", parent)
+                    error("(DOMAINS): Unknown parent domain name: %s" % parent)
 
         for role, val in block.items():
             if role in ROLES:
@@ -96,21 +97,21 @@ def check_gittree(trees_data, domains):
     for block_num, (_typ, block) in enumerate(trees_data):
         tree = block.get("TREE")
         if tree is None:
-            error("(TREE): Lack of TREE PATH in block %s", block_num)
+            error("(TREE): Lack of TREE PATH in block %s" % block_num)
         elif len(tree) > 1:
-            error("(TREE): Multi tree pathes: %s", tree)
+            error("(TREE): Multi tree pathes: %s" % tree)
         tree = tree[0]
         if tree in pathes:
-            error("(TREE): Duplicated git path: %s", tree)
+            error("(TREE): Duplicated git path: %s" % tree)
 
         domain = block.get("DOMAIN")
         if domain is None:
-            error("(TREE): Lack of DOMAIN for git tree %s", tree)
+            error("(TREE): Lack of DOMAIN for git tree %s" % tree)
         elif len(domain) > 1:
-            error("(TREE): Multi DOMAIN for git tree %s", tree)
+            error("(TREE): Multi DOMAIN for git tree %s" % tree)
         domain = domain[0]
         if domain not in domains:
-            error("(TREE): Unknown domain name: %s", domain)
+            error("(TREE): Unknown domain name: %s" % domain)
 
         for role, val in block.iteritems():
             if role in ROLES:
@@ -126,6 +127,6 @@ def check_user(ustring, data_typ):
     try:
         parse_user(ustring, True)
     except ValueError as err:
-        error("(%s): %s", data_typ, err)
+        error("(%s): %s" % (data_typ, err))
         return 1
     return 0
