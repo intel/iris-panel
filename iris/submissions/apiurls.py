@@ -34,3 +34,9 @@ urlpatterns = patterns(
     url(r'^api-auth/', include('rest_framework.urls',
         namespace='rest_framework')),
 )
+
+
+urlpatterns += patterns(
+    'iris.submissions.views.events',
+    url(r'events/submitted/', 'submitted', name='event_submitted'),
+    )
