@@ -205,15 +205,16 @@ class BuildGroup(models.Model):
 
     # pre-release project name
     name = models.CharField(max_length=255, unique=True)
-    status = models.CharField(max_length=64, db_index=True,
-                              choices=STATUS.items())
+    status = models.CharField(
+        max_length=64, db_index=True, choices=STATUS.items())
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     # repa operator: accepted/rejected by
-    operator = models.ForeignKey(User)
-    operated_on = models.DateTimeField(null=True)
+    operator = models.ForeignKey(
+        User, blank=True, null=True, on_delete=models.SET_NULL)
+    operated_on = models.DateTimeField(blank=True, null=True)
     operate_reason = models.TextField()
 
     snapshot = models.URLField()
