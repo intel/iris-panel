@@ -3,6 +3,7 @@ IRIS
 
 [![Build Status](https://travis-ci.org/01org/iris-panel.svg?branch=master)](https://travis-ci.org/01org/iris-panel)
 [![Code Health](https://landscape.io/github/01org/iris-panel/master/landscape.png)](https://landscape.io/github/01org/iris-panel/master)
+[![Coverage Status](https://coveralls.io/repos/01org/iris-panel/badge.png)](https://coveralls.io/r/01org/iris-panel)
 
 IRIS is a data-aggregation web service for Tizen development.
 By collecting original data from backend systems and presenting
