@@ -54,25 +54,31 @@ def check_domain(domains_data):
         domain = block.get("DOMAIN")
         if domain is None:
             error("(DOMAINS): Lack of DOMAIN in block %s" % block_num)
+            continue
         elif len(domain) > 1:
             error("(DOMAINS): Multi domain names: %s" % domain)
+            continue
 
         domain = domain[0]
         if domain in names:
             error("(DOMAINS): Duplicated domain name: %s" % domain)
+            continue
         names.add(domain)
 
         if '/' in domain:
             if "PARENT" not in block:
                 error("(DOMAINS): Lack of parent for domain %s" % domain)
+                continue
             else:
                 parent = block.get("PARENT")[0].strip()
                 domainname = domain.split('/')[0].strip()
                 if parent != domainname:
                     error('(DOMAINS): DOMAIN "%s" and Parent "%s" do not match'
                           % (domainname, parent))
+                    continue
                 if parent not in names:
                     error("(DOMAINS): Unknown parent domain name: %s" % parent)
+                    continue
 
         for role, val in block.items():
             if role in ROLES:
@@ -98,20 +104,26 @@ def check_gittree(trees_data, domains):
         tree = block.get("TREE")
         if tree is None:
             error("(TREE): Lack of TREE PATH in block %s" % block_num)
+            continue
         elif len(tree) > 1:
             error("(TREE): Multi tree pathes: %s" % tree)
+            continue
         tree = tree[0]
         if tree in pathes:
             error("(TREE): Duplicated git path: %s" % tree)
+            continue
 
         domain = block.get("DOMAIN")
         if domain is None:
             error("(TREE): Lack of DOMAIN for git tree %s" % tree)
+            continue
         elif len(domain) > 1:
             error("(TREE): Multi DOMAIN for git tree %s" % tree)
+            continue
         domain = domain[0]
         if domain not in domains:
             error("(TREE): Unknown domain name: %s" % domain)
+            continue
 
         for role, val in block.iteritems():
             if role in ROLES:
