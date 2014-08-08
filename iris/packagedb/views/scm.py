@@ -42,13 +42,14 @@ def update(request):
     gittrees = request.FILES.get('gittrees')
     if domains and gittrees:
         detail = check_scm(domains.read(), gittrees.read())
-        if detail['errors'] == 0:
+        if not detail:
             log.info('Importing scm data...')
             scm.from_file(domains, gittrees)
             detail = 'Successful!'
             code = status.HTTP_200_OK
         else:
             code = status.HTTP_406_NOT_ACCEPTABLE
+            detail = ','.join(detail)
     else:
         log.error('Can not find data files!')
         detail = 'Can not find data files!'
@@ -69,11 +70,12 @@ def check(request):
     if domains and gittrees:
         log.info('Checking scm data...')
         detail = check_scm(domains.read(), gittrees.read())
-        if detail['errors'] == 0:
+        if not detail:
             detail = 'Successful!'
             code = status.HTTP_200_OK
         else:
             code = status.HTTP_406_NOT_ACCEPTABLE
+            detail = ','.join(detail)
     else:
         detail = 'Can not find data files!'
         code = status.HTTP_406_NOT_ACCEPTABLE

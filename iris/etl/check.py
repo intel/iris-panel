@@ -35,7 +35,7 @@ def check_scm(domain_str, gittree_str):
     trees_data = parse_blocks(gittree_str, MAPPING)
     domains = check_domain(domains_data)
     check_gittree(trees_data, domains)
-    return {'errors': len(_message), 'messages': _message}
+    return _message
 
 
 def check_domain(domains_data):
