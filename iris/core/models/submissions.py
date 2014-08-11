@@ -81,6 +81,7 @@ class ImageBuild(models.Model):
     """
 
     STATUS = {
+        'BUILDING': 'Building',
         'SUCCESS': 'Succeeded',
         'FAILURE': 'Failed',
         }

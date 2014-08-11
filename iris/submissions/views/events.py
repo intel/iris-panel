@@ -1,24 +1,32 @@
-# pylint: disable=C0111,E1101,W0703
+"""
+View functions to handler submission events
+"""
 from iris.core.models import (
     GitTree, Product,
     Submission, SubmissionBuild, BuildGroup,
+    ImageBuild,
     )
 
 from MySQLdb.constants.ER import DUP_ENTRY
 
 from django import forms
+from django.forms import ValidationError
 from django.db import IntegrityError
 from django.db.transaction import atomic
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import permission_required
 
 from rest_framework.status import (
-    HTTP_201_CREATED, HTTP_202_ACCEPTED,
+    HTTP_200_OK, HTTP_201_CREATED, HTTP_202_ACCEPTED,
     HTTP_406_NOT_ACCEPTABLE,
     )
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
+# pylint: disable=C0111,E1101,W0703,W0232,E1002,R0903,C0103
+# W0232: 25,0:SubmittedForm: Class has no __init__ method
+# E1002: 78,4:PreCreatedForm.clean: Use of super on an old style class
+# R0903: 90,0:ImageBuildingForm: Too few public methods (1/2)
 
 class SubmittedForm(forms.Form):
 
@@ -77,6 +85,49 @@ class PreCreatedForm(forms.Form):
             raise forms.ValidationError(err)
         else:
             data['submission'] = sub
+        return data
+
+
+class ImageBuildingForm(forms.Form):
+
+    name = forms.CharField(label="Image name")
+    project = forms.CharField(label="Pre-release project name")
+
+    def clean_project(self):
+        project = self.cleaned_data['project']
+        try:
+            return BuildGroup.objects.get(name=project)
+        except BuildGroup.DoesNotExist as err:
+            raise ValidationError(str(err))
+
+class ImageCreatedForm(forms.Form):
+
+    name = forms.CharField(label="Image name")
+    project = forms.CharField(label="Pre-release project name")
+    status = forms.ChoiceField(choices=(
+            ('success', 'success'),
+            ('failure', 'failure'),
+            ))
+    url = forms.URLField(label="Image URL")
+    log = forms.URLField(label="Image building log URL")
+
+    def clean_project(self):
+        project = self.cleaned_data['project']
+        try:
+            return BuildGroup.objects.get(name=project)
+        except BuildGroup.DoesNotExist as err:
+            raise ValidationError(str(err))
+
+    def clean(self):
+        data = self.cleaned_data
+        if 'project' in data:
+            try:
+                ibuild = ImageBuild.objects.get(name=data['name'],
+                                                group=data['project'])
+            except ImageBuild.DoesNotExist as err:
+                raise ValidationError(str(err))
+            else:
+                data['name'] = ibuild
         return data
 
 
@@ -145,3 +196,72 @@ def pre_created(request):
         raise
     return Response({'detail': 'Pre-release project created'},
                     status=HTTP_201_CREATED)
+
+
+@atomic
+@api_view(["POST"])
+@permission_required('submissions.publish_events', raise_exception=True)
+def image_building(request):
+    """
+    Event that happens when a image started to build
+
+    name -- Image name
+    project -- Pre-release project name
+    """
+    form = ImageBuildingForm(request.POST)
+    if not form.is_valid():
+        return Response({'detail': form.errors.as_text()},
+                        status=HTTP_406_NOT_ACCEPTABLE)
+
+    data = form.cleaned_data
+
+    group = data['project']
+    group.status = '20_IMGBUILDING'
+    group.save()
+
+    ibuild = ImageBuild(name=data['name'],
+                        status='BUILDING',
+                        group=group)
+    ibuild.save()
+    return Response({'detail': 'Image started to build'},
+                    status=HTTP_200_OK)
+
+
+@atomic
+@api_view(["POST"])
+@permission_required('submissions.publish_events', raise_exception=True)
+def image_created(request):
+    """
+    Event that happends when a image created
+
+    name -- Image name
+    project -- Pre-release project name
+    status -- status
+    url -- Image URL
+    """
+    form = ImageCreatedForm(request.POST)
+    if not form.is_valid():
+        return Response({'detail': form.errors.as_text()},
+                        status=HTTP_406_NOT_ACCEPTABLE)
+
+    data = form.cleaned_data
+    print data
+    ok = data['status'] == 'success'
+
+    group = data['project']
+    if ok:
+        group.status = '30_READY'
+    else:
+        group.status = '25_IMGFAILED'
+    group.save()
+
+    ibuild = data['name']
+    ibuild.log = data['log']
+    if ok:
+        ibuild.url = data['url']
+        ibuild.status = 'SUCCESS'
+    else:
+        ibuild.status = 'FAILURE'
+    ibuild.save()
+    return Response({'detail': 'Image created %s' % data['status']},
+                    status=HTTP_200_OK)

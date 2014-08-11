@@ -40,4 +40,7 @@ urlpatterns += patterns(
     'iris.submissions.views.events',
     url(r'events/submitted/', 'submitted', name='event_submitted'),
     url(r'events/pre_created/', 'pre_created', name='event_pre_created'),
+    url(r'events/image_building/', 'image_building',
+        name='event_image_building'),
+    url(r'events/image_created/', 'image_created', name='event_image_created'),
     )
