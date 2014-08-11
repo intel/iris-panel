@@ -25,22 +25,22 @@ class FirefoxLoginTest(LiveServerTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(FirefoxLoginTest, cls).setUpClass()
         cls.display = Display('xvfb', visible=0, size=(1280, 1024))
         cls.display.start()
         cls.driver = webdriver.Firefox(proxy=PROXY)
+        super(FirefoxLoginTest, cls).setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+        cls.display.stop()
+        super(FirefoxLoginTest, cls).tearDownClass()
 
     def setUp(self):
         User.objects.create_user('test', '', 'test')
 
     def tearDown(self):
         User.objects.all().delete()
-
-    @classmethod
-    def tearDownClass(cls):
-        super(FirefoxLoginTest, cls).tearDownClass()
-        cls.display.stop()
-        cls.driver.quit()
 
     def test_login_page(self):
         self.driver.get('%s%s' % (self.live_server_url, '/login/'))
