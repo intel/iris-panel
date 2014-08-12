@@ -43,4 +43,5 @@ urlpatterns += patterns(
     url(r'events/image_building/', 'image_building',
         name='event_image_building'),
     url(r'events/image_created/', 'image_created', name='event_image_created'),
+    url(r'events/repa_action/', 'repa_action', name='event_repa_action'),
     )

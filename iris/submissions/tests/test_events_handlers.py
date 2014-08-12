@@ -133,3 +133,25 @@ class EventHandlerTest(TestCase):
         self.create_a_submission()
         r = self.image_created()
         self.assertEquals(406, r.status_code)
+
+    def test_repa_accepted(self):
+        self.create_a_submission()
+        self.create_pre()
+        r = self.client.post(reverse('event_repa_action'), {
+                'project': 'home:prerelease:tizen:ivi:submit:trunk:yyyy-mm-dd',
+                'status': 'accepted',
+                'who': 'someone@tizen.org',
+                'reason': 'Good!',
+                })
+        self.assertEquals(200, r.status_code)
+
+    def test_repa_rejected(self):
+        self.create_a_submission()
+        self.create_pre()
+        r = self.client.post(reverse('event_repa_action'), {
+                'project': 'home:prerelease:tizen:ivi:submit:trunk:yyyy-mm-dd',
+                'status': 'rejected',
+                'who': 'someone@tizen.org',
+                'reason': "Errors found in QA tests",
+                })
+        self.assertEquals(200, r.status_code)

@@ -1,6 +1,8 @@
 """
 View functions to handler submission events
 """
+import datetime
+
 from iris.core.models import (
     GitTree, Product,
     Submission, SubmissionBuild, BuildGroup,
@@ -129,6 +131,43 @@ class ImageCreatedForm(forms.Form):
             else:
                 data['name'] = ibuild
         return data
+
+
+class RepaActionForm(forms.Form):
+
+    project = forms.CharField(label="Pre-release project name")
+    status = forms.ChoiceField(choices=(
+            ('accepted', 'accepted'),
+            ('rejected', 'rejected'),
+            ), label="Accepted or rejected")
+    who = forms.EmailField(label="Operator's Email")
+    reason = forms.CharField(label="Explanation")
+    when = forms.DateTimeField(label="When this happened", required=False)
+
+    def clean_project(self):
+        project = self.cleaned_data['project']
+        try:
+            return BuildGroup.objects.get(name=project)
+        except BuildGroup.DoesNotExist as err:
+            raise ValidationError(str(err))
+
+    def clean_status(self):
+        if self.cleaned_data['status'] == 'accepted':
+            return '33_ACCEPTED'
+        return '36_REJECTED'
+
+    def clean_who(self):
+        email = self.cleaned_data['who']
+        try:
+            return User.objects.get(email=email)
+        except User.DoesNotExist:
+            return User.objects.create_user(
+                username=email, email=email)
+
+    def clean_when(self):
+        if self.cleaned_data['when']:
+            return self.cleaned_data['when']
+        return datetime.datetime.now()
 
 
 @atomic
@@ -264,4 +303,31 @@ def image_created(request):
         ibuild.status = 'FAILURE'
     ibuild.save()
     return Response({'detail': 'Image created %s' % data['status']},
+                    status=HTTP_200_OK)
+
+
+@atomic
+@api_view(["POST"])
+@permission_required('submissions.publish_events', raise_exception=True)
+def repa_action(request):
+    """
+    Event that happens when `repa` operates on some pre-release project
+
+    project - Pre-release project
+    status - Accepted or rejected
+    who - Operator's Email
+    reason - Explanation
+    when - When this happened
+    """
+    form = RepaActionForm(request.POST)
+    if not form.is_valid():
+        return Response({'detail': form.errors.as_text()},
+                        status=HTTP_406_NOT_ACCEPTABLE)
+    data = form.cleaned_data
+    group = data['project']
+    group.status = data['status']
+    group.operator = data['who']
+    group.operator_on = data['when']
+    group.save()
+    return Response({'detail': 'Action %s received' % data['status']},
                     status=HTTP_200_OK)
