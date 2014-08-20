@@ -27,7 +27,7 @@ from rest_framework.decorators import api_view
 from iris.etl import scm
 from iris.etl.check import check_scm
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('scm_update')
 
 
 @login_required
@@ -50,10 +50,11 @@ def update(request):
         else:
             code = status.HTTP_406_NOT_ACCEPTABLE
             detail = ','.join(detail)
+            log.error(detail)
     else:
-        log.error('Can not find data files!')
         detail = 'Can not find data files!'
         code = status.HTTP_406_NOT_ACCEPTABLE
+        log.error(detail)
     content = {'detail': detail}
     return Response(content, status=code)
 
@@ -76,8 +77,10 @@ def check(request):
         else:
             code = status.HTTP_406_NOT_ACCEPTABLE
             detail = ','.join(detail)
+            log.error(detail)
     else:
         detail = 'Can not find data files!'
         code = status.HTTP_406_NOT_ACCEPTABLE
+        log.error(detail)
     content = {'detail': detail}
     return Response(content, status=code)

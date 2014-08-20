@@ -30,10 +30,10 @@ TEMPLATE_DEBUG = DEBUG
 INTERNAL_IPS = ('127.0.0.1', 'localhost')
 
 ADMINS = (
-    ('Aleksi Hakli', 'aleksi.hakli@intel.com'),
     ('Eduard Bartosh', 'eduard.bartosh@intel.com'),
     ('Hao Huang', 'hao.h.huang@intel.com'),
     ('Jing-Fiang Deng', 'jian-feng.ding@intel.com'),
+    ('Gao XueSong', 'xuesongx.gao@intel.com'),
 )
 
 MANAGERS = ADMINS
@@ -173,7 +173,7 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
+            'class': 'django.utils.log.AdminEmailHandler',
         }
     },
     'loggers': {
@@ -191,7 +191,12 @@ LOGGING = {
         'django_auth_ldap': {
             'handlers': ['development', 'production'],
             'level': 'DEBUG',
-        }
+        },
+        'scm_update': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
     }
 }
 
