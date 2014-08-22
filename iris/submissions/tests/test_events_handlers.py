@@ -102,6 +102,34 @@ class EventHandlerTest(TestCase):
                 })
         self.assertEquals(406, r.status_code)
 
+    def test_package_built_succeeded(self):
+        self.create_a_submission()
+        self.create_pre()
+        r = self.client.post(reverse('event_package_built'), {
+                'name': 'dlog',
+                'repo': 'standard',
+                'arch': 'i586',
+                'project': 'home:prerelease:tizen:ivi:submit:trunk:yyyy-mm-dd',
+                'status': 'success',
+                'url': 'http://url.to.live.repo',
+                'log': 'http://url.to.build.log',
+                })
+        self.assertEquals(200, r.status_code)
+
+    def test_package_built_failed(self):
+        self.create_a_submission()
+        self.create_pre()
+        r = self.client.post(reverse('event_package_built'), {
+                'name': 'dlog',
+                'repo': 'standard',
+                'arch': 'armv7el',
+                'project': 'home:prerelease:tizen:ivi:submit:trunk:yyyy-mm-dd',
+                'status': 'failure',
+                'url': 'http://url.to.live.repo',
+                'log': 'http://url.to.build.log',
+                })
+        self.assertEquals(200, r.status_code)
+
     def test_image_building(self):
         self.create_a_submission()
         self.create_pre()
