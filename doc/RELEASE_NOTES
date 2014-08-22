@@ -1,3 +1,17 @@
+Release notes for IRIS 0.1.3
+============================
+
+- Release Date: 2014-08
+
+- Major features and enhancements added:
+  *Feature #2074: Add syntax and integration check for files in scm/meta/git.
+  *Feature #2043: Sync scm/meta/git by Jenkins job
+  *Feature #2014: Monitor sync scripts status
+  *Bug #1921: Duplicated users from LDAP and import scripts
+  *Bug #1961: No architect colum shows on gittree however there are users for it
+  *Bug #1970: User party wrong
+  *Feature #1919: Adding web tests
+
 Release notes for IRIS 0.1.2
 ============================
 
