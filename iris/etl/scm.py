@@ -267,7 +267,10 @@ def merge_users(email):
     if len(users) == 1:
         user = users[0]
         # get the user which is from scm
-        ur = User.objects.get(username=email)
+        try:
+            ur = User.objects.get(username=email)
+        except User.DoesNotExist:
+            return
 
         if user.username != ur.email:
             # merge it into ldap user then delete it
