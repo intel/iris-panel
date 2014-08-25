@@ -1,122 +1,213 @@
 {% extends "core/base.html" %}
+
+{% load humanize %}
+{% load user_display_name %}
+
 {% block title %}IRIS - Submission {{ submission.name }}{% endblock %}
+
 {% block content %}
+<style>
+.tab-pane {
+  padding-top: 1em;
+}
+</style>
+
 <div class="container">
+  {% include "submissions/menu.html" %}
 
   <div class="row">
-    <ol class="breadcrumb">
-      <li><a href="/">IRIS</a></li>
-      <li><a href="/app/submissions/">Submissions</a></li>
-      <li><a href="/app/submissions/summary/">Summary</a></li>
-      <li class="active">{{ submission.name }}</li>
-    </ol>
+    <div class="page-header">
+      <h3>
+        Submission information for <span class="text-warning">{{ submission.name }}</span>
+      </h3>
+    </div>
   </div>
 
-    <div class="row">
-        <div class="page-header">
-            <h3>
-                Submission information for <span class="text-warning">{{ submission.name }}</span>
-                {% if perms.core.change_submission %}
-                <div class="pull-right">
-                    <a href="accept"><button class="btn btn-success">Accept</button></a>
-                    <a href="reject"><button class="btn btn-danger">Reject</button></a>
-                </div>
-                {% endif %}
-            </h3>
-        </div>
+  {% if submission.status == 'SUBMITTED' %}
+  <div class="row">
+    <table class="table gittree-info table-striped table-bordered table-hover table-condensed">
+      <tbody>
+        <tr>
+          <th>Status</th>
+          <td>{{ submission.display_status }} </td>
+        </tr>
+        <tr>
+          <th>Owner</th>
+          <td><a href="{% url 'users' submission.owner.id %}">
+              {{ submission.owner|user_display_name }}</a></td>
+        <tr>
+          <th>Git Tree</th>
+          <td><a href="{% url 'gittree.read' submission.gittree.id %}">
+              {{ submission.gittree }}</a></td>
+        </tr>
+        <tr>
+          <th>Commit</th>
+          <td>{{ submission.commit }}</td>
+        </tr>
+        <tr>
+          <th>Created</th>
+          <td><span title="{{ submission.created }}">
+              {{ submission.created|naturaltime }}</span></td>
+        </tr>
+        <tr>
+          <th>Updated</th>
+          <td><span title="{{ submission.updated }}">
+              {{ submission.updated|naturaltime }}</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
 
-        <table class="table gittree-info table-striped table-bordered table-hover table-condensed">
-            <tbody>
-                <tr>
-                    <th>Name</th>
-                    <td> {{ submission.name }} </td>
-                </tr>
-                <tr>
-                    <th>Date</th>
-                    <td> {{ submission.datetime }}</td>
-                </tr>
-                <tr>
+  {% for build in submission.submissionbuild_set.all %}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">{{ build.product }}</h3>
+    </div>
+
+    <div class="panel-body">
+      <ul class="nav nav-tabs" role="tablist">
+        {% if build.group.status < '20' %}
+        <li class="active"><a href="#">
+            {{ build.group.display_status }}</a></li>
+        {% else %}
+        <li><a href="#">Packages</a></li>
+        {% endif %}
+
+        {% if build.group.status > '20' %}
+          {% if build.group.status < '30' %}
+        <li class="active"><a href="#">
+            {{ build.group.display_status }}</a></li>
+          {% else %}
+        <li><a href="#">Image</a></li>
+          {% endif %}
+        {% endif %}
+
+        {% if build.group.status > '30' %}
+          {% if build.group.status < '40' %}
+        <li class="active"><a href="#">
+            {{ build.group.display_status }}</a></li>
+          {% else %}
+        <li><a href="#">Accepted</a></li>
+          {% endif %}
+        {% endif %}
+
+        {% if build.group.status > '40' %}
+        <li class="active"><a href="#">
+            {{ build.group.display_status }}</a></li>
+        {% endif %}
+      </ul>
+
+      <div class="tab-content">
+        <div class="tab-pane active">
+          {% for silbling in build.group.submissionbuild_set.all %}
+          <table>
+            <tr>
+              <td style="vertical-align: top">
+                <table class="table">
+                  <tr>
+                    <th>Git Tree</th>
+                    <td><a href="{% url 'gittree.read' silbling.submission.gittree.id %}">
+                        {{ silbling.submission.gittree }}</a></td>
+                  </tr>
+                  <tr>
+                    <th>Tag</th>
+                    <td>{{ silbling.submission.name }}</td>
+                  </tr>
+                  <tr>
                     <th>Commit</th>
-                    <td> {{ submission.commit }} </td>
-                </tr>
-                <tr>
+                    <td>{{ silbling.submission.commit }}</td>
+                  </tr>
+                  <tr>
+                    <th>Owner</th>
+                    <td><a href="{% url 'users' silbling.submission.owner.id %}">
+                      {{ silbling.submission.owner|user_display_name }}</a></td>
+                  </tr>
+                </table>
+              </td>
+              {% with pbuilds=silbling.pbuilds.all %}
+              {% if pbuilds %}
+              <td>
+                <table class="table">
+                  <tr>
+                    <th>Package</th>
+                    <th>Target</th>
+                    <th>Arch</th>
                     <th>Status</th>
-                    <td> {{ submission.status }} </td>
-                </tr>
-                <tr>
-                    <th>Project</th>
-                    <td>
-                        {% if submission.product %}
-                        <a href="/app/packagedb/products/{{ submission.product.id }}">
-                        {% endif %}
-                            {{ submission.product }}
-                        {% if submission.product %}
-                        </a>
-                        {% endif %}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="row panel-group" id="accordion">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                        Logs related to submission
-                    </a>
-                </h4>
-            </div>
-            <div id="collapseOne" class="panel-collapse collapse in">
-                <div class="panel-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>URL</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for log in submission.logs.all %}
-                            <tr>
-                                <td><a href="/app/submissions/logs/{{ log.url }}">{{ log.url }}</a></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                  </tr>
+                  {% for pbuild in pbuilds %}
+                  <tr>
+                    <td>{{ pbuild.package }}</td>
+                    <td>{{ pbuild.target }}</td>
+                    <td>{{ pbuild.arch }}</td>
+                    <td><a href="{{ pbuild.log }}">
+                        {{ pbuild.display_status }}</a></td>
+                  </tr>
+                  {% endfor %}
+                </table>
+              </td>
+              {% endif %}
+              {% endwith %}
+            </tr>
+          </table>
+          {% endfor %}
         </div>
 
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                        Git trees related to submission
-                    </a>
-                </h4>
-            </div>
-            <div id="collapseTwo" class="panel-collapse collapse">
-                <div class="panel-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Git path</th>
-                                <th>Domain</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for gittree in submission.gittrees.all %}
-                        <tr>
-                            <td><a href="/app/packagedb/gittrees/{{ gittree.id }}">{{ gittree.gitpath }}</a></td>
-                            <td><a href="/app/packagedb/domains/{{ gittree.domain.id }}">{{ gittree.domain.name }}</a></td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        {% if build.group.status >= '20_IMGBUILDING' %}
+        <div class="tab-pane">
+          <p><a href="{{ build.group.repo_url }}">Go to download repository</a></p>
+
+          <table class="table">
+            <tr>
+              <th>Name</th>
+              <th>Repo</th>
+              <th>Status</th>
+            </tr>
+            {% for ibuild in build.group.imagebuild_set.all %}
+            <tr>
+              <td><a href="{{ ibuild.url }}">{{ ibuild.name }}</a></td>
+              <td>{{ ibuild.repo }}</td>
+              <td><a href="{{ ibuild.log }}">{{ ibuild.display_status }}</a></td>
+            </tr>
+            {% endfor %}
+          </table>
         </div>
+        {% endif %}
+
+        {% if build.group.status == '33_ACCEPTED' %}
+        <div class="tab-pane">
+          <p>Accepted by {{ build.group.operator }}
+            at {{ build.group.operated_on }}</p>
+        </div>
+        {% endif %}
+      </div>
     </div>
+  </div>
+  {% endfor %}
+
 </div>
+
+<script>
+$(document).ready(function() {
+
+$('.panel-body').each(function() {
+    var container = $(this);
+    $('.nav-tabs a', this).each(function(idx, e) {
+        $(e).click(function() {
+            container.find('li')
+            .removeClass('active')
+            .eq(idx).addClass('active');
+
+            container.find('.tab-pane')
+            .removeClass('active')
+            .eq(idx).addClass('active');
+            return false;
+        });
+    });
+
+    $('li.active a', container).click();
+});
+
+});
+</script>
 {% endblock %}

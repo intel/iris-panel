@@ -21,8 +21,7 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns(
     'iris.submissions.views.base',
-    url(r'^(?i)$', 'index', name='index'),
-    url(r'^summary/$', 'summary', name='summary'),
+    url(r'^(?i)$', 'summary', name='summary'),
     url(r'^group/$', 'create_group', name='create_group'),
     url(r'^group/create/$', 'create_group_ajax', name='create_group_ajax'),
 )

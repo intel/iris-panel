@@ -1,0 +1,13 @@
+{% load humanize %}
+{% load user_display_name %}
+<tr>
+  <td><a href="{% url 'read_submissions' s.id %}">
+      {{ s.name }}</a></td>
+  <td>{{ s.display_status }}</td>
+  <td><a href="{% url 'users' s.owner.id %}">
+      {{ s.owner|user_display_name }}</a></td>
+  <td><a href="{% url 'gittree.read' s.gittree.id %}">
+      {{ s.gittree }}</a></td>
+  <td><span title="{{ s.updated }}">
+      {{ s.updated|naturaltime }}</span></td>
+</tr>

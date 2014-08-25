@@ -19,13 +19,14 @@ Commonplace views such as index page is contained here.
 from django.shortcuts import render
 from django.utils.timezone import now
 from django.contrib.auth.decorators import login_required, permission_required
+from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from iris.core.models import Submission, SubmissionGroup, Product
 from iris.submissions.serializers import SubmissionGroupSerializer
 
 
-@login_required()
+@login_required
 def index(request):
     """
     This view returns the index page for the submissions application.
@@ -33,7 +34,7 @@ def index(request):
 
     return render(request, 'submissions/index.html')
 
-@login_required()
+@login_required
 def summary(request):
     """
     Submissions summary page view.
@@ -41,37 +42,38 @@ def summary(request):
     Requesting the page with ?filter=submissions or ?filter=submissiongroups
     restricts the results accordingly to either Submissions or Groups.
     """
+    kw = request.GET.get('kw', 'my')
+    if kw == 'my':
+        res = Submission.objects.filter(
+            owner=request.user).order_by('created')
 
-    submissions = Submission.objects.all()
-    submissiongroups = SubmissionGroup.objects.all()
+        from iris.core.injectors import inject_user_getters
+        u2 = inject_user_getters(request.user)
+        domains = [i.domain for i in u2.get_domainroles()]
+        subdomains = [i.subdomain for i in u2.get_subdomainroles()]
+        trees = [i.gittree for i in u2.get_gittreeroles()]
 
-    # First, filter result set by product condition, if any
-    selected_product = request.GET.get('product', '')
-    unselected_products = Product.objects.all()
-
-    if selected_product:
-        product_object = Product.objects.get(name__iexact=selected_product)
-        unselected_products = Product.objects.exclude(id=product_object.id)
-        submissions = submissions.filter(product=product_object)
-        submissiongroups = submissiongroups.filter(product=product_object)
-
-    # Then gather submissions we want into a sorted list
-    summary = list()
-
-    if request.GET.get('filter', '') == 'submissions':
-        summary.extend(submissions)
-    elif request.GET.get('filter', '') == 'submissiongroups':
-        summary.extend(submissiongroups)
+        title = 'My submissions'
+    elif kw == 'all':
+        # FIXME: sort by updated not created
+        res = Submission.objects.all().order_by('created')
+        title = 'All submissions'
     else:
-        summary.extend(submissions)
-        summary.extend(submissiongroups)
-
-    summary = sorted(summary, key=lambda s: s.created)
+        kw = request.GET.get('kw')
+        res = Submission.objects.filter(
+            Q(name__contains=kw) |
+            Q(commit__startswith=kw) |
+            Q(owner__email__startswith=kw) |
+            Q(status=kw) |
+            Q(gittree__gitpath__contains=kw)
+            )
+        title = 'Search for "%s"' % kw
 
     return render(request, 'submissions/summary.html', {
-        'summary': summary,
-        'selected_product': selected_product,
-        'unselected_products': unselected_products })
+        'title': title,
+        'results': res,
+        })
+
 
 @login_required
 @permission_required('core.add_submissiongroup', raise_exception=True)

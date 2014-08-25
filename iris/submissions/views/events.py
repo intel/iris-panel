@@ -27,10 +27,11 @@ from iris.submissions.views.event_forms import (
 # E1002: 78,4:PreCreatedForm.clean: Use of super on an old style class
 # R0903: 90,0:ImageBuildingForm: Too few public methods (1/2)
 
+PUBLISH_EVENTS_PERM = 'core.publish_events'
 
 @atomic
 @api_view(["POST"])
-@permission_required('submissions.publish_events', raise_exception=True)
+@permission_required(PUBLISH_EVENTS_PERM, raise_exception=True)
 def submitted(request):
     """
     Event that occurs when a tag submitted
@@ -65,7 +66,7 @@ def submitted(request):
 
 @atomic
 @api_view(["POST"])
-@permission_required('submissions.publish_events', raise_exception=True)
+@permission_required(PUBLISH_EVENTS_PERM, raise_exception=True)
 def pre_created(request):
     """
     Event that happens when a pre-release project had been created
@@ -97,7 +98,7 @@ def pre_created(request):
 
 @atomic
 @api_view(['POST'])
-@permission_required('submissions.publish_events', raise_exception=True)
+@permission_required(PUBLISH_EVENTS_PERM, raise_exception=True)
 def package_built(request):
     """
     Event that happens when a package was built
@@ -130,7 +131,7 @@ def package_built(request):
 
 @atomic
 @api_view(["POST"])
-@permission_required('submissions.publish_events', raise_exception=True)
+@permission_required(PUBLISH_EVENTS_PERM, raise_exception=True)
 def image_building(request):
     """
     Event that happens when a image started to build
@@ -159,7 +160,7 @@ def image_building(request):
 
 @atomic
 @api_view(["POST"])
-@permission_required('submissions.publish_events', raise_exception=True)
+@permission_required(PUBLISH_EVENTS_PERM, raise_exception=True)
 def image_created(request):
     """
     Event that happends when a image created
@@ -199,7 +200,7 @@ def image_created(request):
 
 @atomic
 @api_view(["POST"])
-@permission_required('submissions.publish_events', raise_exception=True)
+@permission_required(PUBLISH_EVENTS_PERM, raise_exception=True)
 def repa_action(request):
     """
     Event that happens when `repa` operates on some pre-release project

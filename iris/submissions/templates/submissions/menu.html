@@ -1,0 +1,32 @@
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/superfish/1.7.4/superfish.min.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/superfish/1.7.4/superfish-navbar.min.css">
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/superfish/1.7.4/superfish.min.js"></script>
+
+<div class="row">
+  <ul class="sf-menu sf-js-enabled sf-arrows">
+    <li>
+      <a>All</a>
+      <ul>
+        <li><a href="{% url 'summary' %}?kw=all">Open</a></li>
+        <li><a href="#">Accepted</a></li>
+        <li><a href="#">Rejected</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="{% url 'summary' %}">My</a>
+    </li>
+  </ul>
+
+  <form action="{% url 'summary' %}" class="form-inline pull-right" role="form">
+    <input name="kw" type='search' size='64' class="form-control" placeholder="tag, SHA-1, status, email or git project" />
+    <input type='submit' class="btn btn-primary" value='Search' />
+  </form>
+</div>
+
+<script>
+$(document).ready(function() {
+
+$('ul.sf-menu').superfish();
+
+});
+</script>

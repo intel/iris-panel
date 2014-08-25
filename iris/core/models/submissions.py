@@ -172,6 +172,7 @@ class Submission(models.Model):
     class Meta:
         app_label = APP_LABEL
         unique_together = ('name', 'gittree')
+        permissions = (('publish_events', 'Can publish events'),)
 
 
 class SubmissionBuild(models.Model):
