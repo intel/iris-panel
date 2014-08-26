@@ -56,15 +56,12 @@ class PackageBuild(models.Model):
         'FAILURE': 'Failed',
         }
 
-    #package = models.ForeignKey('Package')
-    # FIXME: for now, we can't get binary package names,
-    # then It can't be a foreignkey to binary package entity.
-    # this package char field contains the obs package name
-    package = models.CharField(max_length=255, db_index=True)
-
+    package = models.ForeignKey('Package')
     status = models.CharField(max_length=64, choices=STATUS.items())
     repo = models.CharField(max_length=255, db_index=True)
     arch = models.CharField(max_length=255, db_index=True)
+
+    group = models.ForeignKey('BuildGroup')
 
     url = models.URLField()
     log = models.URLField()
@@ -190,7 +187,6 @@ class SubmissionBuild(models.Model):
     product = models.ForeignKey('Product')
 
     group = models.ForeignKey('BuildGroup')
-    pbuilds = models.ManyToManyField('PackageBuild')
 
     class Meta:
         app_label = APP_LABEL

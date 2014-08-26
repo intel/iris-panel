@@ -8,7 +8,7 @@ from django.forms import ValidationError
 from django.contrib.auth.models import User
 
 from iris.core.models import (
-    GitTree, Product,
+    GitTree, Product, Package,
     Submission, BuildGroup, ImageBuild,
     )
 
@@ -35,10 +35,9 @@ class SubmittedForm(forms.Form):
 
     def clean_submitter_email(self):
         email = self.cleaned_data['submitter_email']
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            user = User.objects.create_user(email, email)
+        user, _created = User.objects.get_or_create(email=email, defaults={
+                'username': email,
+                })
         return user
 
 
@@ -58,13 +57,8 @@ class PreCreatedForm(forms.Form):
 
     def clean_project(self):
         project = self.cleaned_data['project']
-        try:
-            group = BuildGroup.objects.get(name=project)
-        except BuildGroup.DoesNotExist:
-            group = BuildGroup(
-                name=project,
-                status='10_PKGBUILDING')
-            group.save()
+        group, _created = BuildGroup.objects.get_or_create(
+            name=project, defaults={'status': '10_PKGBUILDING'})
         return group
 
     def clean(self):
@@ -92,6 +86,11 @@ class PackageBuiltForm(forms.Form):
     url = forms.URLField(label="Live repo URL")
     log = forms.URLField(label="Package building log URL")
 
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        pack, _created = Package.objects.get_or_create(name=name)
+        return pack
+
     def clean_project(self):
         project = self.cleaned_data['project']
         try:
@@ -101,20 +100,6 @@ class PackageBuiltForm(forms.Form):
 
     def clean_status(self):
         return self.cleaned_data['status'].upper()
-
-    def clean(self):
-        group = self.cleaned_data['project']
-        name = self.cleaned_data['name']
-        sbuild = None
-        for build in group.submissionbuild_set.all():
-            if build.submission.gittree.gitpath.endswith(name):
-                sbuild = build
-                break
-
-        if sbuild is None:
-            raise ValidationError("Can't find corresponding submission build")
-        self.cleaned_data['submission_build'] = sbuild
-        return self.cleaned_data
 
 
 class ImageBuildingForm(forms.Form):
@@ -186,11 +171,10 @@ class RepaActionForm(forms.Form):
 
     def clean_who(self):
         email = self.cleaned_data['who']
-        try:
-            return User.objects.get(email=email)
-        except User.DoesNotExist:
-            return User.objects.create_user(
-                username=email, email=email)
+        user, _created = User.objects.get_or_create(email=email, defaults={
+                'username': email,
+                })
+        return user
 
     def clean_when(self):
         if self.cleaned_data['when']:

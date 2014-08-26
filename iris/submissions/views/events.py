@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from iris.core.models import (
-    Submission, SubmissionBuild, ImageBuild,
+    Submission, SubmissionBuild, ImageBuild, PackageBuild,
     )
 from iris.submissions.views.event_forms import (
     SubmittedForm, PreCreatedForm, PackageBuiltForm,
@@ -117,13 +117,14 @@ def package_built(request):
                         status=HTTP_406_NOT_ACCEPTABLE)
     data = form.cleaned_data
 
-    data['submission_build'].pbuilds.create(
+    PackageBuild.objects.create(
         package=data['name'],
         status=data['status'],
         repo=data['repo'],
         arch=data['arch'],
         url=data['url'],
         log=data['log'],
+        group=data['project'],
         )
     msg = {'detail': '%s bulit %s' % (data['name'], data['status'])}
     return Response(msg, status=HTTP_200_OK)
