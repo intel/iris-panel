@@ -1,0 +1,9 @@
+[
+{
+  "pk": 1,
+  "model": "core.product",
+  "fields": {
+    "name": "Tizen:IVI"
+  }
+}
+]

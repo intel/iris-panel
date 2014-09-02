@@ -1,6 +1,6 @@
 recursive-include iris *.html
-recursive-include iris/packagedb/tests/fixtures *.txt
 recursive-include iris *.js
 recursive-include iris *.css
 recursive-include iris *.py
 recursive-include iris *.ico *.png *.gif *.jpg
+recursive-include iris *.json

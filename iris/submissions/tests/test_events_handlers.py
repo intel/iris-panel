@@ -11,17 +11,10 @@ from iris.core.models import (
 
 class EventHandlerTest(TestCase):
 
-    user, pwd, email = 'admin', 'admin', 'admin@localhost'
-
-    def setUp(self):
-        User.objects.create_superuser(self.user, self.email, self.pwd)
-        d = Domain.objects.create(name='System')
-        s = SubDomain.objects.create(name='Logging', domain=d)
-        t = GitTree.objects.create(gitpath='framework/system/dlog', subdomain=s)
-        p = Product.objects.create(name='Tizen:IVI')
+    fixtures = ['users', 'domains', 'subdomains', 'gittrees', 'products']
 
     def login(self):
-        assert self.client.login(username=self.user, password=self.pwd)
+        assert self.client.login(username='robot', password='robot')
 
     def create_a_submission(self):
         self.login()

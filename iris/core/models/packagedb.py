@@ -43,10 +43,16 @@ class RolesMixin(object):
     get_integrators = get_users('INTEGRATOR')
 
 
+class DomainManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
+
 class Domain(models.Model, RolesMixin):
     """
     Class defining domains, e.g. 'multimedia'.
     """
+    objects = DomainManager()
 
     name = models.CharField(max_length=255, unique=True)
 
@@ -57,10 +63,16 @@ class Domain(models.Model, RolesMixin):
         app_label = APP_LABEL
 
 
+class SubDomainManager(models.Manager):
+    def get_by_natural_key(self, dname, sname):
+        return self.get(name=sname, domain__name=dname)
+
+
 class SubDomain(models.Model):
     """
     Class defining subdomains.
     """
+    objects = SubDomainManager()
 
     name = models.CharField(max_length=255, db_index=True)
     domain = models.ForeignKey(Domain)
@@ -91,10 +103,16 @@ class License(models.Model):
         app_label = APP_LABEL
 
 
+class GitTreeManager(models.Manager):
+    def get_by_natural_key(self, gitpath):
+        return self.get(gitpath=gitpath)
+
+
 class GitTree(models.Model, RolesMixin):
     """
     Class defining a single git tree information.
     """
+    objects = GitTreeManager()
 
     gitpath = models.CharField(max_length=255, unique=True)
     subdomain = models.ForeignKey(SubDomain)
@@ -108,6 +126,11 @@ class GitTree(models.Model, RolesMixin):
         app_label = APP_LABEL
 
 
+class PackageManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
+
 class Package(models.Model):
     """
     Class defining a package.
@@ -115,6 +138,7 @@ class Package(models.Model):
     Packages are built from git trees, e.g. git tree 'project' could
     produce packages 'project-base' and 'project-ui'.
     """
+    objects = PackageManager()
 
     name = models.CharField(max_length=255, unique=True)
 
@@ -125,10 +149,16 @@ class Package(models.Model):
         app_label = APP_LABEL
 
 
+class ProductManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
+
 class Product(models.Model):
     """
     A class defining a single product, e.g. Tizen IVI.
     """
+    objects = ProductManager()
 
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField()

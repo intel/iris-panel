@@ -1,0 +1,10 @@
+[
+{
+  "pk": 1,
+  "model": "core.subdomain",
+  "fields": {
+    "name": "Logging",
+    "domain": ["System"]
+  }
+}
+]
