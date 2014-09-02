@@ -136,7 +136,10 @@ def parse_blocks(content, mapping=()):
     mapping = dict(mapping or ())
 
     def parse_kv(line):
-        mark, val = line.split(':', 1)
+        try:
+            mark, val = line.split(':', 1)
+        except ValueError:
+            raise ValueError("Can't find colon(:) at line: %s" % line)
         mark, val = mark.strip(), val.strip()
         field = mapping.get(mark, mark)
         return field, val
