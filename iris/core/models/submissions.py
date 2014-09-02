@@ -134,12 +134,18 @@ class TestResult(models.Model):
         app_label = APP_LABEL
 
 
+class SubmissionManager(models.Manager):
+    def get_by_natural_key(self, tag, gitpath):
+        return self.get(name=tag, gittree__gitpath=gitpath)
+
+
 class Submission(models.Model):
     """
     Class representing a single submission for review.
 
     A single submission is a tag pushed for e.g. review or release.
     """
+    objects = SubmissionManager()
 
     STATUS = {
         'SUBMITTED': 'Submitted',
@@ -191,11 +197,17 @@ class SubmissionBuild(models.Model):
         unique_together = ('submission', 'product')
 
 
+class BuildGroupManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
+
 class BuildGroup(models.Model):
     """
     Class representing a group of builds which could be accepted
     together by a release engineer.
     """
+    objects = BuildGroupManager()
 
     STATUS = {
         '10_PKGBUILDING': 'Package building',

@@ -1,0 +1,63 @@
+[
+{
+  "pk": 1,
+  "model": "core.submission",
+  "fields": {
+    "name": "submit/trunk/01",
+    "commit": "sha1-1",
+    "gittree": ["framework/system/dlog"],
+    "owner": ["alice"],
+    "status": "SUBMITTED",
+    "created": "2014-08-21T00:00:01Z",
+    "updated": "2014-08-21T00:00:01Z"
+  }
+},
+{
+  "pk": 2,
+  "model": "core.submission",
+  "fields": {
+    "name": "submit/trunk/02",
+    "commit": "sha1-2",
+    "gittree": ["framework/system/dlog"],
+    "owner": ["alice"],
+    "status": "PROCESSING",
+    "created": "2014-08-21T00:00:01Z",
+    "updated": "2014-08-21T00:00:02Z"
+  }
+},
+{
+  "pk": 2,
+  "model": "core.buildgroup",
+  "fields": {
+    "name": "home:prerelease:tizen:ivi:submit:trunk:02",
+    "status": "10_PKGBUILDING",
+    "created": "2014-08-21T00:00:02Z",
+    "updated": "2014-08-21T00:00:02Z",
+    "operator": null,
+    "operated_on": null,
+    "operate_reason": "",
+    "snapshot": ""
+  }
+},
+{
+  "pk": 1,
+  "model": "core.submissionbuild",
+  "fields": {
+    "submission": ["submit/trunk/02", "framework/system/dlog"],
+    "product": ["Tizen:IVI"],
+    "group": ["home:prerelease:tizen:ivi:submit:trunk:02"]
+  }
+},
+{
+  "pk": 1,
+  "model": "core.imagebuild",
+  "fields": {
+    "name": "ivi-mbr-x64",
+    "repo": "standard",
+    "status": "BUILDING",
+    "url": "",
+    "log": "",
+    "group": ["home:prerelease:tizen:ivi:submit:trunk:02"]
+  }
+}
+]
