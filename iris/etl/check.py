@@ -31,10 +31,16 @@ def check_scm(domain_str, gittree_str):
     """
     global _error, _message
     _message = []
-    domains_data = parse_blocks(domain_str, MAPPING)
-    trees_data = parse_blocks(gittree_str, MAPPING)
-    domains = check_domain(domains_data)
-    check_gittree(trees_data, domains)
+
+    try:
+        domains_data = parse_blocks(domain_str, MAPPING)
+        trees_data = parse_blocks(gittree_str, MAPPING)
+    except ValueError as err:
+        error(str(err))
+    else:
+        domains = check_domain(domains_data)
+        check_gittree(trees_data, domains)
+
     return _message
 
 
