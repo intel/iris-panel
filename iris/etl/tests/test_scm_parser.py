@@ -103,3 +103,7 @@ def test_invalid_email():
         assert True
     else:
         assert False, "invalid email should raise validation exception"
+
+
+def test_name_with_bracket():
+    assert parse_user('Dmitriy Korba(surc)') == ('', 'Dmitriy', 'Korba(surc)')

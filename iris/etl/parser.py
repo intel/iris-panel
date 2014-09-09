@@ -1,6 +1,7 @@
 """
 Parsing code for scm text
 """
+import re
 import os
 import glob
 import gzip
@@ -9,6 +10,9 @@ from email.utils import parseaddr
 from xml.dom import minidom
 
 from django.core.validators import validate_email, ValidationError
+
+
+ADDRESS = re.compile(r'((.*?)<(.*?)>)|(.*@.*)')
 
 
 class UserCache(object):
@@ -85,11 +89,17 @@ def parse_user(ustring, validate=False):
     >>> parse_user('Jim Morrison <jim.morrison@doors.com>')
     ('jim.morrison@doors.com', 'Jim', 'Morrison')
     """
-    user, email = parseaddr(ustring)
-    if not user and '@' not in email:
-        user, email = ustring, ''
+    result = ADDRESS.match(ustring)
+    if not result:
+        user = ustring
+        email = ''
+    elif result.group(1):
+        user = result.group(2)
+        email = result.group(3)
     else:
-        user, email = user.strip(), email.strip()
+        user = ''
+        email = ustring
+    user, email = user.strip(), email.strip()
 
     if validate and email:
         try:
