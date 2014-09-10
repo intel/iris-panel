@@ -27,7 +27,7 @@ from rest_framework.decorators import api_view
 from iris.etl import scm
 from iris.etl.check import check_scm
 
-log = logging.getLogger('scm_update')
+log = logging.getLogger(__name__)
 
 
 @login_required
