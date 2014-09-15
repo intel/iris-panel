@@ -40,6 +40,9 @@ class UserProfile(models.Model):
 
     class Meta:
         app_label = APP_LABEL
+        permissions = (
+            ("scm_update", "Can update scm data to IRIS"),
+            ("scm_check", "Can check scm data"))
 
 
 def create_user_profile(sender, instance, created, **kwargs):

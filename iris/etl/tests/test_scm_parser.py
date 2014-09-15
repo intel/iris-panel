@@ -4,7 +4,12 @@ from iris.etl.parser import parse_blocks, parse_user
 
 
 def test_empty_string():
-    assert [] == parse_blocks('')
+    try:
+        parse_blocks('')
+    except ValueError:
+        assert True
+    else:
+        assert False, "Content must be not empty"
 
 
 def test_multi_attrs():

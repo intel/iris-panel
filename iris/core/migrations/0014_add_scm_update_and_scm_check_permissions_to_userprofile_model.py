@@ -12,13 +12,15 @@ class Migration(DataMigration):
         # Note: Don't use "from appname.models import ModelName".
         # Use orm.ModelName to refer to models in this application,
         # and orm['appname.ModelName'] for models in other applications.
-        ct, _ = orm['contenttypes.ContentType'].objects.get_or_create(model='scm', app_label='rest', name='scm')
+        ct, _ = orm['contenttypes.ContentType'].objects.get_or_create(model='userprofile', app_label='core', name='user profile')
         orm['auth.permission'].objects.get_or_create(content_type=ct, codename='scm_update', name='Can update scm data to IRIS')
         orm['auth.permission'].objects.get_or_create(content_type=ct, codename='scm_check', name='Can check scm data')
 
     def backwards(self, orm):
         "Write your backwards methods here."
-        orm['contenttypes.ContentType'].objects.filter(model='scm', app_label='rest').delete()
+        ct = orm['contenttypes.ContentType'].objects.get(model='userprofile', app_label='core', name='user profile')
+        orm['auth.permission'].objects.filter(content_type=ct, codename='scm_update').delete()
+        orm['auth.permission'].objects.filter(content_type=ct, codename='scm_check').delete()
 
     models = {
         u'auth.group': {

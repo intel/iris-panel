@@ -141,6 +141,8 @@ def parse_blocks(content, mapping=()):
 ('Tree', {'Maintainer': ['Bob@a.com'], 'Domain': ['SCM / BB'], \
 'Tree': ['scm/meta/git']})]
     """
+    if not content.strip():
+        raise ValueError("Content must be not empty")
     # add \n\n at the end to close the last block which simplify parsing code
     content = ''.join([content, os.linesep, os.linesep])
     mapping = dict(mapping or ())

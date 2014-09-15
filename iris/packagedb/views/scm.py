@@ -16,6 +16,7 @@ Views for importing data from scm/meta/git.
 
 # pylint: disable=C0111,W0622
 
+import os
 import logging
 
 from django.contrib.auth.decorators import login_required, permission_required
@@ -30,9 +31,8 @@ from iris.etl.check import check_scm
 log = logging.getLogger(__name__)
 
 
-@login_required
 @api_view(['POST'])
-@permission_required('rest.scm_update', raise_exception=True)
+@permission_required('core.scm_update', raise_exception=True)
 @atomic
 def update(request):
     """
@@ -40,11 +40,15 @@ def update(request):
     """
     domains = request.FILES.get('domains')
     gittrees = request.FILES.get('gittrees')
+
     if domains and gittrees:
-        detail = check_scm(domains.read(), gittrees.read())
+        domains_str, gittrees_str = domains.read(), gittrees.read()
+        detail = check_scm(domains_str, gittrees_str)
         if not detail:
             log.info('Importing scm data...')
-            scm.from_file(domains, gittrees)
+            scm_str = ''.join([domains_str, os.linesep, os.linesep,
+                               gittrees_str])
+            scm.from_string(scm_str)
             detail = 'Successful!'
             code = status.HTTP_200_OK
         else:
@@ -59,9 +63,8 @@ def update(request):
     return Response(content, status=code)
 
 
-@login_required
 @api_view(['POST'])
-@permission_required('rest.scm_check', raise_exception=True)
+@permission_required('core.scm_check', raise_exception=True)
 def check(request):
     """
     Checking scm data

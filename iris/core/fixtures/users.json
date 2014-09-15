@@ -48,7 +48,9 @@
     "last_login": "2014-08-22T07:33:03Z", 
     "groups": [], 
     "user_permissions": [
-        ["publish_events", "core", "submission"]
+        ["publish_events", "core", "submission"],
+	["scm_check", "core", "userprofile"],
+	["scm_update", "core", "userprofile"]
     ],
     "password": "pbkdf2_sha256$12000$6vaKXaG5mn3l$1qG1JNJpwRSU0uZv3GZwJtjOjUWDPA6lnQ9t7h7ADBU=", 
     "email": "noreply@localhost", 

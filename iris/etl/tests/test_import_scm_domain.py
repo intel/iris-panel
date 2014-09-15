@@ -63,21 +63,6 @@ class DomainTest(unittest.TestCase):
             list(Domain.objects.exclude(name='Uncategorized').values_list('name'))
             )
 
-    def test_delete_all_domains(self):
-        from_string('''
-            D: Another
-
-            D: System
-
-            D: App Framework
-            ''')
-        from_string('')
-
-        self.assertEqual(
-            [('Uncategorized',)],
-            list(Domain.objects.all().values_list('name'))
-            )
-
 
 class TestDomainRole(unittest.TestCase):
     def tearDown(self):
