@@ -85,6 +85,6 @@ urlpatterns += patterns(
 
 urlpatterns += patterns(
     'iris.packagedb.views.scm',
-    url(r'scm/update/', 'update', name='scm.update'),
-    url(r'scm/check/', 'check', name='scm.check'),
+    url(r'^scm/update/$', 'update', name='scm.update'),
+    url(r'^scm/check/$', 'check', name='scm.check'),
 )
