@@ -12,25 +12,24 @@ from iris.core.models import (
 class EventHandlerTest(TestCase):
 
     fixtures = ['users', 'domains', 'subdomains', 'gittrees', 'products', 'submissions']
+    url = '/api/submissions/events/'
 
     def login(self, user='robot', pwd='robot'):
         assert self.client.login(username=user, password=pwd)
 
     def test_post_required(self):
-        url = reverse('event_submitted')
         self.login()
-        r = self.client.get(url)
+        r = self.client.get(self.url)
         self.assertEquals(405, r.status_code)
 
     def test_login_required(self):
-        url = reverse('event_submitted')
-        r = self.client.post(url)
+        r = self.client.post(self.url)
         self.assertEquals(403, r.status_code)
 
     def test_permission_required(self):
-        url = reverse('event_submitted')
         self.login('alice', 'alice')
-        r = self.client.post(url, {
+        r = self.client.post(self.url, {
+                'event': 'submitted',
                 'gitpath': 'framework/system/dlog',
                 'tag': 'submit/trunk/yyyy-mm-dd',
                 'commit_id': 'sha1',
@@ -39,14 +38,14 @@ class EventHandlerTest(TestCase):
         self.assertEquals(403, r.status_code)
 
     def test_missing_parameter(self):
-        url = reverse('event_submitted')
         self.login()
-        r = self.client.post(url)
+        r = self.client.post(self.url)
         self.assertEquals(406, r.status_code)
 
     def test_submitted(self):
         self.login()
-        r = self.client.post(reverse('event_submitted'), {
+        r = self.client.post(self.url, {
+                'event': 'submitted',
                 'gitpath': 'framework/system/dlog',
                 'tag': 'submit/trunk/yyyy-mm-dd',
                 'commit_id': 'sha1',
@@ -57,7 +56,8 @@ class EventHandlerTest(TestCase):
 
     def test_pre_created(self):
         self.login()
-        r = self.client.post(reverse('event_pre_created'), {
+        r = self.client.post(self.url, {
+                'event': 'pre_created',
                 'gitpath': 'framework/system/dlog',
                 'tag': 'submit/trunk/01',
                 'product': 'Tizen:IVI',
@@ -67,7 +67,8 @@ class EventHandlerTest(TestCase):
 
     def test_pre_created_bad_submission(self):
         self.login()
-        r = self.client.post(reverse('event_pre_created'), {
+        r = self.client.post(self.url, {
+                'event': 'pre_created',
                 'gitpath': 'does/not/exist',
                 'tag': 'does/not/exist',
                 'product': 'Tizen:IVI',
@@ -77,7 +78,8 @@ class EventHandlerTest(TestCase):
 
     def test_pre_created_bad_product(self):
         self.login()
-        r = self.client.post(reverse('event_pre_created'), {
+        r = self.client.post(self.url, {
+                'event': 'pre_created',
                 'gitpath': 'framework/system/dlog',
                 'tag': 'submit/trunk/01',
                 'product': 'Bad',
@@ -87,7 +89,8 @@ class EventHandlerTest(TestCase):
 
     def test_package_built_succeeded(self):
         self.login()
-        r = self.client.post(reverse('event_package_built'), {
+        r = self.client.post(self.url, {
+                'event': 'package_built',
                 'name': 'dlog',
                 'repo': 'standard',
                 'arch': 'i586',
@@ -100,7 +103,8 @@ class EventHandlerTest(TestCase):
 
     def test_package_built_failed(self):
         self.login()
-        r = self.client.post(reverse('event_package_built'), {
+        r = self.client.post(self.url, {
+                'event': 'package_built',
                 'name': 'dlog',
                 'repo': 'standard',
                 'arch': 'armv7el',
@@ -113,15 +117,18 @@ class EventHandlerTest(TestCase):
 
     def test_image_building(self):
         self.login()
-        r = self.client.post(reverse('event_image_building'), {
+        r = self.client.post(self.url, {
+                'event': 'image_building',
                 'name': 'ivi-mbr-i586',
                 'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
                 })
+        print r
         self.assertEquals(200, r.status_code)
 
     def test_image_building_bad_project(self):
         self.login()
-        r = self.client.post(reverse('event_image_building'), {
+        r = self.client.post(self.url, {
+                'event': 'image_building',
                 'name': 'ivi-mbr-i586',
                 'project': 'doesnotexist',
                 })
@@ -129,7 +136,8 @@ class EventHandlerTest(TestCase):
 
     def test_image_created(self):
         self.login()
-        r = self.client.post(reverse('event_image_created'), {
+        r = self.client.post(self.url, {
+                'event': 'image_created',
                 'name': 'ivi-mbr-x64',
                 'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
                 'status': 'success',
@@ -140,7 +148,8 @@ class EventHandlerTest(TestCase):
 
     def test_image_created_image_doesnot_exist(self):
         self.login()
-        r = self.client.post(reverse('event_image_created'), {
+        r = self.client.post(self.url, {
+                'event': 'image_created',
                 'name': 'ivi-mbr-i586',
                 'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
                 'status': 'success',
@@ -151,7 +160,8 @@ class EventHandlerTest(TestCase):
 
     def test_image_created_project_doesnot_exist(self):
         self.login()
-        r = self.client.post(reverse('event_image_created'), {
+        r = self.client.post(self.url, {
+                'event': 'image_created',
                 'name': 'ivi-mbr-i586',
                 'project': 'doesnt exist',
                 'status': 'success',
@@ -162,7 +172,8 @@ class EventHandlerTest(TestCase):
 
     def test_repa_accepted(self):
         self.login()
-        r = self.client.post(reverse('event_repa_action'), {
+        r = self.client.post(self.url, {
+                'event': 'repa_action',
                 'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
                 'status': 'accepted',
                 'who': 'someone@tizen.org',
@@ -172,7 +183,8 @@ class EventHandlerTest(TestCase):
 
     def test_repa_rejected(self):
         self.login()
-        r = self.client.post(reverse('event_repa_action'), {
+        r = self.client.post(self.url, {
+                'event': 'repa_action',
                 'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
                 'status': 'rejected',
                 'who': 'someone@tizen.org',

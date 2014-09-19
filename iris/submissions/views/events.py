@@ -32,6 +32,26 @@ PUBLISH_EVENTS_PERM = 'core.publish_events'
 @atomic
 @api_view(["POST"])
 @permission_required(PUBLISH_EVENTS_PERM, raise_exception=True)
+def events_handler(request):
+    """
+    Common event handler for all submissions events
+    """
+    handlers = {
+        'submitted': submitted,
+        'pre_created': pre_created,
+        'package_built': package_built,
+        'image_building': image_building,
+        'image_created': image_created,
+        'repa_action': repa_action,
+        }
+    typ = request.POST.get('event')
+    handler = handlers.get(typ)
+    if not handler:
+        return Response({'detail': 'Unknown event type'},
+                        status=HTTP_406_NOT_ACCEPTABLE)
+    return handler(request)
+
+
 def submitted(request):
     """
     Event that occurs when a tag submitted
@@ -64,9 +84,6 @@ def submitted(request):
     return Response({'detail': 'Tag submitted'}, status=HTTP_201_CREATED)
 
 
-@atomic
-@api_view(["POST"])
-@permission_required(PUBLISH_EVENTS_PERM, raise_exception=True)
 def pre_created(request):
     """
     Event that happens when a pre-release project had been created
@@ -96,9 +113,6 @@ def pre_created(request):
                     status=HTTP_201_CREATED)
 
 
-@atomic
-@api_view(['POST'])
-@permission_required(PUBLISH_EVENTS_PERM, raise_exception=True)
 def package_built(request):
     """
     Event that happens when a package was built
@@ -130,9 +144,6 @@ def package_built(request):
     return Response(msg, status=HTTP_200_OK)
 
 
-@atomic
-@api_view(["POST"])
-@permission_required(PUBLISH_EVENTS_PERM, raise_exception=True)
 def image_building(request):
     """
     Event that happens when a image started to build
@@ -159,9 +170,6 @@ def image_building(request):
                     status=HTTP_200_OK)
 
 
-@atomic
-@api_view(["POST"])
-@permission_required(PUBLISH_EVENTS_PERM, raise_exception=True)
 def image_created(request):
     """
     Event that happends when a image created
@@ -199,9 +207,6 @@ def image_created(request):
                     status=HTTP_200_OK)
 
 
-@atomic
-@api_view(["POST"])
-@permission_required(PUBLISH_EVENTS_PERM, raise_exception=True)
 def repa_action(request):
     """
     Event that happens when `repa` operates on some pre-release project
