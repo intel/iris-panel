@@ -2,6 +2,7 @@ IRIS
 ====
 
 [![Build Status](https://travis-ci.org/01org/iris-panel.svg?branch=master)](https://travis-ci.org/01org/iris-panel)
+[![Documentation Status](https://readthedocs.org/projects/iris-panel/badge/?version=latest)](https://readthedocs.org/projects/iris-panel/?badge=latest)
 [![Code Health](https://landscape.io/github/01org/iris-panel/master/landscape.png)](https://landscape.io/github/01org/iris-panel/master)
 [![Coverage Status](https://coveralls.io/repos/01org/iris-panel/badge.png)](https://coveralls.io/r/01org/iris-panel)
 
@@ -14,6 +15,11 @@ License
 -------
 
 GPLv2
+
+Docs
+----
+
+http://iris-panel.readthedocs.org/en/latest/
 
 Contribute
 ----------
