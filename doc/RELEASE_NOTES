@@ -1,3 +1,17 @@
+Release notes for IRIS 0.1.4
+============================
+
+- Release Date: 2014-09
+
+- Major features and enhancements added:
+  * Task #2052: Suggest to move the content of tizen-packagedb to current place and drop it
+  * Task #2087: Deploy IRIS SCM client on Jenkins side
+  * Task #2104: Fix the scm/meta/git error
+  * Bug #2078: Change development settings of TEMPLATE_LOADERS
+  * Bug #2083: It will raise ValueError when the scm_check script checks wrong scheme gittrees
+  * Bug #2103: email body wrong
+  * Bug #2105: Email parse error
+
 Release notes for IRIS 0.1.3
 ============================
 
