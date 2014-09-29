@@ -17,6 +17,9 @@ Views for listing single and multiple item info is contained here.
 # pylint: disable=E1101,C0111,W0622
 
 from django.shortcuts import render, get_object_or_404
+from django.views.decorators.cache import cache_page
+from django.conf import settings
+
 from iris.core.models import (Domain, SubDomain, License, GitTree, Package,
         Product, Image)
 from iris.packagedb.injectors import (inject_domain, inject_subdomain,
@@ -58,6 +61,7 @@ def license(request, pkid=None):
                 {'licenses': License.objects.all()})
 
 
+@cache_page(settings.CACHE_MIDDLEWARE_SECONDS)
 def gittree(request, pkid=None):
     if pkid:
         _gittree = inject_gittree(get_object_or_404(GitTree, id=pkid))
@@ -72,6 +76,7 @@ def gittree(request, pkid=None):
                 {'gittrees': _gittrees})
 
 
+@cache_page(settings.CACHE_MIDDLEWARE_SECONDS)
 def package(request, pkid=None):
     if pkid:
         return render(request, 'packagedb/read/single/package.html',
