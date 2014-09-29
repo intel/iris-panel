@@ -1,6 +1,8 @@
 """
 View functions to handler submission events
 """
+import sys
+
 from MySQLdb.constants.ER import DUP_ENTRY
 
 from django.db import IntegrityError
@@ -44,6 +46,8 @@ def events_handler(request):
         'image_created': image_created,
         'repa_action': repa_action,
         }
+    print >> sys.stderr, 'events|%s' % request.POST.items()
+
     typ = request.POST.get('event')
     handler = handlers.get(typ)
     if not handler:
@@ -57,7 +61,7 @@ def submitted(request):
     Event that occurs when a tag submitted
 
     tag -- Tag name
-    gittree -- Git tree path
+    gitpath -- Git tree path
     commit_id -- Commit hash
     submitter_email -- Email of submitter
     """
