@@ -38,5 +38,5 @@ urlpatterns = patterns(
 
 urlpatterns += patterns(
     'iris.submissions.views.events',
-    url(r'events/', 'events_handler', name='submissions_events'),
+    url(r'events/(.*?)/', 'events_handler', name='submissions_events'),
     )

@@ -34,7 +34,7 @@ PUBLISH_EVENTS_PERM = 'core.publish_events'
 @atomic
 @api_view(["POST"])
 @permission_required(PUBLISH_EVENTS_PERM, raise_exception=True)
-def events_handler(request):
+def events_handler(request, typ):
     """
     Common event handler for all submissions events
     """
@@ -46,9 +46,7 @@ def events_handler(request):
         'image_created': image_created,
         'repa_action': repa_action,
         }
-    print >> sys.stderr, 'events|%s' % request.POST.items()
-
-    typ = request.POST.get('event')
+    print >> sys.stderr, 'events|%s|%s' % (request.path, request.POST.items())
     handler = handlers.get(typ)
     if not handler:
         return Response({'detail': 'Unknown event type'},
@@ -154,6 +152,8 @@ def image_building(request):
 
     name -- Image name
     project -- Pre-release project name
+    repo -- Building repository
+    #arch -- Building architecture
     """
     form = ImageBuildingForm(request.POST)
     if not form.is_valid():
@@ -168,6 +168,7 @@ def image_building(request):
 
     ibuild = ImageBuild(name=data['name'],
                         status='BUILDING',
+                        repo=data['repo'],
                         group=group)
     ibuild.save()
     return Response({'detail': 'Image started to build'},
@@ -182,6 +183,7 @@ def image_created(request):
     project -- Pre-release project name
     status -- status
     url -- Image URL
+    #log -- Build log
     """
     form = ImageCreatedForm(request.POST)
     if not form.is_valid():
@@ -189,7 +191,6 @@ def image_created(request):
                         status=HTTP_406_NOT_ACCEPTABLE)
 
     data = form.cleaned_data
-    print data
     ok = data['status'] == 'success'
 
     group = data['project']

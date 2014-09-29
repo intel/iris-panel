@@ -106,6 +106,8 @@ class ImageBuildingForm(forms.Form):
 
     name = forms.CharField(label="Image name")
     project = forms.CharField(label="Pre-release project name")
+    repo = forms.CharField(label="Building repository")
+    #arch = forms.CharField(label="Building architecture")
 
     def clean_project(self):
         project = self.cleaned_data['project']
