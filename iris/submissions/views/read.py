@@ -72,8 +72,8 @@ class SubmissionGroup(object):
     @property
     def gittree_commit(self):
         if self.count > 1:
-            return {(s.gittree, s.comit) for s in self.subs}
-        return (self.subs[0].gittree, self.subs[0].commit)
+            return {(s.gittree, s.commit) for s in self.subs}
+        return [(self.subs[0].gittree, self.subs[0].commit)]
 
     @property
     def updated(self):
