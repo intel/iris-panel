@@ -100,34 +100,37 @@
 
       <div class="tab-content">
         <div class="tab-pane active">
-          {% for silbling in build.group.submissionbuild_set.all %}
-          <table>
-            <tr>
-              <td style="vertical-align: top">
+          <table class="table"><tr><td>
                 <table class="table">
                   <tr>
                     <th>Git Tree</th>
+                  </tr>
+                  {% for silbling in build.group.submissionbuild_set.all %}
+                  <tr>
                     <td><a href="{% url 'gittree.read' silbling.submission.gittree.id %}">
-                        {{ silbling.submission.gittree }}</a></td>
-                  </tr>
-                  <tr>
-                    <th>Tag</th>
-                    <td>{{ silbling.submission.name }}</td>
-                  </tr>
-                  <tr>
-                    <th>Commit</th>
-                    <td>{{ silbling.submission.commit }}</td>
-                  </tr>
-                  <tr>
-                    <th>Owner</th>
-                    <td><a href="{% url 'users' silbling.submission.owner.id %}">
-                      {{ silbling.submission.owner|user_display_name }}</a></td>
-                  </tr>
-                </table>
-              </td>
-              {% with pbuilds=silbling.pbuilds.all %}
-              {% if pbuilds %}
-              <td>
+                        {{ silbling.submission.gittree }}</a>
+
+                      {% if silbling.submission.name != submission.name %}
+                      Tag: {{ silbling.submission.name }}
+                      {% endif %}
+
+                      <!--
+                      {% if slibling.submission.commit != submission.commit %}
+                      Commit: {{ silbling.submission.commit }}
+                      {% endif %}
+                      -->
+
+                      {% if silbling.submission.owner.id != submission.owner.id %}
+                      Owner: <a href="{% url 'users' silbling.submission.owner.id %}">
+                        {{ silbling.submission.owner|user_display_name }}</a>
+                      {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                  </table>
+
+              </td><td>
+
                 <table class="table">
                   <tr>
                     <th>Package</th>
@@ -135,7 +138,7 @@
                     <th>Arch</th>
                     <th>Status</th>
                   </tr>
-                  {% for pbuild in pbuilds %}
+                  {% for pbuild in build.group.packagebuild_set.all %}
                   <tr>
                     <td>{{ pbuild.package }}</td>
                     <td>{{ pbuild.target }}</td>
@@ -145,12 +148,7 @@
                   </tr>
                   {% endfor %}
                 </table>
-              </td>
-              {% endif %}
-              {% endwith %}
-            </tr>
-          </table>
-          {% endfor %}
+          </td></tr></table>
         </div>
 
         {% if build.group.status >= '20_IMGBUILDING' %}

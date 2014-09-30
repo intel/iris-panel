@@ -90,8 +90,7 @@ class EventHandlerTest(TestCase):
                 'arch': 'i586',
                 'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
                 'status': 'success',
-                'url': 'http://url.to.live.repo',
-                'log': 'http://url.to.build.log',
+                'repo_server': 'http://build.server',
                 })
         self.assertEquals(200, r.status_code)
 
@@ -103,8 +102,7 @@ class EventHandlerTest(TestCase):
                 'arch': 'armv7el',
                 'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
                 'status': 'failure',
-                'url': 'http://url.to.live.repo',
-                'log': 'http://url.to.build.log',
+                'repo_server': 'http://build.server',
                 })
         self.assertEquals(200, r.status_code)
 

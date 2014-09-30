@@ -1,4 +1,6 @@
 {% extends "core/base.html" %}
+{% load humanize %}
+{% load user_display_name %}
 
 {% block title %}IRIS - Submissions summary{% endblock %}
 
@@ -24,12 +26,45 @@ tr.table-header {
           <th>Status</th>
           <th>Owner</th>
           <th>Git Tree</th>
+          <th>Product</th>
           <th>Updated</th>
         </tr>
       </thead>
       <tbody>
-        {% for s in results %}
-          {% include "submissions/tbody.html" %}
+        {% for g in results %}
+        <tr>
+          <td><a href="{% url 'submission_detail' g.name %}">
+              {{ g.name }}</a></td>
+          <td>{{ g.display_status }}</td>
+
+          {% if g.count == 1 %}
+          <td><a href="{% url 'users' g.owner.id %}">
+              {{ g.owner|user_display_name }}</a></td>
+          <td><a href="{% url 'gittree.read' g.gittree.id %}">
+              {{ g.gittree }}</a></td>
+          {% else %}
+          <td>
+            {% for o in g.owner %}
+            <a href="{% url 'users' o.id %}">
+              {{ o|user_display_name }}</a></br>
+            {% endfor %}
+          </td>
+          <td>
+            {% for t in g.gittree %}
+            <a href="{% url 'gittree.read' t.id %}">
+              {{ t }}</a></br>
+            {% endfor %}
+          </td>
+          {% endif %}
+
+          <td>
+            {% for p in g.products %}
+            <a href="{% url 'product.read' p.id %}">{{ p }}</a></br>
+            {% endfor %}
+          </td>
+          <td><span title="{{ g.updated }}">
+              {{ g.updated|naturaltime }}</span></td>
+        </tr>
         {% endfor %}
       </tbody>
     </table>

@@ -1,7 +1,8 @@
 {% load humanize %}
 {% load user_display_name %}
+{% comment %}
 <tr>
-  <td><a href="{% url 'read_submissions' s.id %}">
+  <td><a href="{% url 'submission_detail' s.id %}">
       {{ s.name }}</a></td>
   <td>{{ s.display_status }}</td>
   <td><a href="{% url 'users' s.owner.id %}">
@@ -11,3 +12,4 @@
   <td><span title="{{ s.updated }}">
       {{ s.updated|naturaltime }}</span></td>
 </tr>
+{% endcomment %}

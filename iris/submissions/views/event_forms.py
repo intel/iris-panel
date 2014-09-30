@@ -76,15 +76,11 @@ class PreCreatedForm(forms.Form):
 class PackageBuiltForm(forms.Form):
 
     name = forms.CharField(label="Package name")
-    repo = forms.CharField(label="Building repository")
+    repo = forms.CharField(label="Building repository name")
     arch = forms.CharField(label="Building architecture")
     project = forms.CharField(label="Pre-release project name")
-    status = forms.ChoiceField(choices=(
-            ('success', 'Success'),
-            ('failure', 'Failure'),
-            ))
-    url = forms.URLField(label="Live repo URL")
-    log = forms.URLField(label="Package building log URL")
+    status = forms.CharField(label="Status")
+    repo_server = forms.CharField(label="Repository URL")
 
     def clean_name(self):
         name = self.cleaned_data['name']
@@ -99,7 +95,9 @@ class PackageBuiltForm(forms.Form):
             raise ValidationError(str(err))
 
     def clean_status(self):
-        return self.cleaned_data['status'].upper()
+        if 'success' in self.cleaned_data['status'].lower():
+            return 'SUCCESS'
+        return 'FAILURE'
 
 
 class ImageBuildingForm(forms.Form):

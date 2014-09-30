@@ -20,7 +20,7 @@
     "commit": "sha1-2",
     "gittree": ["framework/system/dlog"],
     "owner": ["alice"],
-    "status": "PROCESSING",
+    "status": "10_PKGBUILDING",
     "created": "2014-08-21T00:00:01Z",
     "updated": "2014-08-21T00:00:02Z"
   }

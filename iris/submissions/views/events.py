@@ -2,6 +2,8 @@
 View functions to handler submission events
 """
 import sys
+import urlparse
+import urllib
 
 from MySQLdb.constants.ER import DUP_ENTRY
 
@@ -101,6 +103,9 @@ def pre_created(request):
                         status=HTTP_406_NOT_ACCEPTABLE)
     data = form.cleaned_data
 
+    group = data['project']
+    group.populate_status()
+
     build = SubmissionBuild(
         submission=data['submission'],
         product=data['product'],
@@ -115,17 +120,42 @@ def pre_created(request):
                     status=HTTP_201_CREATED)
 
 
+def guess_live_repo_url(server, project, repo):
+    """
+    Guess live repo url like this:
+
+    https://build.otctools.jf.intel.com/project/repository_state/Tools/CentOS_6
+    """
+    return '%s/project/repository_state/%s/%s' % (
+        server.rstrip('/'),
+        urllib.quote(project),
+        repo)
+
+
+def guess_build_log_url(server, project, package, repo, arch):
+    """
+    Guess build long link like this:
+
+    https://build.otctools.jf.intel.com/package/live_build_log/Tools/bmap-tools/CentOS_6/i586
+    """
+    return '%s/package/live_build_log/%s/%s/%s/%s' % (
+        server.rstrip('/'),
+        urllib.quote(project),
+        package,
+        repo,
+        arch)
+
+
 def package_built(request):
     """
     Event that happens when a package was built
 
     name -- Package name
-    repo -- Building repository
+    repo -- Building repository name
     arch -- Building architecture
     project -- Pre-release project name
     status -- Status
-    url -- Live repo URL
-    log -- Building log URL
+    repo_server -- Repository URL
     """
     form = PackageBuiltForm(request.POST)
     if not form.is_valid():
@@ -133,15 +163,30 @@ def package_built(request):
                         status=HTTP_406_NOT_ACCEPTABLE)
     data = form.cleaned_data
 
-    PackageBuild.objects.create(
+    group = data['project']
+    group.populate_status()
+
+    parts = urlparse.urlparse(form.cleaned_data['repo_server'])
+    # FIXME: scheme in repo_server is http
+    # but web page of build server is using https
+    #server = '%s://%s' % (parts.scheme, parts.hostname)
+    server = 'https://%s' % parts.hostname
+
+    # FIXME: live repo and log urls can't be accessed anoymously
+    url = guess_live_repo_url(server, group.name, data['repo'])
+    log = guess_build_log_url(server,
+                              group.name, data['name'].name,
+                              data['repo'], data['arch'])
+
+    pbuild, _ = PackageBuild.objects.get_or_create(
         package=data['name'],
-        status=data['status'],
         repo=data['repo'],
         arch=data['arch'],
-        url=data['url'],
-        log=data['log'],
-        group=data['project'],
-        )
+        group=group)
+    pbuild.status = data['status']
+    pbuild.url = url
+    pbuild.log = log
+    pbuild.save()
     msg = {'detail': '%s bulit %s' % (data['name'], data['status'])}
     return Response(msg, status=HTTP_200_OK)
 
@@ -165,6 +210,7 @@ def image_building(request):
     group = data['project']
     group.status = '20_IMGBUILDING'
     group.save()
+    group.populate_status()
 
     ibuild = ImageBuild(name=data['name'],
                         status='BUILDING',
@@ -199,6 +245,7 @@ def image_created(request):
     else:
         group.status = '25_IMGFAILED'
     group.save()
+    group.populate_status()
 
     ibuild = data['name']
     ibuild.log = data['log']
@@ -227,10 +274,13 @@ def repa_action(request):
         return Response({'detail': form.errors.as_text()},
                         status=HTTP_406_NOT_ACCEPTABLE)
     data = form.cleaned_data
+
     group = data['project']
     group.status = data['status']
     group.operator = data['who']
     group.operator_on = data['when']
     group.save()
+    group.populate_status()
+
     return Response({'detail': 'Action %s received' % data['status']},
                     status=HTTP_200_OK)

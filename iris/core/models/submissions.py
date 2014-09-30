@@ -75,6 +75,7 @@ class PackageBuild(models.Model):
 
     class Meta:
         app_label = APP_LABEL
+        unique_together = ('package', 'repo', 'arch', 'group')
 
 
 class ImageBuild(models.Model):
@@ -131,68 +132,6 @@ class TestResult(models.Model):
         app_label = APP_LABEL
 
 
-class SubmissionManager(models.Manager):
-    def get_by_natural_key(self, tag, gitpath):
-        return self.get(name=tag, gittree__gitpath=gitpath)
-
-
-class Submission(models.Model):
-    """
-    Class representing a single submission for review.
-
-    A single submission is a tag pushed for e.g. review or release.
-    """
-    objects = SubmissionManager()
-
-    STATUS = {
-        'SUBMITTED': 'Submitted',
-        'PROCESSING': 'Processing',
-        'DONE': 'Done',
-        }
-    # when all build groups related to this submission are in final states
-    # this submission can be set to DONE state
-
-    # tag name, submissions with the same name is a submission group
-    name = models.CharField(max_length=255, db_index=True)
-
-    status = models.CharField(max_length=64, db_index=True,
-                              choices=STATUS.items())
-
-    owner = models.ForeignKey(User)
-    gittree = models.ForeignKey('GitTree')
-    commit = models.CharField(max_length=255, db_index=True)
-
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-
-    def __unicode__(self):
-        return self.name
-
-    @property
-    def display_status(self):
-        return self.STATUS[self.status]
-
-    class Meta:
-        app_label = APP_LABEL
-        unique_together = ('name', 'gittree')
-        permissions = (('publish_events', 'Can publish events'),)
-
-
-class SubmissionBuild(models.Model):
-    """
-    Class representing a build of a submission against certain product.
-    """
-
-    submission = models.ForeignKey('Submission')
-    product = models.ForeignKey('Product')
-
-    group = models.ForeignKey('BuildGroup')
-
-    class Meta:
-        app_label = APP_LABEL
-        unique_together = ('submission', 'product')
-
-
 class BuildGroupManager(models.Manager):
     def get_by_natural_key(self, name):
         return self.get(name=name)
@@ -234,6 +173,9 @@ class BuildGroup(models.Model):
 
     snapshot = models.URLField()
 
+    # TODO: obs pre-release project url
+    # url = models.URLField()
+
     def __unicode__(self):
         return self.name
 
@@ -241,8 +183,89 @@ class BuildGroup(models.Model):
     def display_status(self):
         return self.STATUS[self.status]
 
+    def populate_status(self):
+        for sbuild in self.submissionbuild_set.all():
+            sbuild.submission.set_status(self.status)
+            sbuild.submission.save()
+
+    @property
+    def product(self):
+        """
+        All product attrs of submissionbuild_set must be equal,
+        othewise they can be put into a build group to build.
+        """
+        return self.submissionbuild_set.all()[:1].get().product
+
     class Meta:
         app_label = APP_LABEL
+
+
+class SubmissionManager(models.Manager):
+    def get_by_natural_key(self, tag, gitpath):
+        return self.get(name=tag, gittree__gitpath=gitpath)
+
+
+class Submission(models.Model):
+    """
+    Class representing a single submission for review.
+
+    A single submission is a tag pushed for e.g. review or release.
+    """
+    objects = SubmissionManager()
+
+    STATUS = {
+        'SUBMITTED': 'Submitted',
+        'DONE': 'Done',
+        }
+    # when all build groups related to this submission are in final states
+    # this submission can be set to DONE state
+
+    # tag name, submissions with the same name is a submission group
+    name = models.CharField(max_length=255, db_index=True)
+
+    status = models.CharField(
+        max_length=64, db_index=True,
+        choices=STATUS.items()+BuildGroup.STATUS.items())
+
+    owner = models.ForeignKey(User)
+    gittree = models.ForeignKey('GitTree')
+    commit = models.CharField(max_length=255, db_index=True)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    # TODO: update "updated" field when package created and image created
+
+    def __unicode__(self):
+        return self.name
+
+    @property
+    def display_status(self):
+        return dict(self.STATUS, **BuildGroup.STATUS)[self.status]
+
+    def set_status(self, st):
+        if (self.status == 'SUBMITTED' or
+            st > self.status):
+            self.status = st
+
+    class Meta:
+        app_label = APP_LABEL
+        unique_together = ('name', 'gittree')
+        permissions = (('publish_events', 'Can publish events'),)
+
+
+class SubmissionBuild(models.Model):
+    """
+    Class representing a build of a submission against certain product.
+    """
+
+    submission = models.ForeignKey('Submission')
+    product = models.ForeignKey('Product')
+
+    group = models.ForeignKey('BuildGroup')
+
+    class Meta:
+        app_label = APP_LABEL
+        unique_together = ('submission', 'product')
 
 
 class SubmissionGroup(models.Model):

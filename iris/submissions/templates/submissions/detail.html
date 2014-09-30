@@ -1,0 +1,236 @@
+{% extends "core/base.html" %}
+
+{% load humanize %}
+{% load user_display_name %}
+{% load group_and_sort_pbuilds %}
+
+{% block title %}IRIS - Submission {{ sgroup.name }}{% endblock %}
+
+{% block content %}
+<style>
+.tab-pane {
+  padding-top: 1em;
+}
+</style>
+
+<div class="container">
+  {% include "submissions/menu.html" %}
+
+  <div class="row">
+    <div class="page-header">
+      <h3>
+        Submission information for <span class="text-warning">{{ sgroup.name }}</span>
+      </h3>
+    </div>
+  </div>
+
+  <div class="row">
+    <table class="table gittree-info table-striped table-bordered table-hover table-condensed">
+      <tbody>
+        <tr>
+          <th>Status</th>
+          <td>{{ sgroup.display_status }} </td>
+        </tr>
+        <tr>
+          <th>Owner</th>
+          <td>
+            {% if sgroup.count > 1 %}
+            {% for o in sgroup.owner %}
+            <a href="{% url 'users' o.id %}">
+              {{ o|user_display_name }}</a>
+            {% endfor %}
+            {% else %}
+            <a href="{% url 'users' sgroup.owner.id %}">
+              {{ sgroup.owner|user_display_name }}</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% if not bgroups %}
+        <tr>
+          <th>Git Tree / Commit</th>
+          <td>
+            {% for t, c in sgroup.gittree_commit %}
+            <a href="{% url 'gittree.read' t.id %}">
+              {{ t }}</a> / {{ c }} </br>
+            {% endfor %}
+          </td>
+        </tr>
+        {% endif %}
+        <tr>
+          <th>Created</th>
+          <td><span title="{{ sgroup.created }}">
+              {{ sgroup.created|naturaltime }}</span></td>
+        </tr>
+        <tr>
+          <th>Updated</th>
+          <td><span title="{{ sgroup.updated }}">
+              {{ sgroup.updated|naturaltime }}</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  {% for bgroup in bgroups %}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">{{ bgroup.product }}</h3>
+    </div>
+
+    <div class="panel-body">
+      <ul class="nav nav-tabs" role="tablist">
+        {% if bgroup.status < '20' %}
+        <li class="active"><a href="#">
+            {{ bgroup.display_status }}</a></li>
+        {% else %}
+        <li><a href="#">Packages</a></li>
+        {% endif %}
+
+        {% if bgroup.status > '20' %}
+          {% if bgroup.status < '30' %}
+        <li class="active"><a href="#">
+            {{ bgroup.display_status }}</a></li>
+          {% else %}
+        <li><a href="#">Image</a></li>
+          {% endif %}
+        {% endif %}
+
+        {% if bgroup.status > '30' %}
+          {% if bgroup.status < '40' %}
+        <li class="active"><a href="#">
+            {{ bgroup.display_status }}</a></li>
+          {% else %}
+        <li><a href="#">Accepted</a></li>
+          {% endif %}
+        {% endif %}
+
+        {% if bgroup.status > '40' %}
+        <li class="active"><a href="#">
+            {{ bgroup.display_status }}</a></li>
+        {% endif %}
+      </ul>
+
+      <div class="tab-content">
+        <div class="tab-pane active">
+          <table class="table"><tr><td>
+                <table class="table">
+                  <tr>
+                    <th>Git Tree</th>
+                  </tr>
+                  {% for silbling in bgroup.submissionbuild_set.all %}
+                  <tr>
+                    <td>
+                      <a href="{% url 'gittree.read' silbling.submission.gittree.id %}">
+                        {{ silbling.submission.gittree }}</a>
+
+                      {% if silbling.submission.name != sgroup.name %}
+                        ( {{ silbling.submission.name }}
+                        {% if silbling.submission.owner != sgroup.owner %}
+                          by {{ silbling.submission.owner|user_display_name }}
+                        {% endif %}
+                        )
+                      {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                  </table>
+
+              </td><td>
+
+                {% with pbuilds=bgroup.packagebuild_set.all %}
+                <table class="table">
+                  <tr>
+                    <th>Package ( {{ pbuilds|length }} in total
+                      <span class="failed-info" style="display:none">
+                        , <span class="count">XX</span> failures</span>
+                      )</th>
+                    <th>Target</th>
+                    <th>Arch</th>
+                    <th>Status</th>
+                  </tr>
+                  {% for pbuild_group in pbuilds|group_and_sort_pbuilds %}
+                  {% for pbuild in pbuild_group %}
+                  <tr>
+                    {% if forloop.first %}
+                    <td rowspan="{{ pbuild_group|length }}">{{ pbuild.package }}</td>
+                    {% endif %}
+                    <td>{{ pbuild.repo }}</td>
+                    <td>{{ pbuild.arch }}</td>
+                    <td class="text-center {% if pbuild.status != 'SUCCESS' %} danger {% endif %}">
+                      <a href="{{ pbuild.log }}">{{ pbuild.display_status }}</a></td>
+                  </tr>
+                  {% endfor %}
+                  {% endfor %}
+                </table>
+                {% endwith %}
+          </td></tr></table>
+        </div>
+
+        {% if bgroup.status >= '20_IMGBUILDING' %}
+        <div class="tab-pane">
+          <p><a href="{{ build.group.repo_url }}">Go to download repository</a></p>
+
+          <table class="table">
+            <tr>
+              <th>Name</th>
+              <th>Repo</th>
+              <th>Status</th>
+            </tr>
+            {% for ibuild in bgroup.imagebuild_set.all %}
+            <tr>
+              <td><a href="{{ ibuild.url }}">{{ ibuild.name }}</a></td>
+              <td>{{ ibuild.repo }}</td>
+              <td><a href="{{ ibuild.log }}">{{ ibuild.display_status }}</a></td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+        {% endif %}
+
+        {% if bgroup.status == '33_ACCEPTED' %}
+        <div class="tab-pane">
+          <p>Accepted by {{ bgroup.operator }}
+            at {{ bgroup.operated_on }}</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+<script>
+$(document).ready(function() {
+
+$('.panel-body').each(function() {
+    var container = $(this);
+    $('.nav-tabs a', this).each(function(idx, e) {
+        $(e).click(function() {
+            container.find('li')
+            .removeClass('active')
+            .eq(idx).addClass('active');
+
+            container.find('.tab-pane')
+            .removeClass('active')
+            .eq(idx).addClass('active');
+            return false;
+        });
+    });
+
+    $('li.active a', container).click();
+});
+
+
+$('.failed-info').each(function() {
+  console.debug('#1');
+  var count = $('.danger', $(this).parents('table')).length;
+  console.debug('#'+count);
+  if (count > 0) {
+    $('.count', this).text(count);
+    $(this).show();
+  }
+});
+
+});
+</script>
+{% endblock %}

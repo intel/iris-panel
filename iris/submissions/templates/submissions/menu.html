@@ -7,18 +7,16 @@
     <li>
       <a>All</a>
       <ul>
-        <li><a href="{% url 'summary' %}?kw=all">Open</a></li>
-        <li><a href="#">Accepted</a></li>
-        <li><a href="#">Rejected</a></li>
+        <li><a href="{% url 'opened_submissions' %}">Open</a></li>
       </ul>
     </li>
     <li>
-      <a href="{% url 'summary' %}">My</a>
+      <a href="{% url 'my_submissions' %}">Mine</a>
     </li>
   </ul>
 
-  <form action="{% url 'summary' %}" class="form-inline pull-right" role="form">
-    <input name="kw" type='search' size='64' class="form-control" placeholder="tag, SHA-1, status, email or git project" />
+  <form action="{% url 'search_submissions' %}" class="form-inline pull-right" role="form">
+    <input name="kw" type='search' size='64' class="form-control" placeholder="tag, SHA-1, email or git project" />
     <input type='submit' class="btn btn-primary" value='Search' />
   </form>
 </div>

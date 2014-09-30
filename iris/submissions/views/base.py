@@ -19,7 +19,6 @@ Commonplace views such as index page is contained here.
 from django.shortcuts import render
 from django.utils.timezone import now
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from iris.core.models import Submission, SubmissionGroup, Product
@@ -31,48 +30,7 @@ def index(request):
     """
     This view returns the index page for the submissions application.
     """
-
     return render(request, 'submissions/index.html')
-
-@login_required
-def summary(request):
-    """
-    Submissions summary page view.
-
-    Requesting the page with ?filter=submissions or ?filter=submissiongroups
-    restricts the results accordingly to either Submissions or Groups.
-    """
-    kw = request.GET.get('kw', 'my')
-    if kw == 'my':
-        res = Submission.objects.filter(
-            owner=request.user).order_by('created')
-
-        from iris.core.injectors import inject_user_getters
-        u2 = inject_user_getters(request.user)
-        domains = [i.domain for i in u2.get_domainroles()]
-        subdomains = [i.subdomain for i in u2.get_subdomainroles()]
-        trees = [i.gittree for i in u2.get_gittreeroles()]
-
-        title = 'My submissions'
-    elif kw == 'all':
-        # FIXME: sort by updated not created
-        res = Submission.objects.all().order_by('created')
-        title = 'All submissions'
-    else:
-        kw = request.GET.get('kw')
-        res = Submission.objects.filter(
-            Q(name__contains=kw) |
-            Q(commit__startswith=kw) |
-            Q(owner__email__startswith=kw) |
-            Q(status=kw) |
-            Q(gittree__gitpath__contains=kw)
-            )
-        title = 'Search for "%s"' % kw
-
-    return render(request, 'submissions/summary.html', {
-        'title': title,
-        'results': res,
-        })
 
 
 @login_required
