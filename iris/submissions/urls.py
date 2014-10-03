@@ -34,7 +34,8 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns(
     'iris.submissions.views.read',
-    url(r'^$', 'mine', name='my_submissions'),
+    url(r'^$', 'index', name='submissions_index'),
+    url(r'^mine/$', 'mine', name='my_submissions'),
     url(r'^opened/$', 'opened', name='opened_submissions'),
     url(r'^search/$', 'search', name='search_submissions'),
     url(r'^(.*?)$', 'detail', name='submission_detail'),

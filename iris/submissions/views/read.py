@@ -20,7 +20,9 @@ from collections import defaultdict
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
+from django.core.urlresolvers import reverse
+
 
 from iris.core.models import Submission, BuildGroup
 
@@ -35,6 +37,9 @@ class SubmissionGroup(object):
         self.subs = submissions
         self.name = self.subs[0].name
 
+    def __unicode__(self):
+        return self.name
+
     @property
     def products(self):
         return {sbuild.product
@@ -45,11 +50,11 @@ class SubmissionGroup(object):
     def display_status(self):
         st0 = [sub.status for sub in self.subs if sub.status not in Submission.STATUS]
         st1 = [sub.status for sub in self.subs if sub.status in Submission.STATUS]
-        if not st0:
-            if 'DONE' in st1:
-                return 'DONE'
-            return 'SUMITTED'
-        return BuildGroup.STATUS[max(st0)]
+        if st0:
+            st = max(st0)
+        else:
+            st = 'DONE' if 'DONE' in st1 else 'SUBMITTED'
+        return dict(Submission.STATUS, **BuildGroup.STATUS)[st]
 
     @property
     def owner(self):
@@ -96,8 +101,21 @@ def group(submissions):
     for sub in submissions:
         groups[sub.name].append(sub)
     groups = [SubmissionGroup(i) for i in groups.values()]
-    #FIXME: reverse
-    return sorted(groups, key=lambda g: g.updated, reverse=True)
+    groups.sort(key=lambda g: g.updated, reverse=True)
+    return groups
+
+
+def index(request):
+    """
+    Index page of Submissions app.
+    If a user logged-in, redirect to "my submissions" page,
+    otherwise redirect to "opened submissions" page.
+    """
+    if request.user.is_authenticated():
+        url = reverse('my_submissions')
+    else:
+        url = reverse('opened_submissions')
+    return HttpResponseRedirect(url)
 
 
 def opened(request):
