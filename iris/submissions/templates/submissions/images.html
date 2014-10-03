@@ -1,0 +1,33 @@
+<div class="tab-pane">
+  <table class="table">
+    {% with ibuilds=bgroup.imagebuild_set.all %}
+    <tr>
+      <th>Name ( {{ ibuilds|length }} in total
+        <span class="failed-info" style="display:none">
+          , <span class="count">XX</span> failures</span>
+      )</th>
+      <th>Repo</th>
+      <th>Status</th>
+    </tr>
+    <tr>
+    {% for ibuild in ibuilds|dictsort:"name" %}
+      <td>
+        {% if ibuild.url %}
+        <a href="{{ ibuild.url }}">{{ ibuild.name }}</a>
+        {% else %}
+        {{ ibuild.name }}
+        {% endif %}
+      </td>
+      <td>{{ ibuild.repo }}</td>
+      <td class="text-center {% if ibuild.status != 'SUCCESS' %} danger {% endif %}">
+        {% if ibuild.log %}
+        <a href="{{ ibuild.log }}">{{ ibuild.display_status }}</a>
+        {% else %}
+        {{ ibuild.display_status }}
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+    {% endwith %}
+  </table>
+</div>

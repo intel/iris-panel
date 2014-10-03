@@ -1,8 +1,6 @@
 """
 All forms for events views
 """
-import datetime
-
 from django import forms
 from django.forms import ValidationError
 from django.contrib.auth.models import User
@@ -119,12 +117,9 @@ class ImageCreatedForm(forms.Form):
 
     name = forms.CharField(label="Image name")
     project = forms.CharField(label="Pre-release project name")
-    status = forms.ChoiceField(choices=(
-            ('success', 'Success'),
-            ('failure', 'Failure'),
-            ))
+    status = forms.CharField(label="Build status")
     url = forms.URLField(label="Image URL")
-    log = forms.URLField(label="Image building log URL")
+    #log = forms.URLField(label="Image building log URL")
 
     def clean_project(self):
         project = self.cleaned_data['project']
@@ -132,6 +127,11 @@ class ImageCreatedForm(forms.Form):
             return BuildGroup.objects.get(name=project)
         except BuildGroup.DoesNotExist as err:
             raise ValidationError(str(err))
+
+    def clean_status(self):
+        if 'success' in self.cleaned_data['status'].lower():
+            return 'SUCCESS'
+        return 'FAILURE'
 
     def clean(self):
         data = self.cleaned_data
@@ -153,9 +153,8 @@ class RepaActionForm(forms.Form):
             ('accepted', 'accepted'),
             ('rejected', 'rejected'),
             ), label="Accepted or rejected")
-    who = forms.EmailField(label="Operator's Email")
+    who = forms.CharField(label="Operator's Email")
     reason = forms.CharField(label="Explanation")
-    when = forms.DateTimeField(label="When this happened", required=False)
 
     def clean_project(self):
         project = self.cleaned_data['project']
@@ -168,15 +167,3 @@ class RepaActionForm(forms.Form):
         if self.cleaned_data['status'] == 'accepted':
             return '33_ACCEPTED'
         return '36_REJECTED'
-
-    def clean_who(self):
-        email = self.cleaned_data['who']
-        user, _created = User.objects.get_or_create(email=email, defaults={
-                'username': email,
-                })
-        return user
-
-    def clean_when(self):
-        if self.cleaned_data['when']:
-            return self.cleaned_data['when']
-        return datetime.datetime.now()

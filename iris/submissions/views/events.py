@@ -4,6 +4,7 @@ View functions to handler submission events
 import sys
 import urlparse
 import urllib
+import datetime
 
 from MySQLdb.constants.ER import DUP_ENTRY
 
@@ -212,10 +213,11 @@ def image_building(request):
     group.save()
     group.populate_status()
 
-    ibuild = ImageBuild(name=data['name'],
-                        status='BUILDING',
-                        repo=data['repo'],
-                        group=group)
+    ibuild, _ = ImageBuild.objects.get_or_create(
+        name=data['name'],
+        group=group)
+    ibuild.status = 'BUILDING'
+    ibuild.repo = data['repo']
     ibuild.save()
     return Response({'detail': 'Image started to build'},
                     status=HTTP_200_OK)
@@ -237,18 +239,16 @@ def image_created(request):
                         status=HTTP_406_NOT_ACCEPTABLE)
 
     data = form.cleaned_data
-    ok = data['status'] == 'success'
+    ok = data['status'] == 'SUCCESS'
 
     group = data['project']
-    if ok:
-        group.status = '30_READY'
-    else:
+    if not ok:
         group.status = '25_IMGFAILED'
     group.save()
     group.populate_status()
 
     ibuild = data['name']
-    ibuild.log = data['log']
+    #ibuild.log = data['log']
     if ok:
         ibuild.url = data['url']
         ibuild.status = 'SUCCESS'
@@ -277,8 +277,9 @@ def repa_action(request):
 
     group = data['project']
     group.status = data['status']
-    group.operator = data['who']
-    group.operator_on = data['when']
+    group.operator = data['who'].strip()
+    group.operator_on = datetime.datetime.now()
+    group.operator_reason = data['reason'].strip()
     group.save()
     group.populate_status()
 

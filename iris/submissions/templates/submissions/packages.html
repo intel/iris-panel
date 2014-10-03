@@ -1,0 +1,61 @@
+{% load user_display_name %}
+{% load group_and_sort_pbuilds %}
+
+
+<div class="tab-pane active">
+  <table class="table">
+    <tr>
+
+      <td>
+        <table class="table">
+          <tr><th>Git Tree</th></tr>
+          {% for silbling in bgroup.submissionbuild_set.all %}
+          <tr>
+            <td>
+              <a href="{% url 'gittree.read' silbling.submission.gittree.id %}">
+                {{ silbling.submission.gittree }}</a>
+
+              {% if silbling.submission.name != sgroup.name %}
+              ( {{ silbling.submission.name }}
+              {% if silbling.submission.owner != sgroup.owner %}
+              by {{ silbling.submission.owner|user_display_name }}
+              {% endif %}
+              )
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </td>
+
+      <td>
+        {% with pbuilds=bgroup.packagebuild_set.all %}
+        <table class="table">
+          <tr>
+            <th>Package ( {{ pbuilds|length }} in total
+              <span class="failed-info" style="display:none">
+                , <span class="count">XX</span> failures</span>
+              )</th>
+            <th>Target</th>
+            <th>Arch</th>
+            <th>Status</th>
+          </tr>
+          {% for pbuild_group in pbuilds|group_and_sort_pbuilds %}
+          {% for pbuild in pbuild_group %}
+          <tr>
+            {% if forloop.first %}
+            <td rowspan="{{ pbuild_group|length }}">{{ pbuild.package }}</td>
+            {% endif %}
+            <td>{{ pbuild.repo }}</td>
+            <td>{{ pbuild.arch }}</td>
+            <td class="text-center {% if pbuild.status != 'SUCCESS' %} danger {% endif %}">
+              <a href="{{ pbuild.log }}">{{ pbuild.display_status }}</a></td>
+          </tr>
+          {% endfor %}
+          {% endfor %}
+        </table>
+        {% endwith %}
+      </td>
+
+  </tr></table>
+</div>

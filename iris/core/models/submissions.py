@@ -89,7 +89,7 @@ class ImageBuild(models.Model):
         'FAILURE': 'Failed',
         }
 
-    name = models.TextField()
+    name = models.CharField(max_length=255, db_index=True)
     repo = models.CharField(max_length=255)
     status = models.CharField(max_length=64, choices=STATUS.items())
 
@@ -107,6 +107,7 @@ class ImageBuild(models.Model):
 
     class Meta:
         app_label = APP_LABEL
+        unique_together = ('name', 'group')
 
 
 class TestResult(models.Model):
@@ -151,7 +152,6 @@ class BuildGroup(models.Model):
         '20_IMGBUILDING': 'Image building',
         '25_IMGFAILED': 'Image build failed',
 
-        '30_READY': 'Ready for acceptance',
         '33_ACCEPTED': 'Accepted',
         '36_REJECTED': 'Rejected',
         }
@@ -166,8 +166,8 @@ class BuildGroup(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     # repa operator: accepted/rejected by
-    operator = models.ForeignKey(
-        User, blank=True, null=True, on_delete=models.SET_NULL)
+    operator = models.CharField(
+        max_length=255, db_index=True, blank=True, null=True)
     operated_on = models.DateTimeField(blank=True, null=True)
     operate_reason = models.TextField()
 
