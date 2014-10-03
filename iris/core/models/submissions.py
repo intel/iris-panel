@@ -13,6 +13,7 @@ This is the submission related Django database model module for the iris-core.
 
 Models related to submissions and acceptance go here.
 """
+from collections import defaultdict
 
 # Disabling class checks for the sake of Django specific Meta classes.
 # pylint: disable=W0232, C0111, R0903
@@ -23,24 +24,6 @@ APP_LABEL = 'core'
 
 from django.db import models
 from django.contrib.auth.models import User
-
-
-class Log(models.Model):
-    """
-    Class representing a single log produced from a
-    build of image or package build or test
-
-    Storing log data into the database or providing just
-    external URL hasn't been decided yet.
-    """
-
-    url = models.URLField()
-
-    def __unicode__(self):
-        return self.url
-
-    class Meta:
-        app_label = APP_LABEL
 
 
 class PackageBuild(models.Model):
@@ -110,29 +93,6 @@ class ImageBuild(models.Model):
         unique_together = ('name', 'group')
 
 
-class TestResult(models.Model):
-    """
-    Class representing the testing step of the build process.
-    """
-
-    TESTSTATUS = (
-        ('SUCCESS', 'Succeeded'),
-        ('NOREGRESSIONS', 'No regressions'),
-        ('FAILURE', 'Failed'),
-    )
-
-    name = models.TextField()
-    log = models.OneToOneField(Log, blank=True, null=True,
-                                on_delete=models.SET_NULL)
-    status = models.CharField(max_length=64, choices=TESTSTATUS)
-
-    def __unicode__(self):
-        return self.status
-
-    class Meta:
-        app_label = APP_LABEL
-
-
 class BuildGroupManager(models.Manager):
     def get_by_natural_key(self, name):
         return self.get(name=name)
@@ -184,6 +144,9 @@ class BuildGroup(models.Model):
         return self.STATUS[self.status]
 
     def populate_status(self):
+        """
+        Populate this BuildGroup's status to related Submissions
+        """
         for sbuild in self.submissionbuild_set.all():
             sbuild.submission.set_status(self.status)
             sbuild.submission.save()
@@ -268,37 +231,87 @@ class SubmissionBuild(models.Model):
         unique_together = ('submission', 'product')
 
 
-class SubmissionGroup(models.Model):
+class SubmissionGroup(object):
     """
-    Class representing a group of submissons made by a release engineer.
+    Submissions with the same tag name are called SubmissionGroup.
+
+    Submissions in the same group could be submitted by different
+    author in different git tree.
+
+    SubmissionGroup is just a business model without separated
+    database table with it. It's a group view of Submission
+    model.
     """
+    def __init__(self, submissions):
+        assert submissions
+        self.subs = submissions
+        self.name = self.subs[0].name
 
-    SUBMISSIONGROUPSTATUS = (
-        ('NEW', 'New'),
-        ('IMGBUILDING', 'Image building'),
-        ('IMGFAILED', 'Image build failed'),
-        ('TESTING', 'Testing package'),
-        ('TESTINGFAILED', 'Testing failed'),
-        ('READY', 'Ready for acceptance'),
-        ('ACCEPTED', 'Accepted'),
-        ('REJECTED', 'Rejected'),
-    )
-
-    name = models.CharField(max_length=80, db_index=True)
-    author = models.ForeignKey(User)
-    product = models.ForeignKey('Product', blank=True, null=True,
-                                on_delete=models.SET_NULL)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-    submissions = models.ManyToManyField(Submission)
-    status = models.CharField(max_length=16, choices=SUBMISSIONGROUPSTATUS)
-    obj_type = 'SubmissionGroup'
+    @classmethod
+    def group(cls, submissions):
+        """
+        Returns list of submission groups
+        """
+        groups = defaultdict(list)
+        for sub in submissions:
+            groups[sub.name].append(sub)
+        groups = [cls(i) for i in groups.values()]
+        groups.sort(key=lambda g: g.updated, reverse=True)
+        return groups
 
     def __unicode__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('read_submissiongroups', args=(self.id,))
+    @property
+    def products(self):
+        return {sbuild.product
+                for submission in self.subs
+                for sbuild in submission.submissionbuild_set.all()}
 
-    class Meta:
-        app_label = APP_LABEL
+    @property
+    def display_status(self):
+        st0 = [sub.status for sub in self.subs
+            if sub.status not in Submission.STATUS]
+        st1 = [sub.status for sub in self.subs
+            if sub.status in Submission.STATUS]
+        if st0:
+            st = max(st0)
+        else:
+            st = 'DONE' if 'DONE' in st1 else 'SUBMITTED'
+        return dict(Submission.STATUS, **BuildGroup.STATUS)[st]
+
+    @property
+    def owner(self):
+        if self.count > 1:
+            return {s.owner for s in self.subs}
+        return self.subs[0].owner
+
+    @property
+    def gittree(self):
+        if self.count > 1:
+            return {s.gittree for s in self.subs}
+        return self.subs[0].gittree
+
+    @property
+    def commit(self):
+        if self.count > 1:
+            return {s.commit for s in self.subs}
+        return self.subs[0].commit
+
+    @property
+    def gittree_commit(self):
+        if self.count > 1:
+            return {(s.gittree, s.commit) for s in self.subs}
+        return [(self.subs[0].gittree, self.subs[0].commit)]
+
+    @property
+    def updated(self):
+        return max([s.updated for s in self.subs])
+
+    @property
+    def created(self):
+        return min([s.created for s in self.subs])
+
+    @property
+    def count(self):
+        return len(self.subs)

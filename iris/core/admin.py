@@ -19,8 +19,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from iris.core.models import (
-    Domain, SubDomain, License, GitTree, Package, Product, Image, Log,
-    PackageBuild, ImageBuild, TestResult, Submission, SubmissionGroup,
+    Domain, SubDomain, License, GitTree, Package, Product, Image,
+    PackageBuild, ImageBuild, Submission,
     UserProfile, UserParty, DomainRole, SubDomainRole, GitTreeRole)
 
 
@@ -58,9 +58,6 @@ admin.site.register(GitTree)
 admin.site.register(Package)
 admin.site.register(Product)
 admin.site.register(Image)
-admin.site.register(Log)
 admin.site.register(PackageBuild)
 admin.site.register(ImageBuild)
-admin.site.register(TestResult)
 admin.site.register(Submission)
-admin.site.register(SubmissionGroup)

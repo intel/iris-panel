@@ -15,8 +15,6 @@ Views for listing single and multiple item info is contained here.
 """
 # pylint: disable=E1101,C0111,W0622,C0301
 
-from collections import defaultdict
-
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -24,85 +22,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
 
-from iris.core.models import Submission, BuildGroup
-
-
-class SubmissionGroup(object):
-    """
-    Submissions with the same tag name are called SubmissionGroup.
-    Submissions in the same group could be submitted by different author in different git tree.
-    """
-    def __init__(self, submissions):
-        assert submissions
-        self.subs = submissions
-        self.name = self.subs[0].name
-
-    def __unicode__(self):
-        return self.name
-
-    @property
-    def products(self):
-        return {sbuild.product
-                for submission in self.subs
-                for sbuild in submission.submissionbuild_set.all()}
-
-    @property
-    def display_status(self):
-        st0 = [sub.status for sub in self.subs if sub.status not in Submission.STATUS]
-        st1 = [sub.status for sub in self.subs if sub.status in Submission.STATUS]
-        if st0:
-            st = max(st0)
-        else:
-            st = 'DONE' if 'DONE' in st1 else 'SUBMITTED'
-        return dict(Submission.STATUS, **BuildGroup.STATUS)[st]
-
-    @property
-    def owner(self):
-        if self.count > 1:
-            return {s.owner for s in self.subs}
-        return self.subs[0].owner
-
-    @property
-    def gittree(self):
-        if self.count > 1:
-            return {s.gittree for s in self.subs}
-        return self.subs[0].gittree
-
-    @property
-    def commit(self):
-        if self.count > 1:
-            return {s.commit for s in self.subs}
-        return self.subs[0].commit
-
-    @property
-    def gittree_commit(self):
-        if self.count > 1:
-            return {(s.gittree, s.commit) for s in self.subs}
-        return [(self.subs[0].gittree, self.subs[0].commit)]
-
-    @property
-    def updated(self):
-        return max([s.updated for s in self.subs])
-
-    @property
-    def created(self):
-        return min([s.created for s in self.subs])
-
-    @property
-    def count(self):
-        return len(self.subs)
-
-
-def group(submissions):
-    """
-    Returns list of submission groups
-    """
-    groups = defaultdict(list)
-    for sub in submissions:
-        groups[sub.name].append(sub)
-    groups = [SubmissionGroup(i) for i in groups.values()]
-    groups.sort(key=lambda g: g.updated, reverse=True)
-    return groups
+from iris.core.models import Submission, BuildGroup, SubmissionGroup
 
 
 def index(request):
@@ -124,7 +44,7 @@ def opened(request):
     """
     return render(request, 'submissions/summary.html', {
             'title': 'All submissions',
-            'results': group(Submission.objects.all()),
+            'results': SubmissionGroup.group(Submission.objects.all()),
             })
 
 
@@ -136,7 +56,8 @@ def mine(request):
     res = Submission.objects.filter(owner=request.user)
     return render(request, 'submissions/summary.html', {
             'title': 'My submissions',
-            'results': group(Submission.objects.filter(owner=request.user)),
+            'results': SubmissionGroup.group(
+                Submission.objects.filter(owner=request.user)),
             })
 
 
@@ -153,7 +74,7 @@ def search(request):
         )
     return render(request, 'submissions/summary.html', {
             'title': 'Search result for "%s"' % kw,
-            'results': group(subs),
+            'results': SubmissionGroup.group(subs),
             })
 
 
@@ -161,7 +82,8 @@ def detail(request, tag):
     """
     Detail info about a submission group identified by certain tag
     """
-    groups = group(Submission.objects.filter(name=tag.rstrip('/')))
+    groups = SubmissionGroup.group(
+        Submission.objects.filter(name=tag.rstrip('/')))
     if not groups:
         raise Http404
 

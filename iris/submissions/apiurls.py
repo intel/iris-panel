@@ -16,27 +16,9 @@ Permittable URLs and views accessible through REST API are defined here.
 
 # pylint: disable=C0103
 
-from django.conf.urls import patterns, url, include
-from rest_framework.routers import DefaultRouter
-
-from iris.submissions.apiviews import SubmissionViewSet
-
-# Create a router and register our views with it.
-router = DefaultRouter()
-router.register(r'items', SubmissionViewSet)
-
-# The API URLs are now determined automatically by the router.
-# Additionally, we include the login URLs for the browseable API.
+from django.conf.urls import patterns, url
 
 urlpatterns = patterns(
-    'iris.submissions.apiviews',
-    url(r'^', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls',
-        namespace='rest_framework')),
-)
-
-
-urlpatterns += patterns(
     'iris.submissions.views.events',
     url(r'events/(.*?)/', 'events_handler', name='submissions_events'),
     )
