@@ -20,6 +20,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.core.paginator import Paginator
 
 
 from iris.core.models import Submission, BuildGroup, SubmissionGroup
@@ -42,9 +43,33 @@ def opened(request):
     """
     All opened submissions
     """
+    res = Submission.objects.exclude(
+        status='33_ACCEPTED').exclude(
+        status='36_REJECTED')
     return render(request, 'submissions/summary.html', {
-            'title': 'All submissions',
-            'results': SubmissionGroup.group(Submission.objects.all()),
+            'title': 'All open submissions',
+            'results': SubmissionGroup.group(res),
+            })
+
+def accepted(request):
+    """
+    All accepted submissions
+    """
+    res = Submission.objects.filter(status='33_ACCEPTED')
+    return render(request, 'submissions/summary.html', {
+            'title': 'All accepted submissions',
+            'results': SubmissionGroup.group(res),
+            })
+
+
+def rejected(request):
+    """
+    All rejected submissions
+    """
+    res = Submission.objects.filter(status='36_REJECTED')
+    return render(request, 'submissions/summary.html', {
+            'title': 'All rejeted submissions',
+            'results': SubmissionGroup.group(res),
             })
 
 

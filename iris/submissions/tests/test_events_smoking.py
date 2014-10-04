@@ -5,6 +5,14 @@ import ast
 from django.test import TestCase
 
 
+def parse_events_log(stream):
+    for line in stream:
+        _, path, param = line.rstrip().split('|')
+        typ = path.rstrip('/').split('/')[-1]
+        data = dict(ast.literal_eval(param))
+        yield typ, data
+
+
 class SmokingTest(TestCase):
 
     fixtures = ['users', 'domains', 'subdomains', 'gittrees', 'products']
@@ -12,20 +20,14 @@ class SmokingTest(TestCase):
     def url(self, typ):
         return '/api/submissions/events/%s/' % typ
 
-    def _parse_events_log(self):
+    def _get_events(self):
         filename = os.path.join(os.path.dirname(__file__), 'events.log')
-        events = []
         with open(filename) as reader:
-            for line in reader:
-                _, path, param = line.rstrip().split('|')
-                typ = path.rstrip('/').split('/')[-1]
-                data = dict(ast.literal_eval(param))
-                events.append((typ, data))
-        return events
+            return list(parse_events_log(reader))
 
     def test(self):
         self.client.login(username='robot', password='robot')
-        for i, (typ, data) in enumerate(self._parse_events_log()):
+        for i, (typ, data) in enumerate(self._get_events()):
             r = self.client.post(self.url(typ), data)
             self.assertTrue(
                 r.status_code >= 200 and r.status_code < 300,
@@ -36,3 +38,23 @@ class SmokingTest(TestCase):
                     r.status_code, r.content,
                     typ, data
                     ))
+
+
+def main():
+    import argparse
+    import sys
+    from common.iris_rest_client import IrisRestClient as Client
+
+    p = argparse.ArgumentParser()
+    p.add_argument('server')
+    p.add_argument('--username', '-u')
+    p.add_argument('--password', '-p')
+    args = p.parse_args()
+
+    c = Client(args.server, args.username, args.password)
+    for typ, data in parse_events_log(sys.stdin):
+        c.publish_event(typ, data)
+
+
+if __name__ == '__main__':
+    main()

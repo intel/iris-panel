@@ -178,7 +178,6 @@ class Submission(models.Model):
 
     STATUS = {
         'SUBMITTED': 'Submitted',
-        'DONE': 'Done',
         }
     # when all build groups related to this submission are in final states
     # this submission can be set to DONE state

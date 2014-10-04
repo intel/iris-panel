@@ -8,10 +8,12 @@
       <a>All</a>
       <ul>
         <li><a href="{% url 'opened_submissions' %}">Open</a></li>
+        <li><a href="{% url 'accepted_submissions' %}">Accepted</a></li>
+        <li><a href="{% url 'rejected_submissions' %}">Rejected</a></li>
       </ul>
     </li>
     <li>
-      <a href="{% url 'my_submissions' %}">Mine</a>
+      <a href="{% url 'my_submissions' %}">My</a>
     </li>
   </ul>
 
