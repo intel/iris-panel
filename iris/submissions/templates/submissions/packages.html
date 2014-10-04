@@ -48,7 +48,7 @@
             {% endif %}
             <td>{{ pbuild.repo }}</td>
             <td>{{ pbuild.arch }}</td>
-            <td class="text-center {% if pbuild.status != 'SUCCESS' %} danger {% endif %}">
+            <td class="text-center {% if pbuild.status == 'FAILURE' %} danger {% endif %}">
               <a href="{{ pbuild.log }}">{{ pbuild.display_status }}</a></td>
           </tr>
           {% endfor %}

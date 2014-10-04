@@ -19,7 +19,7 @@
         {% endif %}
       </td>
       <td>{{ ibuild.repo }}</td>
-      <td class="text-center {% if ibuild.status != 'SUCCESS' %} danger {% endif %}">
+      <td class="text-center {% if ibuild.status == 'FAILURE' %} danger {% endif %}">
         {% if ibuild.log %}
         <a href="{{ ibuild.log }}">{{ ibuild.display_status }}</a>
         {% else %}
