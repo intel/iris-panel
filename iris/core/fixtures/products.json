@@ -5,5 +5,12 @@
   "fields": {
     "name": "Tizen:IVI"
   }
+},
+{
+  "pk": 2,
+  "model": "core.product",
+  "fields": {
+    "name": "Tizen:Common"
+  }
 }
 ]
