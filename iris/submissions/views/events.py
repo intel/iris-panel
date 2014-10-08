@@ -135,16 +135,16 @@ def guess_live_repo_url(server, project, repo):
 
 def guess_build_log_url(server, project, package, repo, arch):
     """
-    Guess build long link like this:
+    Guess build log link like this:
 
-    https://build.otctools.jf.intel.com/package/live_build_log/Tools/bmap-tools/CentOS_6/i586
+    https://build.tizen.org/package/live_build_log?arch=x86_64&package=automake&project=home%3Aprerelease%3ATizen%3AIVI%3Asubmit%3Atizen_ivi%3A20141007.444444&repository=atom64
     """
-    return '%s/package/live_build_log/%s/%s/%s/%s' % (
+    return '%s/package/live_build_log?arch=%s&package=%s&project=%s&repository=%s' % (
         server.rstrip('/'),
-        urllib.quote(project),
+        arch,
         package,
-        repo,
-        arch)
+        urllib.quote(project),
+        repo)
 
 
 def package_built(request):
