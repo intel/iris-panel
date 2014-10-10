@@ -278,8 +278,8 @@ def repa_action(request):
     group = data['project']
     group.status = data['status']
     group.operator = data['who'].strip()
-    group.operator_on = datetime.datetime.now()
-    group.operator_reason = data['reason'].strip()
+    group.operated_on = datetime.datetime.now()
+    group.operate_reason = data['reason'].strip()
     group.save()
     group.populate_status()
 

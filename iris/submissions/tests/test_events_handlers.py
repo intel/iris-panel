@@ -170,7 +170,7 @@ class EventHandlerTest(TestCase):
         self.login()
         r = self.client.post(self.url % 'repa_action', {
                 'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
-                'status': 'rejected',
+                'status': 'declined',
                 'who': 'someone@tizen.org',
                 'reason': "Errors found in QA tests",
                 })

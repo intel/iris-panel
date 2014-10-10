@@ -109,11 +109,21 @@
         {% if bgroup.status == '33_ACCEPTED' %}
         <div class="tab-pane">
           <p>Accepted by {{ bgroup.operator }}</p>
-          {% if bgroup.operate_reaon %}
+          {% if bgroup.operate_reason %}
           <pre>{{ bgroup.operate_reason }}</pre>
           {% endif %}
         </div>
         {% endif %}
+
+        {% if bgroup.status == '36_REJECTED' %}
+        <div class="tab-pane">
+          <p>Rejected by {{ bgroup.operator }}</p>
+          {% if bgroup.operate_reason %}
+          <pre>{{ bgroup.operate_reason }}</pre>
+          {% endif %}
+        </div>
+        {% endif %}
+
       </div>
     </div>
   </div>

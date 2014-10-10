@@ -151,7 +151,7 @@ class RepaActionForm(forms.Form):
     project = forms.CharField(label="Pre-release project name")
     status = forms.ChoiceField(choices=(
             ('accepted', 'accepted'),
-            ('rejected', 'rejected'),
+            ('declined', 'rejected'),
             ), label="Accepted or rejected")
     who = forms.CharField(label="Operator's Email")
     reason = forms.CharField(label="Explanation")
