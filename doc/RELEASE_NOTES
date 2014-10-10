@@ -1,3 +1,25 @@
+Release notes for IRIS 0.2
+============================
+
+- Release Date: 2014-10
+
+- Major features and enhancements added:
+
+  * Task #1458: Design submissions application
+  * Task #1473: Design and verify submission Django models
+  * Task #1474: Produce submissions RESTful API requirements
+  * Task #1693: IRIS submissions UI
+  * Task #1694: Revise models
+  * Task #1826: Pass security check before deployment
+  * Task #1983: Speed up page load time
+  * Task #2082: Write schema migration of submission app
+  * Bug #1793: URL reverse name are wrong
+  * Bug #1814: Code in site-specific.js belongs to submission app
+  * Bug #1821: Undefined name 'messages'
+  * Bug #2036: IRIS online db character set is latin1
+  * Bug #2148: Package building log url is not correct
+  * Feature #2046: Useless installation of mysql-server in production web server
+
 Release notes for IRIS 0.1.4
 ============================
 
