@@ -167,15 +167,9 @@ def package_built(request):
     group = data['project']
     group.populate_status()
 
-    parts = urlparse.urlparse(form.cleaned_data['repo_server'])
-    # FIXME: scheme in repo_server is http
-    # but web page of build server is using https
-    #server = '%s://%s' % (parts.scheme, parts.hostname)
-    server = 'https://%s' % parts.hostname
-
     # FIXME: live repo and log urls can't be accessed anoymously
-    url = guess_live_repo_url(server, group.name, data['repo'])
-    log = guess_build_log_url(server,
+    url = guess_live_repo_url(data['repo_server'], group.name, data['repo'])
+    log = guess_build_log_url(data['repo_server'],
                               group.name, data['name'].name,
                               data['repo'], data['arch'])
 
