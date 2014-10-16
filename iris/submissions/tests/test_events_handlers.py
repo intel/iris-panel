@@ -88,7 +88,7 @@ class EventHandlerTest(TestCase):
                 'repo': 'standard',
                 'arch': 'i586',
                 'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
-                'status': 'success',
+                'status': 'OBS_BUILD_SUCCESS',
                 'repo_server': 'http://build.server',
                 })
         self.assertEquals(200, r.status_code)
@@ -100,7 +100,7 @@ class EventHandlerTest(TestCase):
                 'repo': 'standard',
                 'arch': 'armv7el',
                 'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
-                'status': 'failure',
+                'status': 'OBS_BUILD_FAIL',
                 'repo_server': 'http://build.server',
                 })
         self.assertEquals(200, r.status_code)

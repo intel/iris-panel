@@ -77,7 +77,10 @@ class PackageBuiltForm(forms.Form):
     repo = forms.CharField(label="Building repository name")
     arch = forms.CharField(label="Building architecture")
     project = forms.CharField(label="Pre-release project name")
-    status = forms.CharField(label="Status")
+    status = forms.ChoiceField(choices=(
+            ('OBS_BUILD_SUCCESS', 'SUCCESS'),
+            ('OBS_BUILD_FAIL', 'FAILURE')
+            ), label="Status")
     repo_server = forms.CharField(label="Repository URL")
 
     def clean_name(self):
