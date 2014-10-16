@@ -165,6 +165,7 @@ def package_built(request):
     data = form.cleaned_data
 
     group = data['project']
+    group.save()
     group.populate_status()
 
     # FIXME: live repo and log urls can't be accessed anoymously
@@ -203,7 +204,6 @@ def image_building(request):
     data = form.cleaned_data
 
     group = data['project']
-    group.status = '20_IMGBUILDING'
     group.save()
     group.populate_status()
 
@@ -233,17 +233,14 @@ def image_created(request):
                         status=HTTP_406_NOT_ACCEPTABLE)
 
     data = form.cleaned_data
-    ok = data['status'] == 'SUCCESS'
 
     group = data['project']
-    if not ok:
-        group.status = '25_IMGFAILED'
     group.save()
     group.populate_status()
 
     ibuild = data['name']
     #ibuild.log = data['log']
-    if ok:
+    if data['status'] == 'SUCCESS':
         ibuild.url = data['url']
         ibuild.status = 'SUCCESS'
     else:

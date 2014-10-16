@@ -100,6 +100,16 @@ class PackageBuiltForm(forms.Form):
             return 'SUCCESS'
         return 'FAILURE'
 
+    def clean(self):
+        if 'project' not in self.cleaned_data:
+            return self.cleaned_data
+
+        project = self.cleaned_data['project']
+        status = self.cleaned_data['status']
+        if status == 'FAILURE':
+            project.status = '15_PKGFAILED'
+        return self.cleaned_data
+
 
 class ImageBuildingForm(forms.Form):
 
@@ -114,6 +124,15 @@ class ImageBuildingForm(forms.Form):
             return BuildGroup.objects.get(name=project)
         except BuildGroup.DoesNotExist as err:
             raise ValidationError(str(err))
+
+    def clean(self):
+        if 'project' not in self.cleaned_data:
+            return self.cleaned_data
+
+        project = self.cleaned_data['project']
+        if project.status != '25_IMGFAILED':
+            project.status = '20_IMGBUILDING'
+        return self.cleaned_data
 
 
 class ImageCreatedForm(forms.Form):
@@ -137,16 +156,25 @@ class ImageCreatedForm(forms.Form):
         return 'FAILURE'
 
     def clean(self):
-        data = self.cleaned_data
-        if 'project' in data:
-            try:
-                ibuild = ImageBuild.objects.get(name=data['name'],
-                                                group=data['project'])
-            except ImageBuild.DoesNotExist as err:
-                raise ValidationError(str(err))
-            else:
-                data['name'] = ibuild
-        return data
+        if 'project' not in self.cleaned_data:
+            return self.cleaned_data
+
+        name = self.cleaned_data['name']
+        project = self.cleaned_data['project']
+        status = self.cleaned_data['status']
+
+        try:
+            ibuild = ImageBuild.objects.get(
+                name=name, group=project)
+        except ImageBuild.DoesNotExist as err:
+            raise ValidationError(str(err))
+        else:
+            self.cleaned_data['name'] = ibuild
+
+        if status == 'FAILURE':
+            project.status = '25_IMGFAILED'
+
+        return self.cleaned_data
 
 
 class RepaActionForm(forms.Form):
