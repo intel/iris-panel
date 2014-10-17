@@ -143,12 +143,32 @@ class BuildGroup(models.Model):
     def display_status(self):
         return self.STATUS[self.status]
 
+    def check_packages_status(self):
+        """
+        Check all packages building status
+        """
+        for pbuild in self.packagebuild_set.all():
+            if pbuild.status == 'FAILURE':
+                self.status = '15_PKGFAILED'
+                return
+        self.status = '10_PKGBUILDING'
+
+    def check_images_status(self):
+        """
+        Check all images building status
+        """
+        for ibuild in self.imagebuild_set.all():
+            if ibuild.status == 'FAILURE':
+                self.status = '25_IMGFAILED'
+                return
+        self.status = '20_IMGBUILDING'
+
     def populate_status(self):
         """
         Populate this BuildGroup's status to related Submissions
         """
         for sbuild in self.submissionbuild_set.all():
-            sbuild.submission.set_status(self.status)
+            sbuild.submission.status = self.status
             sbuild.submission.save()
 
     @property
@@ -203,11 +223,6 @@ class Submission(models.Model):
     @property
     def display_status(self):
         return dict(self.STATUS, **BuildGroup.STATUS)[self.status]
-
-    def set_status(self, st):
-        if (self.status == 'SUBMITTED' or
-            st > self.status):
-            self.status = st
 
     class Meta:
         app_label = APP_LABEL

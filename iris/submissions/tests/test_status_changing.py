@@ -76,14 +76,62 @@ class StatusTest(TestCase):
         return Submission.objects.get(
             name=self.tag, gittree__gitpath=self.gitpath)
 
+    def test_package_succeed(self):
+        self.package_built('dlog', True)
+        self.assertEquals('10_PKGBUILDING', self.submission.status)
+
     def test_package_failed(self):
+        self.package_built('dlog', False)
+        self.assertEquals('15_PKGFAILED', self.submission.status)
+
+    def test_package_two_succeed(self):
+        self.package_built('dlog', True)
+        self.package_built('dlog-api', True)
+        self.assertEquals('10_PKGBUILDING', self.submission.status)
+
+    def test_package_two_failed(self):
+        self.package_built('dlog', False)
+        self.package_built('dlog-api', False)
+        self.assertEquals('15_PKGFAILED', self.submission.status)
+
+    def test_package_one_failed_one_succeed(self):
         """
         One package succeed and the other failed, then submission status will be "Package Failed"
         """
         self.package_built('dlog-api', False)
         self.package_built('dlog', True)
-
         self.assertEquals('15_PKGFAILED', self.submission.status)
+
+    def test_package_one_succeed_one_failed(self):
+        self.package_built('dlog-api', True)
+        self.package_built('dlog', False)
+        self.assertEquals('15_PKGFAILED', self.submission.status)
+
+    def test_package_failed_and_then_succeed(self):
+        """
+        One package failed at the first time, but rebuilt succeed.
+        """
+        self.package_built('dlog', False)
+        self.package_built('dlog', True)
+        self.assertEquals('10_PKGBUILDING', self.submission.status)
+
+    def test_package_succeed_and_then_failed(self):
+        self.package_built('dlog', True)
+        self.package_built('dlog', False)
+        self.assertEquals('15_PKGFAILED', self.submission.status)
+
+    def test_package_two_failed_and_then_one_succeed(self):
+        self.package_built('dlog-api', False)
+        self.package_built('dlog', True)
+        self.package_built('dlog', False)
+        self.assertEquals('15_PKGFAILED', self.submission.status)
+
+    def test_package_two_failed_and_then_two_succeed(self):
+        self.package_built('dlog-api', False)
+        self.package_built('dlog', False)
+        self.package_built('dlog', True)
+        self.package_built('dlog-api', True)
+        self.assertEquals('10_PKGBUILDING', self.submission.status)
 
     def test_image_failed(self):
         self.image_building('image1')

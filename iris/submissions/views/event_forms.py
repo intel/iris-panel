@@ -100,16 +100,6 @@ class PackageBuiltForm(forms.Form):
             return 'SUCCESS'
         return 'FAILURE'
 
-    def clean(self):
-        if 'project' not in self.cleaned_data:
-            return self.cleaned_data
-
-        project = self.cleaned_data['project']
-        status = self.cleaned_data['status']
-        if status == 'FAILURE':
-            project.status = '15_PKGFAILED'
-        return self.cleaned_data
-
 
 class ImageBuildingForm(forms.Form):
 
@@ -129,9 +119,15 @@ class ImageBuildingForm(forms.Form):
         if 'project' not in self.cleaned_data:
             return self.cleaned_data
 
-        project = self.cleaned_data['project']
-        if project.status != '25_IMGFAILED':
-            project.status = '20_IMGBUILDING'
+        ibuild, _ = ImageBuild.objects.get_or_create(
+            name=self.cleaned_data['name'],
+            group=self.cleaned_data['project'],
+            )
+        ibuild.status = 'BUILDING'
+        ibuild.repo = self.cleaned_data['repo']
+        ibuild.save()
+        self.cleaned_data['name'] = ibuild
+
         return self.cleaned_data
 
 
@@ -159,21 +155,21 @@ class ImageCreatedForm(forms.Form):
         if 'project' not in self.cleaned_data:
             return self.cleaned_data
 
-        name = self.cleaned_data['name']
-        project = self.cleaned_data['project']
-        status = self.cleaned_data['status']
-
         try:
             ibuild = ImageBuild.objects.get(
-                name=name, group=project)
+                name=self.cleaned_data['name'],
+                group=self.cleaned_data['project'])
         except ImageBuild.DoesNotExist as err:
             raise ValidationError(str(err))
+
+        #ibuild.log = data['log']
+        if self.cleaned_data['status'] == 'SUCCESS':
+            ibuild.url = self.cleaned_data['url']
+            ibuild.status = 'SUCCESS'
         else:
-            self.cleaned_data['name'] = ibuild
+            ibuild.status = 'FAILURE'
 
-        if status == 'FAILURE':
-            project.status = '25_IMGFAILED'
-
+        self.cleaned_data['name'] = ibuild
         return self.cleaned_data
 
 

@@ -163,10 +163,7 @@ def package_built(request):
         return Response({'detail': form.errors.as_text()},
                         status=HTTP_406_NOT_ACCEPTABLE)
     data = form.cleaned_data
-
     group = data['project']
-    group.save()
-    group.populate_status()
 
     # FIXME: live repo and log urls can't be accessed anoymously
     url = guess_live_repo_url(data['repo_server'], group.name, data['repo'])
@@ -183,6 +180,11 @@ def package_built(request):
     pbuild.url = url
     pbuild.log = log
     pbuild.save()
+
+    group.check_packages_status()
+    group.populate_status()
+    group.save()
+
     msg = {'detail': '%s bulit %s' % (data['name'], data['status'])}
     return Response(msg, status=HTTP_200_OK)
 
@@ -202,17 +204,13 @@ def image_building(request):
                         status=HTTP_406_NOT_ACCEPTABLE)
 
     data = form.cleaned_data
+    ibuild, group = data['name'], data['project']
 
-    group = data['project']
-    group.save()
-    group.populate_status()
-
-    ibuild, _ = ImageBuild.objects.get_or_create(
-        name=data['name'],
-        group=group)
-    ibuild.status = 'BUILDING'
-    ibuild.repo = data['repo']
     ibuild.save()
+    group.check_images_status()
+    group.populate_status()
+    group.save()
+
     return Response({'detail': 'Image started to build'},
                     status=HTTP_200_OK)
 
@@ -233,19 +231,13 @@ def image_created(request):
                         status=HTTP_406_NOT_ACCEPTABLE)
 
     data = form.cleaned_data
+    ibuild, group= data['name'], data['project']
 
-    group = data['project']
-    group.save()
-    group.populate_status()
-
-    ibuild = data['name']
-    #ibuild.log = data['log']
-    if data['status'] == 'SUCCESS':
-        ibuild.url = data['url']
-        ibuild.status = 'SUCCESS'
-    else:
-        ibuild.status = 'FAILURE'
     ibuild.save()
+    group.check_images_status()
+    group.populate_status()
+    group.save()
+
     return Response({'detail': 'Image created %s' % data['status']},
                     status=HTTP_200_OK)
 
