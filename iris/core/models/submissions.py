@@ -54,7 +54,7 @@ class PackageBuild(models.Model):
         return self.STATUS[self.status]
 
     def __unicode__(self):
-        return self.status
+        return u'%s: %s' % (unicode(self.package), self.status)
 
     class Meta:
         app_label = APP_LABEL
@@ -86,7 +86,7 @@ class ImageBuild(models.Model):
         return self.STATUS[self.status]
 
     def __unicode__(self):
-        return self.status
+        return u'%s: %s' % (self.name, self.status)
 
     class Meta:
         app_label = APP_LABEL
