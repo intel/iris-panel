@@ -1,3 +1,15 @@
+Release notes for IRIS 0.2.1
+============================
+
+- Release Date: 2014-10
+
+- Major features and enhancements added:
+
+  * Bug #2148: Package building log url is not correct
+  * Bug #2157: Status for packages and images building appears wrong in iris web page.
+  * Bug #2163: set build status failed when accept status is OBS_BUILD_UNCHANGED
+  * Bug #2179: Internal Server Error: /app/packagedb/subdomains/
+
 Release notes for IRIS 0.2
 ============================
 
