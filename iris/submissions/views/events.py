@@ -105,7 +105,6 @@ def pre_created(request):
     data = form.cleaned_data
 
     group = data['project']
-    group.populate_status()
 
     build = SubmissionBuild(
         submission=data['submission'],
@@ -117,6 +116,8 @@ def pre_created(request):
         if err.args[0] == DUP_ENTRY:
             return Response({'detail': str(err)}, status=HTTP_202_ACCEPTED)
         raise
+
+    group.populate_status()
     return Response({'detail': 'Pre-release project created'},
                     status=HTTP_201_CREATED)
 

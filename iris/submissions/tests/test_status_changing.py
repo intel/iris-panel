@@ -13,6 +13,8 @@ class StatusTest(TestCase):
     url = '/api/submissions/events/%s/'
 
     gitpath = 'framework/system/dlog'
+    another_gitpath= 'platform/upstream/bluez'
+
     tag = 'submit/trunk/yyyy-mm-dd'
     project = 'home:prerelease:tizen:ivi:submit:trunk:01'
 
@@ -21,21 +23,29 @@ class StatusTest(TestCase):
         Create a submission tag and pre-release project
         """
         self.login()
+        self.submitted(self.gitpath, self.tag)
+        self.pre_created(self.gitpath, self.tag)
+
+
+    def login(self, user='robot', pwd='robot'):
+        assert self.client.login(username=user, password=pwd)
+
+    def submitted(self, gitpath, tag):
         self.client.post(self.url % 'submitted', {
-                'gitpath': self.gitpath,
-                'tag': self.tag,
+                'gitpath': gitpath,
+                'tag': tag,
                 'commit_id': 'sha1',
                 'submitter_email': 'someone@localhost',
                 })
+
+    def pre_created(self, gitpath, tag):
         self.client.post(self.url % 'pre_created', {
-                'gitpath': self.gitpath,
-                'tag': self.tag,
+                'gitpath': gitpath,
+                'tag': tag,
                 'product': 'Tizen:IVI',
                 'project': self.project,
                 })
 
-    def login(self, user='robot', pwd='robot'):
-        assert self.client.login(username=user, password=pwd)
 
     def package_built(self, package, is_success):
         """
@@ -71,28 +81,28 @@ class StatusTest(TestCase):
                 'url': 'http://url1.com',
                 })
 
-    @property
-    def submission(self):
+
+    def submission(self, tag, gitpath):
         return Submission.objects.get(
-            name=self.tag, gittree__gitpath=self.gitpath)
+            name=tag, gittree__gitpath=gitpath)
 
     def test_package_succeed(self):
         self.package_built('dlog', True)
-        self.assertEquals('10_PKGBUILDING', self.submission.status)
+        self.assertEquals('10_PKGBUILDING', self.submission(tag=self.tag, gitpath=self.gitpath).status)
 
     def test_package_failed(self):
         self.package_built('dlog', False)
-        self.assertEquals('15_PKGFAILED', self.submission.status)
+        self.assertEquals('15_PKGFAILED', self.submission(tag=self.tag, gitpath=self.gitpath).status)
 
     def test_package_two_succeed(self):
         self.package_built('dlog', True)
         self.package_built('dlog-api', True)
-        self.assertEquals('10_PKGBUILDING', self.submission.status)
+        self.assertEquals('10_PKGBUILDING', self.submission(tag=self.tag, gitpath=self.gitpath).status)
 
     def test_package_two_failed(self):
         self.package_built('dlog', False)
         self.package_built('dlog-api', False)
-        self.assertEquals('15_PKGFAILED', self.submission.status)
+        self.assertEquals('15_PKGFAILED', self.submission(tag=self.tag, gitpath=self.gitpath).status)
 
     def test_package_one_failed_one_succeed(self):
         """
@@ -100,12 +110,12 @@ class StatusTest(TestCase):
         """
         self.package_built('dlog-api', False)
         self.package_built('dlog', True)
-        self.assertEquals('15_PKGFAILED', self.submission.status)
+        self.assertEquals('15_PKGFAILED', self.submission(tag=self.tag, gitpath=self.gitpath).status)
 
     def test_package_one_succeed_one_failed(self):
         self.package_built('dlog-api', True)
         self.package_built('dlog', False)
-        self.assertEquals('15_PKGFAILED', self.submission.status)
+        self.assertEquals('15_PKGFAILED', self.submission(tag=self.tag, gitpath=self.gitpath).status)
 
     def test_package_failed_and_then_succeed(self):
         """
@@ -113,25 +123,25 @@ class StatusTest(TestCase):
         """
         self.package_built('dlog', False)
         self.package_built('dlog', True)
-        self.assertEquals('10_PKGBUILDING', self.submission.status)
+        self.assertEquals('10_PKGBUILDING', self.submission(tag=self.tag, gitpath=self.gitpath).status)
 
     def test_package_succeed_and_then_failed(self):
         self.package_built('dlog', True)
         self.package_built('dlog', False)
-        self.assertEquals('15_PKGFAILED', self.submission.status)
+        self.assertEquals('15_PKGFAILED', self.submission(tag=self.tag, gitpath=self.gitpath).status)
 
     def test_package_two_failed_and_then_one_succeed(self):
         self.package_built('dlog-api', False)
         self.package_built('dlog', True)
         self.package_built('dlog', False)
-        self.assertEquals('15_PKGFAILED', self.submission.status)
+        self.assertEquals('15_PKGFAILED', self.submission(tag=self.tag, gitpath=self.gitpath).status)
 
     def test_package_two_failed_and_then_two_succeed(self):
         self.package_built('dlog-api', False)
         self.package_built('dlog', False)
         self.package_built('dlog', True)
         self.package_built('dlog-api', True)
-        self.assertEquals('10_PKGBUILDING', self.submission.status)
+        self.assertEquals('10_PKGBUILDING', self.submission(tag=self.tag, gitpath=self.gitpath).status)
 
     def test_image_failed(self):
         self.image_building('image1')
@@ -140,4 +150,22 @@ class StatusTest(TestCase):
         self.image_created('image1', True)
         self.image_created('image2', False)
 
-        self.assertEquals('25_IMGFAILED', self.submission.status)
+        self.assertEquals('25_IMGFAILED', self.submission(tag=self.tag, gitpath=self.gitpath).status)
+
+    def test_two_gittree_asubmitted(self):
+        self.submitted(self.gitpath, 'tag2')
+        self.assertEquals('SUBMITTED',
+                        self.submission(tag='tag2', gitpath=self.gitpath).status)
+        self.submitted(self.another_gitpath, 'tag2')
+        self.assertEquals('SUBMITTED',
+                        self.submission(tag='tag2', gitpath=self.another_gitpath).status)
+
+    def test_two_gittree_pre_cretaed(self):
+        self.submitted(self.gitpath, 'tag2')
+        self.submitted(self.another_gitpath, 'tag2')
+        self.pre_created(self.gitpath, 'tag2')
+        self.assertEquals('10_PKGBUILDING',
+                          self.submission(tag='tag2', gitpath=self.gitpath).status)
+        self.pre_created(self.another_gitpath, 'tag2')
+        self.assertEquals('10_PKGBUILDING',
+                          self.submission(tag='tag2', gitpath=self.another_gitpath).status)
