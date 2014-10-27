@@ -68,7 +68,7 @@ def rejected(request):
     """
     res = Submission.objects.filter(status='36_REJECTED')
     return render(request, 'submissions/summary.html', {
-            'title': 'All rejeted submissions',
+            'title': 'All rejected submissions',
             'results': SubmissionGroup.group(res),
             })
 
