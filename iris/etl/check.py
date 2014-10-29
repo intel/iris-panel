@@ -62,7 +62,7 @@ def check_domain(domains_data):
             error("(DOMAINS): Lack of DOMAIN in block %s" % block_num)
             continue
         elif len(domain) > 1:
-            error("(DOMAINS): Multi domain names: %s" % domain)
+            error("(DOMAINS): Multi domain names: %s defined in a block" % domain)
             continue
 
         domain = domain[0]
@@ -112,7 +112,7 @@ def check_gittree(trees_data, domains):
             error("(TREE): Lack of TREE PATH in block %s" % block_num)
             continue
         elif len(tree) > 1:
-            error("(TREE): Multi tree pathes: %s" % tree)
+            error("(TREE): Multi tree pathes: %s defined in a block" % tree)
             continue
         tree = tree[0]
         if tree in pathes:
@@ -124,7 +124,7 @@ def check_gittree(trees_data, domains):
             error("(TREE): Lack of DOMAIN for git tree %s" % tree)
             continue
         elif len(domain) > 1:
-            error("(TREE): Multi DOMAIN for git tree %s" % tree)
+            error("(TREE): Multi DOMAIN defined for git tree %s" % tree)
             continue
         domain = domain[0]
         if domain not in domains:
