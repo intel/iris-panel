@@ -115,21 +115,6 @@ class ImageBuildingForm(forms.Form):
         except BuildGroup.DoesNotExist as err:
             raise ValidationError(str(err))
 
-    def clean(self):
-        if 'project' not in self.cleaned_data:
-            return self.cleaned_data
-
-        ibuild, _ = ImageBuild.objects.get_or_create(
-            name=self.cleaned_data['name'],
-            group=self.cleaned_data['project'],
-            )
-        ibuild.status = 'BUILDING'
-        ibuild.repo = self.cleaned_data['repo']
-        ibuild.save()
-        self.cleaned_data['name'] = ibuild
-
-        return self.cleaned_data
-
 
 class ImageCreatedForm(forms.Form):
 

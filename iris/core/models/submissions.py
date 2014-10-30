@@ -56,6 +56,12 @@ class PackageBuild(models.Model):
     def __unicode__(self):
         return u'%s: %s' % (unicode(self.package), self.status)
 
+    def natural_key(self):
+        return self.package.natural_key() + (
+            self.repo,
+            self.arch,
+            ) + self.group.natural_key()
+
     class Meta:
         app_label = APP_LABEL
         unique_together = ('package', 'repo', 'arch', 'group')
@@ -87,6 +93,9 @@ class ImageBuild(models.Model):
 
     def __unicode__(self):
         return u'%s: %s' % (self.name, self.status)
+
+    def natural_key(self):
+        return (self.name,) + self.group.natural_key()
 
     class Meta:
         app_label = APP_LABEL
@@ -143,33 +152,50 @@ class BuildGroup(models.Model):
     def display_status(self):
         return self.STATUS[self.status]
 
-    def check_packages_status(self):
+    def check_packages_status(self, packagebuild):
         """
         Check all packages building status
+        Argument `packagebuild` is the newest comming package build
         """
-        for pbuild in self.packagebuild_set.all():
-            if pbuild.status == 'FAILURE':
-                self.status = '15_PKGFAILED'
-                return
-        self.status = '10_PKGBUILDING'
+        sts = {pbuild.natural_key(): pbuild.status
+               for pbuild in self.packagebuild_set.all()}
+        sts[packagebuild.natural_key()] = packagebuild.status
 
-    def check_images_status(self):
+        if any([i == 'FAILURE' for i in sts.values()]):
+            final = '15_PKGFAILED'
+        else:
+            final = '10_PKGBUILDING'
+
+        if self.status != final:
+            self.status = final
+            self.save()
+
+    def check_images_status(self, imagebuild):
         """
         Check all images building status
+        Argument `status` is the newest comming image status
         """
-        for ibuild in self.imagebuild_set.all():
-            if ibuild.status == 'FAILURE':
-                self.status = '25_IMGFAILED'
-                return
-        self.status = '20_IMGBUILDING'
+        sts = {ibuild.natural_key(): ibuild.status
+               for ibuild in self.imagebuild_set.all()}
+        sts[imagebuild.natural_key()] = imagebuild.status
+
+        if any([i == 'FAILURE' for i in sts.values()]):
+            final = '25_IMGFAILED'
+        else:
+            final = '20_IMGBUILDING'
+
+        if self.status != final:
+            self.status = final
+            self.save()
 
     def populate_status(self):
         """
         Populate this BuildGroup's status to related Submissions
         """
-        for sbuild in self.submissionbuild_set.all():
-            sbuild.submission.status = self.status
-            sbuild.submission.save()
+        for sbuild in self.submissionbuild_set.all().order_by('id'):
+            if sbuild.submission.status != self.status:
+                sbuild.submission.status = self.status
+                sbuild.submission.save()
 
     @property
     def product(self):
@@ -178,6 +204,9 @@ class BuildGroup(models.Model):
         othewise they can be put into a build group to build.
         """
         return self.submissionbuild_set.all()[:1].get().product
+
+    def natural_key(self):
+        return (self.name,)
 
     class Meta:
         app_label = APP_LABEL

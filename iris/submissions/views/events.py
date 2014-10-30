@@ -2,14 +2,13 @@
 View functions to handler submission events
 """
 import sys
-import urlparse
 import urllib
+import logging
 import datetime
 
-from MySQLdb.constants.ER import DUP_ENTRY
+from MySQLdb.constants.ER import DUP_ENTRY, LOCK_DEADLOCK
 
-from django.db import IntegrityError
-from django.db.transaction import atomic
+from django.db import IntegrityError, OperationalError, transaction
 from django.contrib.auth.decorators import permission_required
 
 from rest_framework.status import (
@@ -32,9 +31,10 @@ from iris.submissions.views.event_forms import (
 # E1002: 78,4:PreCreatedForm.clean: Use of super on an old style class
 # R0903: 90,0:ImageBuildingForm: Too few public methods (1/2)
 
+logger = logging.getLogger(__name__)
+
 PUBLISH_EVENTS_PERM = 'core.publish_events'
 
-@atomic
 @api_view(["POST"])
 @permission_required(PUBLISH_EVENTS_PERM, raise_exception=True)
 def events_handler(request, typ):
@@ -54,7 +54,18 @@ def events_handler(request, typ):
     if not handler:
         return Response({'detail': 'Unknown event type'},
                         status=HTTP_406_NOT_ACCEPTABLE)
-    return handler(request)
+    try:
+        with transaction.atomic():
+            return handler(request)
+    except OperationalError as err:
+        if err.args[0] != LOCK_DEADLOCK:
+            raise
+        # refs: http://dev.mysql.com/doc/refman/5.5/en/innodb-deadlocks.html
+        # Always be prepared to re-issue a transaction if it fails due to
+        # deadlock. Deadlocks are not dangerous. Just try again.
+        logger.warn("Deadlock found, try again: %s" % str(err))
+        with transaction.atomic():
+            return handler(request)
 
 
 def submitted(request):
@@ -165,27 +176,39 @@ def package_built(request):
                         status=HTTP_406_NOT_ACCEPTABLE)
     data = form.cleaned_data
     group = data['project']
+    # Have to save group.status before creating a new record in PackageBuild,
+    # otherwise deadlock may be raised. Since PackageBuild.group_id is a
+    # foreign key to BuildGroup.id, when insert a new record to PackageBuild,
+    # MSYQL trys to add a shared lock on BuildGroup's corresponding row.
+    # refs: http://dev.mysql.com/doc/refman/5.5/en/innodb-foreign-key-constraints.html
+    group.check_packages_status(PackageBuild(
+            package=data['name'],
+            repo=data['repo'],
+            arch=data['arch'],
+            group=group,
+            status=data['status']))
 
-    # FIXME: live repo and log urls can't be accessed anoymously
     url = guess_live_repo_url(data['repo_server'], group.name, data['repo'])
     log = guess_build_log_url(data['repo_server'],
                               group.name, data['name'].name,
                               data['repo'], data['arch'])
-
-    pbuild, _ = PackageBuild.objects.get_or_create(
+    pbuild, created = PackageBuild.objects.get_or_create(
         package=data['name'],
         repo=data['repo'],
         arch=data['arch'],
-        group=group)
-    pbuild.status = data['status']
-    pbuild.url = url
-    pbuild.log = log
-    pbuild.save()
+        group=group,
+        defaults={
+            'status': data['status'],
+            'url': url,
+            'log': log,
+            })
+    if not created:
+        pbuild.status = data['status']
+        pbuild.url = url
+        pbuild.log = log
+        pbuild.save()
 
-    group.check_packages_status()
     group.populate_status()
-    group.save()
-
     msg = {'detail': '%s bulit %s' % (data['name'], data['status'])}
     return Response(msg, status=HTTP_200_OK)
 
@@ -205,13 +228,22 @@ def image_building(request):
                         status=HTTP_406_NOT_ACCEPTABLE)
 
     data = form.cleaned_data
-    ibuild, group = data['name'], data['project']
+    group = data['project']
 
-    ibuild.save()
-    group.check_images_status()
+    group.check_images_status(ImageBuild(
+            name=data['name'],
+            group=group,
+            status='BUILDING'))
+
+    ImageBuild.objects.get_or_create(
+        name=data['name'],
+        group=data['project'],
+        defaults={
+            'status': 'BUILDING',
+            'repo': data['repo'],
+            })
+
     group.populate_status()
-    group.save()
-
     return Response({'detail': 'Image started to build'},
                     status=HTTP_200_OK)
 
@@ -234,11 +266,9 @@ def image_created(request):
     data = form.cleaned_data
     ibuild, group= data['name'], data['project']
 
+    group.check_images_status(ibuild)
     ibuild.save()
-    group.check_images_status()
     group.populate_status()
-    group.save()
-
     return Response({'detail': 'Image created %s' % data['status']},
                     status=HTTP_200_OK)
 
