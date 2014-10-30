@@ -21,6 +21,7 @@ import logging
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.transaction import atomic
+from django.core.cache import cache
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -49,6 +50,7 @@ def update(request):
             scm_str = ''.join([domains_str, os.linesep, os.linesep,
                                gittrees_str])
             scm.from_string(scm_str)
+            cache.clear()
             detail = 'Successful!'
             code = status.HTTP_200_OK
         else:

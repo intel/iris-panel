@@ -24,6 +24,8 @@ if PROJECT not in sys.path:
 # Add Django settings for the sake of imports
 os.environ['DJANGO_SETTINGS_MODULE'] = 'iris.core.settings'
 
+from django.core.cache import cache
+
 from iris.etl import scm
 
 def main():
@@ -38,6 +40,9 @@ def main():
     print('Starting package data update...')
     transaction.set_autocommit(False)
     scm.from_file(args.domain, args.gittree)
+    # note: cache.clear() must located in transaction, because without commit,
+    # the clear method doesn't work for database backend
+    cache.clear()
     transaction.commit()
 
 if __name__ == '__main__':
