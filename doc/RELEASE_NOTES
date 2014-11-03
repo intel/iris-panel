@@ -1,3 +1,14 @@
+Release notes for IRIS 0.2.2
+============================
+
+- Release Date: 2014-11
+
+- Major features and enhancements added:
+
+  * Bug #2180: Status of 'Package building' in Submission changes differently
+  * Bug #2192: OperationalError: (1213, 'Deadlock found when trying to get lock; try restarting transaction’) with MYSQL DB
+  * Feature #2155: Change the scm check error message
+
 Release notes for IRIS 0.2.1
 ============================
 
