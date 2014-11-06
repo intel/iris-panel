@@ -29,15 +29,6 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 INTERNAL_IPS = ('127.0.0.1', 'localhost')
 
-ADMINS = (
-    ('Eduard Bartosh', 'eduard.bartosh@intel.com'),
-    ('Hao Huang', 'hao.h.huang@intel.com'),
-    ('Jing-Fiang Deng', 'jian-feng.ding@intel.com'),
-    ('Gao XueSong', 'xuesongx.gao@intel.com'),
-)
-
-MANAGERS = ADMINS
-
 SQLITE_DB_FILE = path.join(path.expanduser('~'), '.cache', 'iris.db')
 
 DATABASES = {
