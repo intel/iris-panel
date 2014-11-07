@@ -19,7 +19,7 @@
 
 Name:           iris
 Summary:        Infrastructure and Release Information System
-Version:        0.2.2
+Version:        0.2.3
 
 %if 0%{?opensuse_bs}
 Release:        0.dev.<CI_CNT>.<B_CNT>
