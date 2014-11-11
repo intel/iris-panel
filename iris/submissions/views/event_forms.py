@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from iris.core.models import (
     GitTree, Product, Package,
-    Submission, BuildGroup, ImageBuild,
+    Submission, BuildGroup, ImageBuild, SubmissionBuild,
     )
 
 # pylint: disable=C0111,E1101,W0232,E1002,R0903
@@ -68,7 +68,18 @@ class PreCreatedForm(forms.Form):
             raise forms.ValidationError(err)
         else:
             data['submission'] = sub
-        return data
+            # make sure only one product related with one pre-release project
+            if 'product' in data and 'project' in data:
+                product = data['product']
+                project = data['project']
+                smbs = SubmissionBuild.objects.filter(submission__name=sub.name,
+                                                    group=project)
+                if len(smbs) > 0 and smbs[0].product != product:
+                    raise forms.ValidationError(
+                        "product must be the same in one pre-release project"
+                    )
+
+            return data
 
 
 class PackageBuiltForm(forms.Form):

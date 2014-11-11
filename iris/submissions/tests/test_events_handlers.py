@@ -81,6 +81,74 @@ class EventHandlerTest(TestCase):
                 })
         self.assertEquals(406, r.status_code)
 
+    def test_pre_created_with_same_product_in_one_project(self):
+        gittrees = ['platform/upstream/bluez', 'framework/system/dlog']
+        for gittree in gittrees:
+            self.login()
+            self.client.post(self.url % 'submitted', {
+                'gitpath': gittree,
+                'tag': 'submit/trunk/product-same',
+                'commit_id': 'sha1',
+                'submitter_email': 'someone@localhost',
+                })
+            r = self.client.post(self.url % 'pre_created', {
+                'gitpath': gittree,
+                'tag': 'submit/trunk/product-same',
+                'product': 'Tizen:IVI',
+                'project': 'home:prerelease:tizen:ivi:submit:trunk:same',
+                })
+        self.assertEquals(201, r.status_code)
+
+    def test_pre_created_with_different_product_in_one_project(self):
+        gittrees = ['platform/upstream/bluez', 'framework/system/dlog']
+        for gittree in gittrees:
+            self.login()
+            self.client.post(self.url % 'submitted', {
+                'gitpath': gittree,
+                'tag': 'submit/trunk/product-different',
+                'commit_id': 'sha1',
+                'submitter_email': 'someone@localhost',
+                })
+        self.client.post(self.url % 'pre_created', {
+           'gitpath': gittrees[0],
+           'tag': 'submit/trunk/product-different',
+           'product': 'Tizen:IVI',
+           'project': 'home:prerelease:tizen:ivi:submit:trunk:different',
+        })
+
+        r = self.client.post(self.url % 'pre_created', {
+           'gitpath': gittrees[0],
+           'tag': 'submit/trunk/product-different',
+           'product': 'Tizen:Common',
+           'project': 'home:prerelease:tizen:ivi:submit:trunk:different',
+        })
+        self.assertEquals(406, r.status_code)
+
+    def test_pre_created_with_different_product_in_different_project(self):
+        gittrees = ['platform/upstream/bluez', 'framework/system/dlog']
+        for gittree in gittrees:
+            self.login()
+            self.client.post(self.url % 'submitted', {
+                'gitpath': gittree,
+                'tag': 'submit/trunk/product-different',
+                'commit_id': 'sha1',
+                'submitter_email': 'someone@localhost',
+                })
+        self.client.post(self.url % 'pre_created', {
+           'gitpath': gittrees[0],
+           'tag': 'submit/trunk/product-different',
+           'product': 'Tizen:IVI',
+           'project': 'home:prerelease:tizen:ivi:submit:trunk:different-1',
+        })
+
+        r = self.client.post(self.url % 'pre_created', {
+           'gitpath': gittrees[0],
+           'tag': 'submit/trunk/product-different',
+           'product': 'Tizen:Common',
+           'project': 'home:prerelease:tizen:ivi:submit:trunk:different-2',
+        })
+        self.assertEquals(201, r.status_code)
+
     def test_package_built_succeeded(self):
         self.login()
         r = self.client.post(self.url % 'package_built', {
