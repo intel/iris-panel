@@ -139,8 +139,7 @@ class BuildGroup(models.Model):
         max_length=255, db_index=True, blank=True, null=True)
     operated_on = models.DateTimeField(blank=True, null=True)
     operate_reason = models.TextField()
-
-    snapshot = models.URLField()
+    snapshot = models.ForeignKey('Snapshot', blank=True, null=True)
 
     # TODO: obs pre-release project url
     # url = models.URLField()
@@ -358,3 +357,20 @@ class SubmissionGroup(object):
     @property
     def count(self):
         return len(self.subs)
+
+
+class Snapshot(models.Model):
+
+    product = models.ForeignKey('Product')
+    buildid= models.CharField(max_length=128)
+    started_time = models.DateTimeField()
+    finished_time = models.DateTimeField(blank=True, null=True)
+    url = models.URLField(max_length=512, blank=True, null=True)
+    daily_url = models.URLField(max_length=512, blank=True, null=True,
+                                db_index=True)
+    weekly_url = models.URLField(max_length=512, blank=True, null=True,
+                                db_index=True)
+
+    class Meta:
+        app_label = APP_LABEL
+        unique_together = ('product', 'buildid')
