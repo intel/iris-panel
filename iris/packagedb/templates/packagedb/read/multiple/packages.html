@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load cache %}
 {% block title %}IRIS - Package list{% endblock %}
 {% block content %}
 <div class="container">
@@ -22,6 +23,7 @@
         </div>
     </div>
     <div class="row">
+      {% cache cache_seconds pack_table %}
       <table class="table table-striped table-bordered">
         <thead>
           <tr>
@@ -44,6 +46,7 @@
           {% endfor %}
         </tbody>
       </table>
+      {% endcache %}
     </div>
 </div>
 {% endblock %}

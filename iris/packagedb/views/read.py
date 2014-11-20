@@ -17,8 +17,6 @@ Views for listing single and multiple item info is contained here.
 # pylint: disable=E1101,C0111,W0622
 
 from django.shortcuts import render, get_object_or_404
-from django.views.decorators.csrf import csrf_protect
-from django.views.decorators.cache import cache_page
 from django.conf import settings
 
 from iris.core.models import (Domain, SubDomain, License, GitTree, Package,
@@ -62,8 +60,6 @@ def license(request, pkid=None):
                 {'licenses': License.objects.all()})
 
 
-@cache_page(settings.CACHE_MIDDLEWARE_SECONDS)
-@csrf_protect
 def gittree(request, pkid=None):
     if pkid:
         _gittree = inject_gittree(get_object_or_404(GitTree, id=pkid))
@@ -74,20 +70,22 @@ def gittree(request, pkid=None):
             'subdomain', 'subdomain__domain'
             ).all().prefetch_related(
             'role_set', 'role_set__user_set')
-        return render(request, 'packagedb/read/multiple/gittrees.html',
-                {'gittrees': _gittrees})
+        return render(request, 'packagedb/read/multiple/gittrees.html', {
+            'gittrees': _gittrees,
+            'cache_seconds': settings.CACHE_MIDDLEWARE_SECONDS,
+        })
 
 
-@cache_page(settings.CACHE_MIDDLEWARE_SECONDS)
-@csrf_protect
 def package(request, pkid=None):
     if pkid:
         return render(request, 'packagedb/read/single/package.html',
                 {'package': get_object_or_404(Package, id=pkid)})
     else:
         packs = Package.objects.select_related('gittree_set').all()
-        return render(request, 'packagedb/read/multiple/packages.html',
-                {'packages': packs})
+        return render(request, 'packagedb/read/multiple/packages.html', {
+            'packages': packs,
+            'cache_seconds': settings.CACHE_MIDDLEWARE_SECONDS,
+        })
 
 
 def product(request, pkid=None):
