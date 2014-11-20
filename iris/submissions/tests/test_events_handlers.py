@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 from iris.core.models import (
     Domain, SubDomain, GitTree, Product,
-    Submission,
+    Submission, Snapshot
     )
 
 
@@ -243,3 +243,15 @@ class EventHandlerTest(TestCase):
                 'reason': "Errors found in QA tests",
                 })
         self.assertEquals(200, r.status_code)
+
+    def test_snapshot_start(self):
+        self.login()
+        r = self.client.post(self.url % 'snapshot_start', {
+                'project': 'Tizen:IVI',
+                'buildid': 'tizen-ivi_20141107.5',
+                'started_time': '2014-10-30 13:34:15'
+
+                })
+        self.assertEquals(200, r.status_code)
+        Snapshot.objects.get(product__name='Tizen:IVI',
+                            buildid='tizen-ivi_20141107.5')

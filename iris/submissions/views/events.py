@@ -8,6 +8,7 @@ import datetime
 
 from MySQLdb.constants.ER import DUP_ENTRY, LOCK_DEADLOCK
 
+from django.utils import timezone
 from django.db import IntegrityError, OperationalError, transaction
 from django.contrib.auth.decorators import permission_required
 
@@ -19,12 +20,12 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from iris.core.models import (
-    Submission, SubmissionBuild, ImageBuild, PackageBuild,
+    Submission, SubmissionBuild, ImageBuild, PackageBuild, Snapshot
     )
 from iris.submissions.views.event_forms import (
     SubmittedForm, PreCreatedForm, PackageBuiltForm,
     ImageBuildingForm, ImageCreatedForm, RepaActionForm,
-    )
+    SnapshotStartForm,)
 
 # pylint: disable=C0111,E1101,W0703,W0232,E1002,R0903,C0103
 # W0232: 25,0:SubmittedForm: Class has no __init__ method
@@ -48,6 +49,7 @@ def events_handler(request, typ):
         'image_building': image_building,
         'image_created': image_created,
         'repa_action': repa_action,
+        'snapshot_start': snapshot_start,
         }
     print >> sys.stderr, 'events|%s|%s' % (request.path, request.POST.items())
     handler = handlers.get(typ)
@@ -292,10 +294,25 @@ def repa_action(request):
     group = data['project']
     group.status = data['status']
     group.operator = data['who'].strip()
-    group.operated_on = datetime.datetime.now()
+    # since enabled timezone support, here it should get aware datetime
+    group.operated_on = timezone.now()
     group.operate_reason = data['reason'].strip()
     group.save()
     group.populate_status()
 
     return Response({'detail': 'Action %s received' % data['status']},
+                    status=HTTP_200_OK)
+
+
+def snapshot_start(request):
+    form = SnapshotStartForm(request.POST)
+    if not form.is_valid():
+        return Response({'detail': form.errors.as_text()},
+                        status=HTTP_406_NOT_ACCEPTABLE)
+    data = form.cleaned_data
+    Snapshot.objects.create(buildid=data['buildid'],
+                            started_time=data['started_time'],
+                            product=data['project'])
+
+    return Response({'detail': 'Action snapshot start received'},
                     status=HTTP_200_OK)

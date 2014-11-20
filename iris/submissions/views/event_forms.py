@@ -190,3 +190,16 @@ class RepaActionForm(forms.Form):
         if self.cleaned_data['status'] == 'accepted':
             return '33_ACCEPTED'
         return '36_REJECTED'
+
+
+class SnapshotStartForm(forms.Form):
+    buildid = forms.CharField(label="build id")
+    started_time = forms.DateTimeField()
+    project= forms.CharField(label="Target project name")
+
+    def clean_project(self):
+        project = self.cleaned_data['project']
+        try:
+            return Product.objects.get(name=project)
+        except Product.DoesNotExist as err:
+            raise forms.ValidationError(str(err))
