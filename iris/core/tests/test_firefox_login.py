@@ -58,21 +58,19 @@ class FirefoxLoginTest(LiveServerTestCase):
 
     def test_login_navbar(self):
         self.driver.get(self.live_server_url)
-        name_ele = self.driver.find_element_by_name("username");
+        sign_in_link = self.driver.find_element_by_link_text("Sign in")
+        sign_in_link.click()
+        name_ele = self.driver.find_element_by_id("id_login_username");
         name_ele.send_keys('test')
-        pass_ele = self.driver.find_element_by_name("password");
+        pass_ele = self.driver.find_element_by_id("id_login_password");
         pass_ele.send_keys('test')
-        sign_in_ele = self.driver.find_element_by_css_selector("#navbar-collapse button.btn.btn-default")
-        self.assertEqual(sign_in_ele.text.lower().strip(), 'sign in')
-        sign_in_ele.submit()
+        login_ele = self.driver.find_element_by_id("login-button");
+        login_ele.submit()
         login_user_ele = self.driver.find_element_by_css_selector("#navbar-collapse p.navbar-text.navbar-right")
         self.assertIn('test', login_user_ele.text)
         sign_out_ele = self.driver.find_element_by_css_selector("#navbar-collapse button.btn.btn-default")
         self.assertEqual(sign_out_ele.text.lower().strip(), 'sign out')
         sign_out_ele.submit()
-        sign_in_ele = self.driver.find_element_by_css_selector("#navbar-collapse button.btn.btn-default")
-        self.assertEqual(sign_in_ele.text.lower().strip(), 'sign in')
-
 
 if __name__ == '__main__':
      unittest.main()

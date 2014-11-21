@@ -70,7 +70,7 @@ def login_view(request):
     Returns login at '/login' and logs user in from POST.
     """
 
-    redirect_url = request.REQUEST.get('next', '') or '/'
+    redirect_url = request.REQUEST.get('next') or request.META.get('HTTP_REFERER') or '/'
 
     if request.POST:
         try:
