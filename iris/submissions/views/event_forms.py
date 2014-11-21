@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from iris.core.models import (
     GitTree, Product, Package,
     Submission, BuildGroup, ImageBuild, SubmissionBuild,
+    Snapshot
     )
 
 # pylint: disable=C0111,E1101,W0232,E1002,R0903
@@ -203,3 +204,30 @@ class SnapshotStartForm(forms.Form):
             return Product.objects.get(name=project)
         except Product.DoesNotExist as err:
             raise forms.ValidationError(str(err))
+
+
+class SnapshotFinishedForm(forms.Form):
+    buildid = forms.CharField(label="build id")
+    finished_time = forms.DateTimeField()
+    project= forms.CharField(label="Target project name")
+    url = forms.URLField(label="Snapshot URL")
+
+    def clean_project(self):
+        project = self.cleaned_data['project']
+        try:
+            return Product.objects.get(name=project)
+        except Product.DoesNotExist as err:
+            raise forms.ValidationError(str(err))
+
+    def clean(self):
+        if 'buildid' in self.cleaned_data and 'project' in self.cleaned_data:
+            buildid = self.cleaned_data['buildid']
+            product = self.cleaned_data['project']
+            try:
+                Snapshot.objects.get(product=product, buildid=buildid)
+            except Snapshot.DoesNotExist as err:
+                raise forms.ValidationError(
+                "No matched snapshot start for snpshot finish with buildid:\
+ %s, project: %s" % (buildid, product.name)
+            )
+        return self.cleaned_data

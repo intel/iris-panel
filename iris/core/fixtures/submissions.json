@@ -26,6 +26,33 @@
   }
 },
 {
+  "pk": 3,
+  "model": "core.submission",
+  "fields": {
+    "name": "submit/trunk/03",
+    "commit": "sha1-1",
+    "gittree": ["framework/system/dlog"],
+    "owner": ["alice"],
+    "status": "SUBMITTED",
+    "created": "2014-08-21T00:00:01Z",
+    "updated": "2014-08-21T00:00:01Z"
+  }
+},
+{
+  "pk": 4,
+  "model": "core.submission",
+  "fields": {
+    "name": "submit/trunk/04",
+    "commit": "sha1-2",
+    "gittree": ["framework/system/dlog"],
+    "owner": ["alice"],
+    "status": "10_PKGBUILDING",
+    "created": "2014-08-21T00:00:01Z",
+    "updated": "2014-08-21T00:00:02Z"
+  }
+},
+
+{
   "pk": 2,
   "model": "core.buildgroup",
   "fields": {
@@ -40,6 +67,35 @@
   }
 },
 {
+  "pk": 3,
+  "model": "core.buildgroup",
+  "fields": {
+    "name": "home:prerelease:tizen:ivi:submit:trunk:03",
+    "status": "33_ACCEPTED",
+    "created": "2014-08-21T00:00:02Z",
+    "updated": "2014-08-21T00:00:02Z",
+    "operator": null,
+    "operated_on": "2014-10-23T10:25:02Z",
+    "operate_reason": "",
+    "snapshot": null
+  }
+},
+{
+  "pk": 4,
+  "model": "core.buildgroup",
+  "fields": {
+    "name": "home:prerelease:tizen:ivi:submit:trunk:04",
+    "status": "33_ACCEPTED",
+    "created": "2014-08-21T00:00:02Z",
+    "updated": "2014-08-21T00:00:02Z",
+    "operator": null,
+    "operated_on": "2014-10-23T11:00:02Z",
+    "operate_reason": "",
+    "snapshot": null
+  }
+},
+
+{
   "pk": 1,
   "model": "core.submissionbuild",
   "fields": {
@@ -48,6 +104,25 @@
     "group": ["home:prerelease:tizen:ivi:submit:trunk:02"]
   }
 },
+{
+  "pk": 2,
+  "model": "core.submissionbuild",
+  "fields": {
+    "submission": ["submit/trunk/03", "framework/system/dlog"],
+    "product": ["Tizen:IVI"],
+    "group": ["home:prerelease:tizen:ivi:submit:trunk:03"]
+  }
+},
+{
+  "pk": 3,
+  "model": "core.submissionbuild",
+  "fields": {
+    "submission": ["submit/trunk/04", "framework/system/dlog"],
+    "product": ["Tizen:IVI"],
+    "group": ["home:prerelease:tizen:ivi:submit:trunk:04"]
+  }
+},
+
 {
   "pk": 1,
   "model": "core.imagebuild",
@@ -58,6 +133,33 @@
     "url": "",
     "log": "",
     "group": ["home:prerelease:tizen:ivi:submit:trunk:02"]
+  }
+},
+
+{
+  "pk": 1,
+  "model": "core.snapshot",
+  "fields": {
+    "product": ["Tizen:IVI"],
+    "buildid": "tizen-ivi_20141023.5",
+    "started_time": "2014-10-23T10:30:02Z",
+    "finished_time": null,
+    "url": null,
+    "daily_url": null,
+    "weekly_url": null
+  }
+},
+{
+  "pk": 2,
+  "model": "core.snapshot",
+  "fields": {
+    "product": ["Tizen:IVI"],
+    "buildid": "tizen-ivi_20141024.5",
+    "started_time": "2014-10-24T09:30:02Z",
+    "finished_time": null,
+    "url": null,
+    "daily_url": null,
+    "weekly_url": null
   }
 }
 ]

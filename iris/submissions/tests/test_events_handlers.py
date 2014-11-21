@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 from iris.core.models import (
     Domain, SubDomain, GitTree, Product,
-    Submission, Snapshot
+    Submission, Snapshot, BuildGroup
     )
 
 
@@ -255,3 +255,33 @@ class EventHandlerTest(TestCase):
         self.assertEquals(200, r.status_code)
         Snapshot.objects.get(product__name='Tizen:IVI',
                             buildid='tizen-ivi_20141107.5')
+
+    def test_snapshot_finish(self):
+        self.login()
+        r = self.client.post(self.url % 'snapshot_finish', {
+                'project': 'Tizen:IVI',
+                'buildid': 'tizen-ivi_20141023.5',
+                'finished_time': '2014-10-23 11:30:02',
+                'url': 'http://url.to.snapshot'
+                })
+        self.assertEquals(200, r.status_code)
+
+        snap = Snapshot.objects.get(product__name='Tizen:IVI',
+                                    buildid='tizen-ivi_20141023.5')
+        # there are two accepted submissions, but only one submission is
+        # operated before this snapshot starts
+        self.assertEqual(BuildGroup.objects.filter(snapshot=snap).count(), 1)
+
+        r = self.client.post(self.url % 'snapshot_finish', {
+                'project': 'Tizen:IVI',
+                'buildid': 'tizen-ivi_20141024.5',
+                'finished_time': '2014-10-24 11:30:02',
+                'url': 'http://url.to.snapshot'
+                })
+        self.assertEquals(200, r.status_code)
+        snap = Snapshot.objects.get(product__name='Tizen:IVI',
+                                    buildid='tizen-ivi_20141024.5')
+        # there are two accepted submissions, and both of them are operated
+        # before this snapshot, but one of them are set to the previous snapshot,
+        # so here there is still only one submission for the snapshot
+        self.assertEqual(BuildGroup.objects.filter(snapshot=snap).count(), 1)
