@@ -26,7 +26,7 @@ from iris.core.models import (
 from iris.submissions.views.event_forms import (
     SubmittedForm, PreCreatedForm, PackageBuiltForm,
     ImageBuildingForm, ImageCreatedForm, RepaActionForm,
-    SnapshotStartForm, SnapshotFinishedForm)
+    SnapshotStartForm, SnapshotFinishedForm, SnapshotReleaseForm)
 
 # pylint: disable=C0111,E1101,W0703,W0232,E1002,R0903,C0103
 # W0232: 25,0:SubmittedForm: Class has no __init__ method
@@ -52,6 +52,7 @@ def events_handler(request, typ):
         'repa_action': repa_action,
         'snapshot_start': snapshot_start,
         'snapshot_finish': snapshot_finish,
+        'snapshot_release': snapshot_release,
         }
     print >> sys.stderr, 'events|%s|%s' % (request.path, request.POST.items())
     handler = handlers.get(typ)
@@ -347,4 +348,22 @@ def snapshot_finish(request):
     manage_submissions()
 
     return Response({'detail': 'Action snapshot finish received'},
+                    status=HTTP_200_OK)
+
+
+def snapshot_release(request):
+    form = SnapshotReleaseForm(request.POST)
+    if not form.is_valid():
+        return Response({'detail': form.errors.as_text()},
+                        status=HTTP_406_NOT_ACCEPTABLE)
+    data = form.cleaned_data
+    snapshot= Snapshot.objects.get(buildid=data['buildid'],
+                                    product=data['project'])
+    if data['release_type'] == 'daily':
+        snapshot.daily_url = data['url']
+    elif data['release_type'] == 'weekly':
+        snapshot.weekly_url = data['url']
+    snapshot.save()
+
+    return Response({'detail': 'Action snapshot release received'},
                     status=HTTP_200_OK)

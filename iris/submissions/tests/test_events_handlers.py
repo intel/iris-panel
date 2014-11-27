@@ -285,3 +285,28 @@ class EventHandlerTest(TestCase):
         # before this snapshot, but one of them are set to the previous snapshot,
         # so here there is still only one submission for the snapshot
         self.assertEqual(BuildGroup.objects.filter(snapshot=snap).count(), 1)
+
+    def test_snapshot_release(self):
+        self.login()
+        r = self.client.post(self.url % 'snapshot_release', {
+                'project': 'Tizen:IVI',
+                'buildid': 'tizen-ivi_20141023.5',
+                'release_type': 'daily',
+                'url': 'http://url.to.daily/'
+                })
+        self.assertEquals(200, r.status_code)
+        Snapshot.objects.get(product__name='Tizen:IVI',
+                             buildid='tizen-ivi_20141023.5',
+                             daily_url='http://url.to.daily/')
+
+        r = self.client.post(self.url % 'snapshot_release', {
+                'project': 'Tizen:IVI',
+                'buildid': 'tizen-ivi_20141023.5',
+                'release_type': 'weekly',
+                'url': 'http://url.to.weekly/'
+                })
+        self.assertEquals(200, r.status_code)
+        Snapshot.objects.get(product__name='Tizen:IVI',
+                             buildid='tizen-ivi_20141023.5',
+                             daily_url='http://url.to.daily/',
+                             weekly_url='http://url.to.weekly/')

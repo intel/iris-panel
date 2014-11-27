@@ -231,3 +231,31 @@ class SnapshotFinishedForm(forms.Form):
  %s, project: %s" % (buildid, product.name)
             )
         return self.cleaned_data
+
+
+class SnapshotReleaseForm(forms.Form):
+    buildid = forms.CharField(label="build id")
+    project= forms.CharField(label="Target project name")
+    url = forms.URLField(label="Snapshot URL")
+    release_type = forms.ChoiceField(choices=(('daily', 'daily'),
+                                              ('weekly', 'weekly')))
+
+    def clean_project(self):
+        project = self.cleaned_data['project']
+        try:
+            return Product.objects.get(name=project)
+        except Product.DoesNotExist as err:
+            raise forms.ValidationError(str(err))
+
+    def clean(self):
+        if 'buildid' in self.cleaned_data and 'project' in self.cleaned_data:
+            buildid = self.cleaned_data['buildid']
+            product = self.cleaned_data['project']
+            try:
+                Snapshot.objects.get(product=product, buildid=buildid)
+            except Snapshot.DoesNotExist as err:
+                raise forms.ValidationError(
+                "No matched snapshot found with buildid: %s, project: %s"
+                % (buildid, product.name)
+            )
+        return self.cleaned_data
