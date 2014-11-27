@@ -27,6 +27,9 @@ tr.table-header {
           <th>Owner</th>
           <th>Git Tree</th>
           <th>Product</th>
+          {% if show_snapshot %}
+          <th>Snapshot</th>
+          {% endif %}
           <th>Updated</th>
         </tr>
       </thead>
@@ -61,6 +64,15 @@ tr.table-header {
             {% for p in g.products %}
             <a href="{% url 'product.read' p.id %}">{{ p }}</a></br>
             {% endfor %}
+          {% if show_snapshot %}
+              <td nowrap>
+                 {% for snapshot in g.snapshots %}
+                    <a href="{{ snapshot.url }}"><span class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true"></span></a>
+                    <a href="">{{ snapshot.buildid }}</a>
+                    </br>
+                {% endfor %}
+              </td>
+          {% endif %}
           </td>
           <td><span title="{{ g.updated }}">
               {{ g.updated|naturaltime }}</span></td>

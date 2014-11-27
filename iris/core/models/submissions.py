@@ -316,10 +316,19 @@ class SubmissionGroup(object):
         return self.name
 
     @property
+    def snapshots(self):
+        snapshots = {sbuild.group.snapshot
+             for submission in self.subs
+             for sbuild in submission.submissionbuild_set.all()}
+        return sorted(snapshots,
+                      key=lambda snapshot: snapshot.product.name)
+
+    @property
     def products(self):
-        return {sbuild.product
+        products = {sbuild.product
                 for submission in self.subs
                 for sbuild in submission.submissionbuild_set.all()}
+        return sorted(products, key=lambda product: product.name)
 
     @property
     def _cal_status(self):

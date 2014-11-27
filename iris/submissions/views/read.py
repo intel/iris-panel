@@ -49,6 +49,7 @@ def opened(request):
     return render(request, 'submissions/summary.html', {
             'title': 'All open submissions',
             'results': SubmissionGroup.group(res),
+            'show_snapshot': False
             })
 
 def accepted(request):
@@ -59,6 +60,7 @@ def accepted(request):
     return render(request, 'submissions/summary.html', {
             'title': 'All accepted submissions',
             'results': SubmissionGroup.group(res),
+            'show_snapshot': True
             })
 
 
@@ -70,6 +72,7 @@ def rejected(request):
     return render(request, 'submissions/summary.html', {
             'title': 'All rejected submissions',
             'results': SubmissionGroup.group(res),
+            'show_snapshot': False
             })
 
 
