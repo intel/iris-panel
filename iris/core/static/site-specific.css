@@ -86,3 +86,14 @@ body .ms-container .ms-list {
 .margin-right-style {
   margin-right:1em !important;
 }
+
+/* Default colors for status */
+.success {
+    color: #00FF00; /* green */
+}
+.failed {
+    color: #FF0000; /* red */
+}
+.building {
+    color: #000000; /* black */
+}

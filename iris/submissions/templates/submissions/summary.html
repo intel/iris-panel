@@ -35,7 +35,7 @@ tr.table-header {
         <tr>
           <td><a href="{% url 'submission_detail' g.name %}">
               {{ g.name }}</a></td>
-          <td>{{ g.display_status }}</td>
+          <td class="{{ g.display_colors }}">{{ g.display_status }}</td>
 
           {% if g.count == 1 %}
           <td><a href="{% url 'users' g.owner.id %}">

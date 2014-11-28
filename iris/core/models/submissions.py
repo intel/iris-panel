@@ -25,6 +25,17 @@ APP_LABEL = 'core'
 from django.db import models
 from django.contrib.auth.models import User
 
+FINAL_STATUS = {
+    '15_PKGFAILED': 'failed',
+    '25_IMGFAILED': 'failed',
+    '36_REJECTED': 'failed',
+
+    '33_ACCEPTED': 'success',
+
+    '10_PKGBUILDING': 'building',
+    '20_IMGBUILDING': 'building',
+    'SUBMITTED': 'building',
+    }
 
 class PackageBuild(models.Model):
     """
@@ -311,7 +322,7 @@ class SubmissionGroup(object):
                 for sbuild in submission.submissionbuild_set.all()}
 
     @property
-    def display_status(self):
+    def _cal_status(self):
         st0 = [sub.status for sub in self.subs
             if sub.status not in Submission.STATUS]
         st1 = [sub.status for sub in self.subs
@@ -320,7 +331,15 @@ class SubmissionGroup(object):
             st = max(st0)
         else:
             st = 'DONE' if 'DONE' in st1 else 'SUBMITTED'
-        return dict(Submission.STATUS, **BuildGroup.STATUS)[st]
+        return st
+
+    @property
+    def display_status(self):
+        return dict(Submission.STATUS, **BuildGroup.STATUS)[self._cal_status]
+
+    @property
+    def display_colors(self):
+        return FINAL_STATUS[self._cal_status]
 
     @property
     def owner(self):
