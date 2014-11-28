@@ -50,7 +50,7 @@
           <td>
             {% for t, c in sgroup.gittree_commit %}
             <a href="{% url 'gittree.read' t.id %}">
-              {{ t }}</a> / {{ c }} </br>
+              {{ t }}</a> / {{ c }} <br/>
             {% endfor %}
           </td>
         </tr>

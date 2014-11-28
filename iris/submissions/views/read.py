@@ -23,7 +23,7 @@ from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator
 
 
-from iris.core.models import Submission, BuildGroup, SubmissionGroup
+from iris.core.models import Submission, BuildGroup, SubmissionGroup, Snapshot
 
 
 def index(request):
@@ -132,3 +132,33 @@ def submission_group_to_build_groups(sgroup):
     return {sbuild.group
             for submission in sgroup.subs
             for sbuild in submission.submissionbuild_set.all()}
+
+
+def snapshot(request, pkid):
+    snapshot = get_object_or_404(Snapshot, id=pkid)
+    groups = SubmissionGroup.group(snapshot.submissions)
+
+    # get snapshots with the same product
+    snapshots = list(Snapshot.snapshots_with_same_product(snapshot.product))
+    st_len = len(snapshots)
+    first_item = False
+    last_item = False
+    pre_st = None
+    next_st = None
+    current_index = snapshots.index(snapshot)
+    if current_index == 0:
+        first_item = True
+    else:
+        pre_st = snapshots[current_index-1]
+    if current_index == (st_len -1):
+        last_item = True
+    else:
+        next_st = snapshots[current_index+1]
+    return render(request, 'submissions/read/single/snapshot.html', {
+            'snapshot': snapshot,
+            'groups': groups,
+            'pre_st': pre_st,
+            'next_st': next_st,
+            'first_item': first_item,
+            'last_item': last_item,
+            })

@@ -49,28 +49,28 @@ tr.table-header {
           <td>
             {% for o in g.owner %}
             <a href="{% url 'users' o.id %}">
-              {{ o|user_display_name }}</a></br>
+              {{ o|user_display_name }}</a><br/>
             {% endfor %}
           </td>
           <td>
             {% for t in g.gittree %}
             <a href="{% url 'gittree.read' t.id %}">
-              {{ t }}</a></br>
+              {{ t }}</a><br/>
             {% endfor %}
           </td>
           {% endif %}
 
           <td>
             {% for p in g.products %}
-            <a href="{% url 'product.read' p.id %}">{{ p }}</a></br>
+            <a href="{% url 'product.read' p.id %}">{{ p }}</a><br/>
             {% endfor %}
           {% if show_snapshot %}
               <td nowrap>
                  {% for snapshot in g.snapshots %}
                     <a href="{{ snapshot.url }}"><span class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true"></span></a>
-                    <a href="">{{ snapshot.buildid }}</a>
-                    </br>
-                {% endfor %}
+                    <a href="{% url 'snapshot_detail' snapshot.id %}">{{ snapshot.buildid }}</a>
+                    <br/>
+                 {% endfor %}
               </td>
           {% endif %}
           </td>

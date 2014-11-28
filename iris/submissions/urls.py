@@ -23,6 +23,7 @@ urlpatterns = patterns(
     'iris.submissions.views.read',
     url(r'^$', 'index', name='submissions_index'),
     url(r'^mine/$', 'mine', name='my_submissions'),
+    url(r'^snapshots/(?P<pkid>\d+)/$', 'snapshot', name='snapshot_detail'),
     url(r'^opened/$', 'opened', name='opened_submissions'),
     url(r'^accepted/$', 'accepted', name='accepted_submissions'),
     url(r'^rejected/$', 'rejected', name='rejected_submissions'),

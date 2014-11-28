@@ -399,6 +399,23 @@ class Snapshot(models.Model):
     weekly_url = models.URLField(max_length=512, blank=True, null=True,
                                 db_index=True)
 
+    @property
+    def submissions(self):
+        return {sb.submission
+                for buildgroup in self.buildgroup_set.all()
+                for sb in buildgroup.submissionbuild_set.all()
+               }
+
+    @classmethod
+    def snapshots_with_same_product(cls, pro_obj):
+        return Snapshot.objects.filter(
+                product=pro_obj
+               ).exclude(
+                finished_time=None
+               ).order_by(
+                 '-finished_time'
+               )
+
     class Meta:
         app_label = APP_LABEL
         unique_together = ('product', 'buildid')
