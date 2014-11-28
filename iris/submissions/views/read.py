@@ -22,8 +22,8 @@ from django.http import Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator
 
-
-from iris.core.models import Submission, BuildGroup, SubmissionGroup, Snapshot
+from iris.core.models import (Submission, BuildGroup, SubmissionGroup,
+    Snapshot, Product)
 
 
 def index(request):
@@ -46,10 +46,12 @@ def opened(request):
     res = Submission.objects.exclude(
         status='33_ACCEPTED').exclude(
         status='36_REJECTED')
+    products = Product.objects.all()
     return render(request, 'submissions/summary.html', {
             'title': 'All open submissions',
             'results': SubmissionGroup.group(res),
-            'show_snapshot': False
+            'show_snapshot': False,
+            'products': products,
             })
 
 def accepted(request):
@@ -57,10 +59,12 @@ def accepted(request):
     All accepted submissions
     """
     res = Submission.objects.filter(status='33_ACCEPTED')
+    products = Product.objects.all()
     return render(request, 'submissions/summary.html', {
             'title': 'All accepted submissions',
             'results': SubmissionGroup.group(res),
-            'show_snapshot': True
+            'show_snapshot': True,
+            'products': products,
             })
 
 
@@ -69,10 +73,12 @@ def rejected(request):
     All rejected submissions
     """
     res = Submission.objects.filter(status='36_REJECTED')
+    products = Product.objects.all()
     return render(request, 'submissions/summary.html', {
             'title': 'All rejected submissions',
             'results': SubmissionGroup.group(res),
-            'show_snapshot': False
+            'show_snapshot': False,
+            'products': products,
             })
 
 
@@ -82,10 +88,12 @@ def mine(request):
     All my (the logged-in user) opened submissions
     """
     res = Submission.objects.filter(owner=request.user)
+    products = Product.objects.all()
     return render(request, 'submissions/summary.html', {
             'title': 'My submissions',
             'results': SubmissionGroup.group(
                 Submission.objects.filter(owner=request.user)),
+            'products': products,
             })
 
 
@@ -118,10 +126,12 @@ def detail(request, tag):
     assert len(groups) == 1  # because it's group by tag
     sgroup = groups[0]
     bgroups = submission_group_to_build_groups(sgroup)
+    products = Product.objects.all()
 
     return render(request, 'submissions/detail.html', {
             'sgroup': sgroup,
             'bgroups': bgroups,
+            'products': products,
             })
 
 
@@ -132,6 +142,44 @@ def submission_group_to_build_groups(sgroup):
     return {sbuild.group
             for submission in sgroup.subs
             for sbuild in submission.submissionbuild_set.all()}
+
+
+def snapshot_by_product(request, product_id, offset=0, limit=10):
+    """
+        if change limit, please also update the value in template:
+        iris/submissions/templates/submissions/read/multiple/snapshots.html
+    """
+
+    pro = Product.objects.get(pk=product_id)
+    all_snapshots = Snapshot.snapshots_with_same_product(pro)
+
+    offset = int(offset)
+    limit = int(limit)
+    end = offset + limit
+    more_data = True
+    if end >= len(all_snapshots):
+        more_data = False
+
+    snapshots = all_snapshots[offset:end]
+    for snapshot in snapshots:
+        groups = SubmissionGroup.group(snapshot.submissions)
+        snapshot.groups = groups
+
+    if request.is_ajax():
+        response = render(request, 'submissions/read/multiple/snapshot_submissions.html', {
+                'snapshots': snapshots,
+                'product': pro,
+        })
+        response['X-No-More'] = more_data
+        return response
+    else:
+        products = Product.objects.all()
+        return render(request, 'submissions/read/multiple/snapshots.html', {
+                'snapshots': snapshots,
+                'product': pro,
+                'products': products,
+                'more_data': more_data,
+            })
 
 
 def snapshot(request, pkid):
@@ -154,6 +202,7 @@ def snapshot(request, pkid):
         last_item = True
     else:
         next_st = snapshots[current_index+1]
+    products = Product.objects.all()
     return render(request, 'submissions/read/single/snapshot.html', {
             'snapshot': snapshot,
             'groups': groups,
@@ -161,4 +210,5 @@ def snapshot(request, pkid):
             'next_st': next_st,
             'first_item': first_item,
             'last_item': last_item,
+            'products': products,
             })

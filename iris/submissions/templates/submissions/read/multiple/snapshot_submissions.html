@@ -1,0 +1,12 @@
+{% for snapshot in snapshots %}
+  <li>
+    <h3><a href="{% url 'snapshot_detail' snapshot.id %}">{{ snapshot.buildid }}</a></h3>
+    {% if snapshot.groups %}
+      <ul>
+        {% for group in snapshot.groups %}
+          <li><h4><a href="{% url 'submission_detail' group.name %}">{{ group.name }}</a></h4> </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </li>
+{% endfor %}

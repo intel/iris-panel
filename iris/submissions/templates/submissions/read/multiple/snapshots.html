@@ -1,0 +1,42 @@
+{% extends "core/base.html" %}
+
+{% block title %}IRIS - Submissions - Snapshots{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  {% include "submissions/menu.html" %}
+
+  <div class="row page-header">
+    <h3>Snapshots for {{ product.name }}</h3>
+  </div>
+
+  <ul id="submission_list">
+    {% include "submissions/read/multiple/snapshot_submissions.html" %}
+  </ul>
+  {% if more_data %}
+  <p align="right" id="showmorecontainer">
+    <a id="showmore" href="#">show more</a>
+  </p>
+  {% endif %}
+</div>
+<script type="text/javascript">
+limit = 10;
+offset = limit;
+product_id = "{{ product.id }}"
+$(document ).ready(function() {
+    $("#showmore").click(function(){
+        var url = '/app/submissions/snapshots/product/' + product_id + '/' + offset + '/' + limit;
+        var outter = $(this);
+        $.get(url, function(data, textStatus, jqXHR) {
+            $("#submission_list" ).append(data);
+            offset = $('#submission_list > li').length;
+            if (jqXHR.getResponseHeader('X-No-More') == "False"){
+                outter.hide();
+            }
+        });
+        return false;
+    });
+})
+</script>
+{% endblock %}
