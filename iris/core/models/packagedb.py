@@ -170,6 +170,32 @@ class Product(models.Model):
     def __unicode__(self):
         return self.name
 
+    @property
+    def latest_snapshot(self):
+        snapshots = self.snapshot_set.order_by('-buildid')
+        if snapshots:
+            return snapshots[0]
+
+    @property
+    def latest_daily(self):
+        snapshots = self.snapshot_set.exclude(
+                        daily_url=None
+                        ).order_by(
+                        '-daily_url'
+                        )
+        if snapshots:
+            return snapshots[0]
+
+    @property
+    def latest_weekly(self):
+        snapshots = self.snapshot_set.exclude(
+                        weekly_url=None
+                        ).order_by(
+                        '-weekly_url'
+                        )
+        if snapshots:
+            return snapshots[0]
+
     class Meta:
         app_label = APP_LABEL
 
