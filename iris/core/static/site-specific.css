@@ -82,3 +82,7 @@ body .ms-container .ms-list {
   display: inline;
   padding: 0 2px;
 }
+
+.margin-right-style {
+  margin-right:1em !important;
+}

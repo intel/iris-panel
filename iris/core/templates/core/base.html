@@ -43,7 +43,7 @@
               <p class="navbar-text navbar-right">Signed in as {{ user.username }}</p>
 
               {% else %}
-              <a class="navbar-text navbar-right" href="/login/?next={{ redirect_to }}">Sign in</a>
+              <p class="navbar-text navbar-right margin-right-style"><a href="/login/?next={{ redirect_to }}">Sign in</a></p>
 
               {% endif %}
           </div>
