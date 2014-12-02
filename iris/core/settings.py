@@ -158,11 +158,20 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler',
-        }
+        },
+        # Error handler logs only when error appears.
+        # Since all stderr will be redirect to apache error log by apache,
+        # just use StreamHandler to save the error log.
+        'error_handler': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
     },
     'loggers': {
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['error_handler', 'mail_admins'],
             'level': 'ERROR',
             'propagate': True,
         },
@@ -177,7 +186,7 @@ LOGGING = {
             'level': 'DEBUG',
         },
         'scm_update': {
-            'handlers': ['mail_admins'],
+            'handlers': ['error_handler', 'mail_admins'],
             'level': 'ERROR',
             'propagate': True,
         },
