@@ -30,7 +30,7 @@ FINAL_STATUS = {
     '25_IMGFAILED': 'failed',
     '36_REJECTED': 'failed',
 
-    '33_ACCEPTED': 'success',
+    '33_ACCEPTED': 'succeeded',
 
     '10_PKGBUILDING': 'building',
     '20_IMGBUILDING': 'building',
