@@ -185,7 +185,7 @@ LOGGING = {
             'handlers': ['development', 'production'],
             'level': 'DEBUG',
         },
-        'scm_update': {
+        'iris.packagedb.views.scm': {
             'handlers': ['error_handler', 'mail_admins'],
             'level': 'ERROR',
             'propagate': True,
