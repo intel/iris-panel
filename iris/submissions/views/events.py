@@ -271,6 +271,10 @@ def image_created(request):
     data = form.cleaned_data
     ibuild, group= data['name'], data['project']
 
+    # Now the image and log all can be downloaded from the same url
+    ibuild.url = data['url']
+    ibuild.log = data['url']
+
     group.check_images_status(ibuild)
     ibuild.save()
     group.populate_status()
