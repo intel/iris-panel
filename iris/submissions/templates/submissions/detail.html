@@ -97,6 +97,10 @@
         <li class="active"><a href="#">
             {{ bgroup.display_status }}</a></li>
         {% endif %}
+        {% if bgroup.snapshot %}
+        <li class="active"><a href="#">
+            Snapshot</a></li>
+        {% endif %}
       </ul>
 
       <div class="tab-content">
@@ -123,7 +127,20 @@
           {% endif %}
         </div>
         {% endif %}
-
+        {% if bgroup.snapshot %}
+        <div class="tab-pane">
+            <a href="{% url 'snapshot_detail' bgroup.snapshot.id %}">{{ bgroup.snapshot.buildid }}</a>
+            <a href="{{ bgroup.snapshot.url }}"><span class="badge" style="background-color:DeepSkyBlue">snapshot</span></a>
+            {% if bgroup.snapshot.daily_url %}
+                <a href="{{ bgroup.snapshot.daily_url }}"><span class="badge" style="background-color:DeepSkyBlue">daily</span></a>
+            {% endif %}
+            {% if bgroup.snapshot.weekly_url %}
+                <a href="{{ bgroup.snapshot.weekly_url }}"><span class="badge" style="background-color:DeepSkyBlue">weekly</span></a>
+            {% endif %}
+            <br/>
+            <p> Created Time: {{ bgroup.snapshot.finished_time }}</p>
+        </div>
+        {% endif %}
       </div>
     </div>
   </div>
