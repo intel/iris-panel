@@ -22,13 +22,11 @@
         </div>
     </div>
     <div class="row">
-        <table class="table table-bordered table-striped" style="table-layout:fixed; word-wrap: break-word;">
+        <table class="table table-bordered table-striped">
             <thead>
                 <tr>
                     <th class="col-md-2">Name</th>
                     <th class="col-md-2">Latest Snapshot</th>
-                    <th class="col-md-2">Latest Daily</th>
-                    <th class="col-md-2">Latest Weekly</th>
                     <th class="col-md-4">Description</th>
                 </tr>
             </thead>
@@ -40,15 +38,11 @@
                         {% if product.latest_snapshot %}
                             <a href="{% url 'snapshot_detail' product.latest_snapshot.id %}">{{ product.latest_snapshot.buildid }}</a>
                         {% endif %}
-                    </td>
-                    <td>
                         {% if product.latest_daily %}
-                            <a href="{{ product.latest_daily.daily_url }}">{{ product.latest_daily.daily_url }}</a>
+                            <a href="{{ product.latest_daily.daily_url }}"><span class="badge" style="background-color:LightSkyBlue">daily</span></a>
                         {% endif %}
-                    </td>
-                    <td>
                         {% if product.latest_weekly %}
-                            <a href="{{ product.latest_weekly.weekly_url }}">{{ product.latest_weekly.weekly_url }}</a>
+                            <a href="{{ product.latest_weekly.weekly_url }}"><span class="badge" style="background-color:LightSkyBlue">weekly</span></a>
                         {% endif %}
                     </td>
                     <td>{{ product.description }}</td>
