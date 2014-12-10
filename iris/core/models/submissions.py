@@ -152,9 +152,6 @@ class BuildGroup(models.Model):
     operate_reason = models.TextField()
     snapshot = models.ForeignKey('Snapshot', blank=True, null=True)
 
-    # TODO: obs pre-release project url
-    # url = models.URLField()
-
     def __unicode__(self):
         return self.name
 
@@ -394,10 +391,8 @@ class Snapshot(models.Model):
     started_time = models.DateTimeField()
     finished_time = models.DateTimeField(blank=True, null=True)
     url = models.URLField(max_length=512, blank=True, null=True)
-    daily_url = models.URLField(max_length=512, blank=True, null=True,
-                                db_index=True)
-    weekly_url = models.URLField(max_length=512, blank=True, null=True,
-                                db_index=True)
+    daily_url = models.URLField(max_length=512, blank=True, null=True)
+    weekly_url = models.URLField(max_length=512, blank=True, null=True)
 
     @property
     def submissions(self):

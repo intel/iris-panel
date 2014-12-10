@@ -144,13 +144,13 @@ class Migration(SchemaMigration):
         'core.snapshot': {
             'Meta': {'unique_together': "(('product', 'buildid'),)", 'object_name': 'Snapshot'},
             'buildid': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'daily_url': ('django.db.models.fields.URLField', [], {'db_index': 'True', 'max_length': '512', 'null': 'True', 'blank': 'True'}),
+            'daily_url': ('django.db.models.fields.URLField', [], {'max_length': '512', 'null': 'True', 'blank': 'True'}),
             'finished_time': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'product': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['core.Product']"}),
             'started_time': ('django.db.models.fields.DateTimeField', [], {}),
             'url': ('django.db.models.fields.URLField', [], {'max_length': '512', 'null': 'True', 'blank': 'True'}),
-            'weekly_url': ('django.db.models.fields.URLField', [], {'db_index': 'True', 'max_length': '512', 'null': 'True', 'blank': 'True'})
+            'weekly_url': ('django.db.models.fields.URLField', [], {'max_length': '512', 'null': 'True', 'blank': 'True'})
         },
         'core.subdomain': {
             'Meta': {'unique_together': "(('name', 'domain'),)", 'object_name': 'SubDomain'},
