@@ -23,10 +23,10 @@ tr.table-header {
       <thead>
         <tr>
           <th>Name</th>
-          <th>Status</th>
           <th>Owner</th>
           <th>Git Tree</th>
           <th>Product</th>
+          <th>Status</th>
           {% if show_snapshot %}
           <th>Snapshot</th>
           {% endif %}
@@ -35,52 +35,83 @@ tr.table-header {
       </thead>
       <tbody>
         {% for g in results %}
-        <tr>
-          <td><a href="{% url 'submission_detail' g.name %}">
-              {{ g.name }}</a></td>
-          <td class="{{ g.display_colors }}">{{ g.display_status }}</td>
-
-          {% if g.count == 1 %}
-          <td><a href="{% url 'users' g.owner.id %}">
-              {{ g.owner|user_display_name }}</a></td>
-          <td><a href="{% url 'gittree.read' g.gittree.id %}">
-              {{ g.gittree }}</a></td>
-          {% else %}
-          <td>
-            {% for o in g.owner %}
-            <a href="{% url 'users' o.id %}">
-              {{ o|user_display_name }}</a><br/>
-            {% endfor %}
-          </td>
-          <td>
-            {% for t in g.gittree %}
-            <a href="{% url 'gittree.read' t.id %}">
-              {{ t }}</a><br/>
-            {% endfor %}
-          </td>
-          {% endif %}
-
-          <td>
-            {% for p in g.products %}
-            <a href="{% url 'product.read' p.id %}">{{ p }}</a><br/>
-            {% endfor %}
-          {% if show_snapshot %}
-              <td nowrap>
-                 {% for snapshot in g.snapshots %}
+          <tr>
+              <td>
+                <a href="{% url 'submission_detail' g.name %}">{{ g.name }}</a>
+              </td>
+              {% if g.count == 1 %}
+                <td>
+                  <a href="{% url 'users' g.owner.id %}">{{ g.owner|user_display_name }}</a>
+                </td>
+                <td>
+                  <a href="{% url 'gittree.read' g.gittree.id %}">{{ g.gittree }}</a>
+                </td>
+              {% else %}
+                <td>
+                {% for o in g.owner %}
+                  <a href="{% url 'users' o.id %}">{{ o|user_display_name }}</a><br/>
+                {% endfor %}
+                </td>
+                <td>
+                  {% for t in g.gittree %}
+                    <a href="{% url 'gittree.read' t.id %}">{{ t }}</a><br/>
+                  {% endfor %}
+                </td>
+              {% endif %}
+              {% with prod_st=g.product_status.items %}
+                <td>
+                  {% for product, _ in prod_st %}
+                    <p><a href="{% url 'product.read' product.id %}">{{ product.name }}</a></p>
+                  {% empty %}
+                    <!-- no product -->
+                  {% endfor %}
+                </td>
+                <td name="status" nowrap>
+                  {% for _, group in prod_st %}
+                    <p>{{ group.display_status }}</p>
+                  {% empty %}
+                    <!-- no product -->
+                    <p>{{ g.status }}</p>
+                  {% endfor %}
+                </td>
+              {% endwith %}
+              {% if show_snapshot %}
+                <td nowrap>
+                  {% for snapshot in g.snapshots %}
                     <a href="{{ snapshot.url }}"><span class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true"></span></a>
                     <a href="{% url 'snapshot_detail' snapshot.id %}">{{ snapshot.buildid }}</a>
                     <br/>
-                 {% endfor %}
+                  {% endfor %}
+                </td>
+              {% endif %}
+              <td>
+                <span title="{{ g.updated }}">{{ g.updated|naturaltime }}</span>
               </td>
-          {% endif %}
-          </td>
-          <td><span title="{{ g.updated }}">
-              {{ g.updated|naturaltime }}</span></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+            </tr>
+      {% endfor %}
+    </tbody>
+   </table>
   </div>
 </div>
+<script>
+color_dict= {
+    'Package building failed': 'failed',
+    'Image build failed': 'failed',
+    'Rejected': 'failed',
 
+    'Accepted': 'succeeded',
+
+    'Package building': 'building',
+    'Image building': 'building',
+    'Submitted': 'building',
+    }
+$(document).ready(function(){
+    $("td[name='status']").each(function(){
+        $(this).children().each(function(){
+            $(this).attr('class', color_dict[$(this).html()]);
+        });
+
+    });
+});
+</script>
 {% endblock %}
