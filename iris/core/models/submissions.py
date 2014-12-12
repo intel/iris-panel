@@ -366,8 +366,9 @@ class SubmissionGroup(object):
     @property
     def snapshots(self):
         snapshots = {sbuild.group.snapshot
-             for submission in self.subs
-             for sbuild in submission.submissionbuild_set.all()}
+                     for submission in self.subs
+                     for sbuild in submission.submissionbuild_set.all()
+                     if sbuild.group.snapshot}
         return sorted(snapshots,
                       key=lambda snapshot: snapshot.product.name)
 
