@@ -69,11 +69,11 @@ def rejected(request):
     """
     All rejected submissions
     """
-    res = Submission.objects.filter(status='36_REJECTED')
+    subs = {sub for sub in Submission.objects.all() if sub.rejected}
     products = Product.objects.all()
     return render(request, 'submissions/summary.html', {
             'title': 'All rejected submissions',
-            'results': SubmissionGroup.group(res),
+            'results': SubmissionGroup.group(subs, 'rejected'),
             'show_snapshot': False,
             'products': products,
             })
