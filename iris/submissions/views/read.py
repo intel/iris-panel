@@ -83,14 +83,13 @@ def rejected(request):
 def mine(request):
     """
     All my (the logged-in user) opened submissions
+    TODO: add menu as all did, show opened, rejected, accepted
     """
-    res = Submission.objects.filter(owner=request.user)
-    products = Product.objects.all()
+    subs = {sub for sub in Submission.objects.filter(owner=request.user) if
+            sub.opened }
     return render(request, 'submissions/summary.html', {
             'title': 'My submissions',
-            'results': SubmissionGroup.group(
-                Submission.objects.filter(owner=request.user)),
-            'products': products,
+            'results': SubmissionGroup.group(subs, 'opened'),
             })
 
 

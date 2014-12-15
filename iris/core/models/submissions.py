@@ -384,6 +384,10 @@ class SubmissionGroup(object):
 
                 if self.filter_status == 'rejected' and sbuild.group.rejected:
                     set_values()
+                if self.filter_status == '':
+                    # no status ,get all
+                    set_values()
+
         return product_groups
 
     @property
