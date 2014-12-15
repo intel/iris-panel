@@ -26,10 +26,12 @@
   <div class="row">
     <table class="table gittree-info table-striped table-bordered table-hover table-condensed">
       <tbody>
-        <tr>
-          <th>Status</th>
-          <td class="{{ sgroup.display_colors }}">{{ sgroup.display_status }}</td>
-        </tr>
+        {% if not bgroups %}
+          <tr>
+            <th>Status</th>
+            <td>{{ sgroup.status }}</td>
+          </tr>
+        {% endif %}
         <tr>
           <th>Owner</th>
           <td>
