@@ -50,15 +50,16 @@ def opened(request):
             'results': SubmissionGroup.group(subs, 'opened'),
             })
 
+
 def accepted(request):
     """
     All accepted submissions
     """
-    res = Submission.objects.filter(status='33_ACCEPTED')
+    subs = {sub for sub in Submission.objects.all() if sub.accepted}
     products = Product.objects.all()
     return render(request, 'submissions/summary.html', {
             'title': 'All accepted submissions',
-            'results': SubmissionGroup.group(res),
+            'results': SubmissionGroup.group(subs, 'accepted'),
             'show_snapshot': True,
             'products': products,
             })
