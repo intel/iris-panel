@@ -26,6 +26,13 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+DISPLAY_STATUS = {
+    'OPENED': 'opened',
+    'REJECTED': 'rejected',
+    'ACCEPTED': 'accepted',
+}
+
+
 class PackageBuild(models.Model):
     """
     Class representing the package building step of the build process.
@@ -265,7 +272,8 @@ class Submission(models.Model):
     @property
     def opened(self):
         groups = { sbuild.group
-                   for sbuild in self.submissionbuild_set.all() if sbuild.group
+                   for sbuild in self.submissionbuild_set.select_related(
+                        'group', 'submission').all() if sbuild.group
                   }
         if groups:
             not_opened_count = 0
@@ -376,15 +384,18 @@ class SubmissionGroup(object):
 
         for sub in self.subs:
             for sbuild in sub.submissionbuild_set.all():
-                if self.filter_status == 'opened' and sbuild.group.opened:
+                if (self.filter_status == DISPLAY_STATUS['OPENED'] and
+                        sbuild.group.opened):
                     set_values()
 
-                if self.filter_status == 'accepted' and sbuild.group.accepted:
+                if (self.filter_status == DISPLAY_STATUS['ACCEPTED'] and
+                        sbuild.group.accepted):
                     set_values()
 
-                if self.filter_status == 'rejected' and sbuild.group.rejected:
+                if (self.filter_status == DISPLAY_STATUS['REJECTED'] and
+                       sbuild.group.rejected):
                     set_values()
-                if self.filter_status == '':
+                if not self.filter_status:
                     # no status ,get all
                     set_values()
 

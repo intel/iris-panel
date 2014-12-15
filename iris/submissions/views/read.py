@@ -18,12 +18,14 @@ Views for listing single and multiple item info is contained here.
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import Http404, HttpResponseRedirect
+from django.http import (Http404, HttpResponseRedirect, HttpResponseBadRequest,
+                    HttpResponse)
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator
+from django.core.exceptions import ValidationError
 
 from iris.core.models import (Submission, BuildGroup, SubmissionGroup,
-    Snapshot, Product)
+    Snapshot, Product, DISPLAY_STATUS)
 
 
 def index(request):
@@ -44,10 +46,10 @@ def opened(request):
     All opened submissions
     """
     subs = {sub for sub in Submission.objects.all() if sub.opened}
-
     return render(request, 'submissions/summary.html', {
             'title': 'All open submissions',
-            'results': SubmissionGroup.group(subs, 'opened'),
+            'results': SubmissionGroup.group(subs, DISPLAY_STATUS['OPENED']),
+            'keyword': 'status:%s' % DISPLAY_STATUS['OPENED']
             })
 
 
@@ -59,7 +61,8 @@ def accepted(request):
     products = Product.objects.all()
     return render(request, 'submissions/summary.html', {
             'title': 'All accepted submissions',
-            'results': SubmissionGroup.group(subs, 'accepted'),
+            'results': SubmissionGroup.group(subs, DISPLAY_STATUS['ACCEPTED']),
+            'keyword': 'status:%s' % DISPLAY_STATUS['ACCEPTED'],
             'show_snapshot': True,
             'products': products,
             })
@@ -73,7 +76,8 @@ def rejected(request):
     products = Product.objects.all()
     return render(request, 'submissions/summary.html', {
             'title': 'All rejected submissions',
-            'results': SubmissionGroup.group(subs, 'rejected'),
+            'results': SubmissionGroup.group(subs, DISPLAY_STATUS['REJECTED']),
+            'keyword': 'status:%s' % DISPLAY_STATUS['REJECTED'],
             'show_snapshot': False,
             'products': products,
             })
@@ -89,24 +93,101 @@ def mine(request):
             sub.opened }
     return render(request, 'submissions/summary.html', {
             'title': 'My submissions',
-            'results': SubmissionGroup.group(subs, 'opened'),
+            'results': SubmissionGroup.group(subs, DISPLAY_STATUS['OPENED']),
+            'keyword': 'status:%s owner:%s' % (DISPLAY_STATUS['OPENED'],
+                            request.user.email)
             })
+
+def parse_query_string(query_string):
+    """
+    validate keyworkd used for search submission
+
+    support keyword format:
+    1. key:value key:value(more key:value separated with space) value
+       support keyes: status, name, owner, gittree
+    2. key:value key:value(more key:value separated with space)
+    3. value
+    4. only value means the value can be name, owner, gittree or commit
+    5. Only one value with no key is supported
+    """
+    kw = {}
+    for item in query_string.split():
+        if ':' not in item:
+            if kw.get('query'):
+                return
+            kw['query'] = item
+            continue
+
+        key, val = item.split(':', 1)
+        key = key.lower()
+        if key not in ('status', 'name', 'owner', 'gittree'):
+            return
+        if key == 'status' and val not in DISPLAY_STATUS.values():
+            return
+        kw[key] = val
+    return kw
+
+
+def validate_search(request):
+    """ Ajax view for validte keyword before search """
+    kw = parse_query_string(request.GET.get('kw'))
+    return HttpResponse('ok') if kw else HttpResponseBadRequest('error')
+
+
+def make_query_conditions(kw):
+    fields = {
+        'name': ['name__contains'],
+        'owner': [
+            'owner__email__startswith',
+            'owner__first_name__contains',
+            'owner__last_name__contains',
+            ],
+        'gittree': ['gittree__gitpath__contains'],
+        'query': [
+            'name__contains',
+            'owner__email__startswith',
+            'owner__first_name__contains',
+            'owner__last_name__contains',
+            'commit__startswith',
+            'gittree__gitpath__contains',
+            ],
+        }
+
+    def _and(*args):
+        return reduce(lambda i, j: i & j, *args)
+
+    def _or(*args):
+        return reduce(lambda i, j: i | j, *args)
+
+    return _and([
+        _or([Q(**{field: val}) for field in fields[key]])
+        for key, val in kw.items()])
 
 
 def search(request):
-    """
-    Search submissions by keyword
-    """
-    kw = request.GET.get('kw')
-    subs = Submission.objects.filter(
-        Q(name__contains=kw) |
-        Q(commit__startswith=kw) |
-        Q(owner__email__startswith=kw) |
-        Q(gittree__gitpath__contains=kw)
-        )
+    """Search submissions by keyword """
+    querystring = request.GET.get('kw')
+    kw = parse_query_string(querystring)
+    st = kw.pop('status', None)
+    subs = Submission.objects.select_related('owner', 'gittree', 'product')
+    if kw:
+        query = make_query_conditions(kw)
+        subs = subs.filter(query)
+    else:
+        subs = subs.all()
+
+    if st:
+        if st == DISPLAY_STATUS['OPENED']:
+            subs = {sub for sub in subs if sub.opened}
+        if st == DISPLAY_STATUS['REJECTED']:
+            subs = {sub for sub in subs if sub.rejected}
+        if st == DISPLAY_STATUS['ACCEPTED']:
+            subs = {sub for sub in subs if sub.accepted}
+
     return render(request, 'submissions/summary.html', {
-            'title': 'Search result for "%s"' % kw,
-            'results': SubmissionGroup.group(subs),
+            'title': 'Search result for "%s"' % querystring,
+            'results': SubmissionGroup.group(subs, st),
+            'keyword': querystring,
             })
 
 

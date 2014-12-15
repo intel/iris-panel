@@ -31,7 +31,7 @@ from iris.core.models.packagedb import (Domain, SubDomain, License,
     GitTree, Package, Product, Image)
 from iris.core.models.submissions import (
     PackageBuild, ImageBuild, Submission, SubmissionBuild, BuildGroup,
-    SubmissionGroup, Snapshot)
+    SubmissionGroup, Snapshot, DISPLAY_STATUS)
 from iris.core.models.user import (UserProfile, UserParty,
     DomainRole, SubDomainRole, GitTreeRole)
 
@@ -39,6 +39,6 @@ from iris.core.models.user import (UserProfile, UserParty,
 __all__.extend(['Domain', 'SubDomain', 'License', 'GitTree', 'Package',
                 'Product', 'Image', ])
 __all__.extend(['PackageBuild', 'ImageBuild', 'Submission', 'SubmissionBuild',
-                'BuildGroup', 'SubmissionGroup', 'Snapshot'])
+                'BuildGroup', 'SubmissionGroup', 'Snapshot', 'DISPLAY_STATUS'])
 __all__.extend(['UserProfile', 'UserParty',
                 'DomainRole', 'SubDomainRole', 'GitTreeRole', ])

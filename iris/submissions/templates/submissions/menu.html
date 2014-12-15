@@ -28,15 +28,38 @@
   </ul>
 
   <form action="{% url 'search_submissions' %}" class="form-inline pull-right" role="form">
-    <input name="kw" type='search' size='64' class="form-control" placeholder="tag, SHA-1, email or git project" />
-    <input type='submit' class="btn btn-primary" value='Search' />
+    <input name="kw" title="keyword format: key:value/value. Only one value without key is supported. More key:value are separated with space, supported keys: name,
+     gittree, owner, status" placeholder="tag, SHA-1, email or git project" type='search' size='64' class="form-control" value="{{ keyword }}"/>
+    <input id="search" type='submit' class="btn btn-primary" value='Search' />
   </form>
-</div>
+  <div id="error" class="failed pull-right"></div>
+  </div>
 
 <script>
 $(document).ready(function() {
 
-$('ul.sf-menu').superfish();
+  $('ul.sf-menu').superfish();
+
+  $('#search').click(function(){
+    flag = false;
+    $.ajax({
+        type: 'GET',
+        url: "{% url 'validate_search_submissions' %}",
+        data: {'kw': $('input[name="kw"]').val()},
+        async: false,
+        cache: false,
+        timeout: 5000,
+    })
+    .fail( function(){
+        $('#error').html("<p>Error, support format: key:value/value. Only one value without key is supported</p>\
+                          <p>More key:value are separated with space, supported keys: name, gittree, owner, status</p>");
+        flag = false;
+     })
+    .success(function(){
+        flag = true;
+    });
+    return flag;
+  });
 
 });
 </script>
