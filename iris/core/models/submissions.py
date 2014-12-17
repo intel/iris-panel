@@ -84,8 +84,8 @@ class ImageBuild(models.Model):
 
     group = models.ForeignKey('BuildGroup')
 
-    url = models.URLField()
-    log = models.URLField()
+    url = models.URLField(max_length=512)
+    log = models.URLField(max_length=512)
 
     @property
     def display_status(self):
