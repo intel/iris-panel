@@ -1,3 +1,10 @@
+# This file is part of IRIS: Infrastructure and Release Information System
+#
+# Copyright (C) 2013-2015 Intel Corporation
+#
+# IRIS is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# version 2.0 as published by the Free Software Foundation.
 """
 This module contains a Loader class which provides two methods
 sync_entity() and sync_nnr() to load data entities and many to
