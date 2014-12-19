@@ -288,4 +288,6 @@ def merge_users(email):
                 updata_role(role, ur, user)
             for role in ogetter.get_gittreeroles():
                 updata_role(role, ur, user)
+            # merge submissions to ladp user
+            ur.submission_set.update(owner=user)
             ur.delete()
