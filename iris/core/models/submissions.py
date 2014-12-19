@@ -165,7 +165,7 @@ class BuildGroup(models.Model):
         Argument `packagebuild` is the newest comming package build
         """
         sts = {pbuild.natural_key(): pbuild.status
-               for pbuild in self.packagebuild_set.all()}
+               for pbuild in self.packagebuild_set.select_related('package').all()}
         sts[packagebuild.natural_key()] = packagebuild.status
 
         if any([i == 'FAILURE' for i in sts.values()]):
