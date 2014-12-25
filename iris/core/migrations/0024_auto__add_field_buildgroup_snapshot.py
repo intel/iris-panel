@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#pylint: skip-file
 from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import SchemaMigration
@@ -8,37 +9,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'Snapshot'
-        db.create_table(u'core_snapshot', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('product', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['core.Product'])),
-            ('buildid', self.gf('django.db.models.fields.CharField')(max_length=128)),
-            ('started_time', self.gf('django.db.models.fields.DateTimeField')()),
-            ('finished_time', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('url', self.gf('django.db.models.fields.URLField')(max_length=512, null=True, blank=True)),
-            ('daily_url', self.gf('django.db.models.fields.URLField')(max_length=512, null=True, blank=True)),
-            ('weekly_url', self.gf('django.db.models.fields.URLField')(max_length=512, null=True, blank=True)),
-        ))
-        db.send_create_signal('core', ['Snapshot'])
-
-        # Adding unique constraint on 'Snapshot', fields ['product', 'buildid']
-        db.create_unique(u'core_snapshot', ['product_id', 'buildid'])
-
-        # Deleting field 'BuildGroup.snapshot'
-        db.delete_column(u'core_buildgroup', 'snapshot')
+        # Adding field 'BuildGroup.snapshot'
+        db.add_column(u'core_buildgroup', 'snapshot',
+                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['core.Snapshot'], null=True, blank=True),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Removing unique constraint on 'Snapshot', fields ['product', 'buildid']
-        db.delete_unique(u'core_snapshot', ['product_id', 'buildid'])
-
-        # Deleting model 'Snapshot'
-        db.delete_table(u'core_snapshot')
-
-        # Adding field 'BuildGroup.snapshot'
-        db.add_column(u'core_buildgroup', 'snapshot',
-                      self.gf('django.db.models.fields.URLField')(default='', max_length=200),
-                      keep_default=False)
+        # Deleting field 'BuildGroup.snapshot'
+        db.delete_column(u'core_buildgroup', 'snapshot_id')
 
 
     models = {
@@ -86,6 +65,7 @@ class Migration(SchemaMigration):
             'operate_reason': ('django.db.models.fields.TextField', [], {}),
             'operated_on': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'operator': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'snapshot': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['core.Snapshot']", 'null': 'True', 'blank': 'True'}),
             'status': ('django.db.models.fields.CharField', [], {'max_length': '64', 'db_index': 'True'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
