@@ -73,13 +73,10 @@ def rejected(request):
     All rejected submissions
     """
     subs = {sub for sub in Submission.objects.all() if sub.rejected}
-    products = Product.objects.all()
     return render(request, 'submissions/summary.html', {
             'title': 'All rejected submissions',
             'results': SubmissionGroup.group(subs, DISPLAY_STATUS['REJECTED']),
             'keyword': 'status:%s' % DISPLAY_STATUS['REJECTED'],
-            'show_snapshot': False,
-            'products': products,
             })
 
 
@@ -97,6 +94,7 @@ def mine(request):
             'keyword': 'status:%s owner:%s' % (DISPLAY_STATUS['OPENED'],
                             request.user.email)
             })
+
 
 def parse_query_string(query_string):
     """
