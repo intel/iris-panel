@@ -15,16 +15,14 @@
     <li>
       <a href="{% url 'my_submissions' %}">My</a>
     </li>
-    {% if show_snapshot %}
-      <li>
-        <a>Snapshots</a>
-        <ul>
-          {% for product in products %}
-            <li><a href="{% url 'snapshot_by_product' product.id %}">{{ product.name }}</a></li>
-          {% endfor %}
-        </ul>
-      </li>
-    {% endif %}
+    <li>
+      <a>Snapshots</a>
+      <ul>
+        {% for product in all_products %}
+          <li><a href="{% url 'snapshot_by_product' product.id %}">{{ product.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </li>
   </ul>
 
   <form action="{% url 'search_submissions' %}" class="form-inline pull-right" role="form">

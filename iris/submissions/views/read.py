@@ -58,13 +58,11 @@ def accepted(request):
     All accepted submissions
     """
     subs = {sub for sub in Submission.objects.all() if sub.accepted}
-    products = Product.objects.all()
     return render(request, 'submissions/summary.html', {
             'title': 'All accepted submissions',
             'results': SubmissionGroup.group(subs, DISPLAY_STATUS['ACCEPTED']),
             'keyword': 'status:%s' % DISPLAY_STATUS['ACCEPTED'],
             'show_snapshot': True,
-            'products': products,
             })
 
 
@@ -201,12 +199,10 @@ def detail(request, tag):
     assert len(groups) == 1  # because it's group by tag
     sgroup = groups[0]
     bgroups = submission_group_to_build_groups(sgroup)
-    products = Product.objects.all()
 
     return render(request, 'submissions/detail.html', {
             'sgroup': sgroup,
             'bgroups': bgroups,
-            'products': products,
             })
 
 
@@ -248,11 +244,9 @@ def snapshot_by_product(request, product_id, offset=0, limit=10):
         response['X-No-More'] = more_data
         return response
     else:
-        products = Product.objects.all()
         return render(request, 'submissions/read/multiple/snapshots.html', {
                 'snapshots': snapshots,
                 'product': pro,
-                'products': products,
                 'more_data': more_data,
             })
 
@@ -277,7 +271,6 @@ def snapshot(request, pkid):
         last_item = True
     else:
         next_st = snapshots[current_index+1]
-    products = Product.objects.all()
     return render(request, 'submissions/read/single/snapshot.html', {
             'snapshot': snapshot,
             'groups': groups,
@@ -285,5 +278,4 @@ def snapshot(request, pkid):
             'next_st': next_st,
             'first_item': first_item,
             'last_item': last_item,
-            'products': products,
             })

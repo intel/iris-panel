@@ -218,6 +218,7 @@ if path.isfile(KEYFILE) and os.access(KEYFILE, os.R_OK):
 
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
     'core.context_processors.version',
+    'packagedb.context_processors.products',
     )
 
 # Attempt to load overrides to common settings.
