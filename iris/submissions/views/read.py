@@ -172,6 +172,7 @@ def search(request):
     else:
         subs = subs.all()
 
+    show_snapshot = False
     if st:
         if st == DISPLAY_STATUS['OPENED']:
             subs = {sub for sub in subs if sub.opened}
@@ -179,11 +180,13 @@ def search(request):
             subs = {sub for sub in subs if sub.rejected}
         if st == DISPLAY_STATUS['ACCEPTED']:
             subs = {sub for sub in subs if sub.accepted}
+            show_snapshot = True
 
     return render(request, 'submissions/summary.html', {
             'title': 'Search result for "%s"' % querystring,
             'results': SubmissionGroup.group(subs, st),
             'keyword': querystring,
+            'show_snapshot': show_snapshot
             })
 
 
