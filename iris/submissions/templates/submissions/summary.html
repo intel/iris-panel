@@ -78,9 +78,10 @@ tr.table-header {
               {% if show_snapshot %}
                 <td nowrap>
                   {% for snapshot in g.snapshots %}
-                    <a href="{{ snapshot.url }}"><span class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true"></span></a>
-                    <a href="{% url 'snapshot_detail' snapshot.id %}">{{ snapshot.buildid }}</a>
-                    <br/>
+                    <p>
+                      <a href="{{ snapshot.url }}"><span class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true"></span></a>
+                      <a href="{% url 'snapshot_detail' snapshot.id %}">{{ snapshot.buildid }}</a>
+                    </p>
                   {% endfor %}
                 </td>
               {% endif %}
