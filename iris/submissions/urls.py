@@ -31,5 +31,5 @@ urlpatterns = patterns(
     url(r'^rejected/$', 'rejected', name='rejected_submissions'),
     url(r'^search/$', 'search', name='search_submissions'),
     url(r'^search/validate/$', 'validate_search', name='validate_search_submissions'),
-    url(r'^(.*?)$', 'detail', name='submission_detail'),
+    url(r'^(.*?/[0-9.]+)/$', 'detail', name='submission_detail'),
 )
