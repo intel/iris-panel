@@ -42,16 +42,16 @@
             </tbody>
         </table>
     </div>
-    <table class="table table-striped table-bordered table-hover">
+    <table class="table table-bordered table-hover">
         <thead>
             <tr>
                 <th>Submission</th>
                 <th>Owner</th>
                 <th>Git Tree</th>
             </tr>
-            {% for g in groups %}
         </thead>
         <tbody>
+            {% for g in groups %}
                 <tr>
                     <td>
                         <a href="{% url 'submission_detail' g.name %}">{{ g.name }}</a>
