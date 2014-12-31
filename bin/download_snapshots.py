@@ -8,27 +8,32 @@
 # modify it under the terms of the GNU General Public License
 # version 2.0 as published by the Free Software Foundation.
 
+# pylint: disable=E1103
+# E1103: Instance of 'URL' has no 'href' member
+
 """Download Tizen products snapshots
 """
 
 import os
 import re
 import argparse
-
-from django.conf import settings
-from pyquery import PyQuery as pq
-
-from iris.etl.url import URL
-
-# pylint: disable=E1103
-# E1103: Instance of 'URL' has no 'href' member
+import logging
+import traceback
 
 # Add Django settings for the sake of imports
 os.environ['DJANGO_SETTINGS_MODULE'] = 'iris.core.settings'
+from django.conf import settings
+from django.db import transaction
+from pyquery import PyQuery as pq
+
+from iris.etl.url import URL
+from iris.etl import snapshot
+
 
 NAME_AND_LAST_MODIFIED = re.compile(
     r'<a .*?href=(["\'])(.*?)\1.*?>\2</a>\s*'
     r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2})')
+logger = logging.getLogger('download_snapshots')
 
 
 def main():
@@ -77,6 +82,12 @@ def main():
             return url.join(idx[latest_mod])
         raise Exception("Can't find latest snapshot in:%s" % url)
 
+    def import_snapshot(product, snapshot_path):
+        print('Starting snapshot data update...')
+        transaction.set_autocommit(False)
+        snapshot.from_dir(product, snapshot_path)
+        transaction.commit()
+
     for pname, urlstring in settings.IRIS_PRODUCT_MAPPING:
 
         baseurl = URL(urlstring)
@@ -115,10 +126,14 @@ def main():
         for url in latesturl.join(manifest_path).listdir():
             url.download(workdir)
 
-        os.system('import_snapshot.py %s %s' % (pname, pdir))
+        import_snapshot(pname, pdir)
 
         save_lastid(idfile, newid)
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception as err:
+        logger.exception(str(err))
+        raise

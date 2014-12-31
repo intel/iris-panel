@@ -190,6 +190,10 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'download_snapshots': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+        },
     }
 }
 
