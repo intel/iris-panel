@@ -84,6 +84,15 @@ class SubDomain(models.Model):
         app_label = APP_LABEL
         unique_together = ('name', 'domain')
 
+    @property
+    def fullname(self):
+        return ' / '.join((self.domain.name, self.name))
+
+    def get_packages(self):
+        return {package
+        for gittree in self.gittree_set.all()
+        for package in gittree.packages.all()}
+
 
 class License(models.Model):
     """

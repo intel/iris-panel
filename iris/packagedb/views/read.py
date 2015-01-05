@@ -81,9 +81,11 @@ def package(request, pkid=None):
         return render(request, 'packagedb/read/single/package.html',
                 {'package': get_object_or_404(Package, id=pkid)})
     else:
-        packs = Package.objects.select_related('gittree_set').all()
+        subdomains = SubDomain.objects.select_related(
+                        'domain'
+                    ).prefetch_related('gittree_set__packages')
         return render(request, 'packagedb/read/multiple/packages.html', {
-            'packages': packs,
+            'subdomains': subdomains,
             'cache_seconds': settings.CACHE_MIDDLEWARE_SECONDS,
         })
 

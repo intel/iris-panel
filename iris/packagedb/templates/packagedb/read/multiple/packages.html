@@ -28,21 +28,23 @@
         <thead>
           <tr>
             <th>Package Name</th>
-            <th>Git trees</th>
+            <th>Domain</th>
           </tr>
         </thead>
         <tbody>
-          {% for package in packages|dictsort:"name.lower" %}
-          <tr>
-            <td><a href="/app/packagedb/packages/{{ package.id }}">
-                {{package.name}}</a></td>
-            <td>
-              {% for tree in package.gittree_set.all|dictsort:"gitpath" %}
-              <p><a href="/app/packagedb/gittrees/{{tree.id}}">
-                  {{tree.gitpath}}</a></p>
-              {% endfor %}
-            </td>
-          </tr>
+          {% for subdomain in subdomains|dictsort:"fullname.lower"  %}
+            {% if subdomain.get_packages %}
+               <tr>
+                  <td>
+                    {% for package in subdomain.get_packages|dictsort:"name.lower" %}
+                      <p><a href="{% url 'package.read' package.id %}">{{package.name}}</a></p>
+                    {% endfor %}
+                  </td>
+                  <td>
+                   <a href="{% url 'subdomain.read' subdomain.id %}">{{ subdomain.fullname }}</a>
+                  </td>
+              </tr>
+            {% endif %}
           {% endfor %}
         </tbody>
       </table>
