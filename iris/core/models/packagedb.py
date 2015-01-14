@@ -15,7 +15,9 @@ Models related to packaging and version control go here.
 """
 
 # Disabling class checks for the sake of Django specific Meta classes.
-# pylint: disable=W0232, C0111, R0903, E0213
+# pylint: disable=W0232, C0111, R0903, E0213, E1101, C1001
+# C1001: Old-style class defined(here it is "Class Meta")
+# E1101: %s %r has no %r member (here it is x_set)
 # E0213: 29,4:RolesMixin.get_users: Method should have "self" as first argument
 
 # This signifies that these models belong to core application.
@@ -23,6 +25,23 @@ Models related to packaging and version control go here.
 APP_LABEL = 'core'
 
 from django.db import models
+
+
+def role_users(roles_set, *args):
+    '''
+        return all users of roles in queryset: role_set
+        don't use values() here, because values() doesn't use cache
+    '''
+    users = {}
+    for role in roles_set:
+        user_dict = {}
+        user_data = []
+        for user in role.user_set.all():
+            for arg in args:
+                user_dict[arg] = getattr(user, arg)
+            user_data.append(user_dict)
+        users.update({role.get_role_display(): user_data})
+    return users
 
 
 class RolesMixin(object):
@@ -130,6 +149,9 @@ class GitTree(models.Model, RolesMixin):
 
     def __unicode__(self):
         return self.gitpath
+
+    def roles(self, *args):
+        return role_users(self.role_set.all(), *args)
 
     class Meta:
         app_label = APP_LABEL

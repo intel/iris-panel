@@ -28,7 +28,7 @@ __all__ = []
 
 # Package Database related model imports:
 from iris.core.models.packagedb import (Domain, SubDomain, License,
-    GitTree, Package, Product, Image)
+    GitTree, Package, Product, Image, role_users)
 from iris.core.models.submissions import (
     PackageBuild, ImageBuild, Submission, SubmissionBuild, BuildGroup,
     SubmissionGroup, Snapshot, DISPLAY_STATUS)
@@ -37,7 +37,7 @@ from iris.core.models.user import (UserProfile, UserParty,
 
 
 __all__.extend(['Domain', 'SubDomain', 'License', 'GitTree', 'Package',
-                'Product', 'Image', ])
+                'Product', 'Image', 'role_users'])
 __all__.extend(['PackageBuild', 'ImageBuild', 'Submission', 'SubmissionBuild',
                 'BuildGroup', 'SubmissionGroup', 'Snapshot', 'DISPLAY_STATUS'])
 __all__.extend(['UserProfile', 'UserParty',

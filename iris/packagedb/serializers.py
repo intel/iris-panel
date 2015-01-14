@@ -16,9 +16,25 @@ Permittable fields and serializer validation behaviour is defined here.
 
 # pylint: disable=W0232,C0111,R0903
 
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import (
+    ModelSerializer, RelatedField, SlugRelatedField)
 
-from iris.core.models import (Domain, SubDomain, GitTree, Package, Product)
+from iris.core.models import (
+    Domain, SubDomain, GitTree, Package, Product, role_users)
+
+
+class DomainField(RelatedField):
+    """ Refine subdomain name when display"""
+
+    def to_native(self, value):
+        return value.fullname
+
+
+class RoleSetField(RelatedField):
+    """ Refine roleset GitTree """
+
+    def to_native(self, value):
+        return role_users(value.all(), 'first_name', 'last_name', 'email')
 
 
 class DomainSerializer(ModelSerializer):
@@ -46,9 +62,14 @@ class GitTreeSerializer(ModelSerializer):
     Serializer class for the GitTree model.
     """
 
+    domain = DomainField(source='subdomain')
+    licenses = SlugRelatedField(many=True, slug_field='shortname')
+    packages = RelatedField(many=True)
+    roles = RoleSetField(source='role_set')
+
     class Meta:
         model = GitTree
-        fields = ('gitpath', 'subdomain', 'licenses')
+        fields = ('gitpath', 'domain', 'roles', 'packages', 'licenses')
 
 
 class PackageSerializer(ModelSerializer):
@@ -56,15 +77,19 @@ class PackageSerializer(ModelSerializer):
     Serializer for the Package model.
     """
 
+    gittrees = RelatedField(source='gittree_set', many=True)
+
     class Meta:
         model = Package
-        fields = ('name', 'gittree_set')
+        fields = ('name', 'gittrees')
 
 
 class ProductSerializer(ModelSerializer):
     """
     Serializer class for the Product model.
     """
+
+    gittrees = RelatedField(many=True)
 
     class Meta:
         model = Product

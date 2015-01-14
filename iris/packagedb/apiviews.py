@@ -49,8 +49,15 @@ class GitTreeViewSet(ReadOnlyModelViewSet):
     View to the GitTrees provided by the API.
     """
 
-    queryset = GitTree.objects.all()
+    queryset = GitTree.objects.select_related(
+        'subdomain__domain',
+        ).prefetch_related(
+            'packages',
+            'licenses',
+            'role_set__user_set'
+        ).all()
     serializer_class = GitTreeSerializer
+    lookup_field = 'gitpath'
 
 
 class PackageViewSet(ReadOnlyModelViewSet):
@@ -58,8 +65,9 @@ class PackageViewSet(ReadOnlyModelViewSet):
     View to the Packages provided by the API.
     """
 
-    queryset = Package.objects.all()
+    queryset = Package.objects.prefetch_related('gittree_set').all()
     serializer_class = PackageSerializer
+    lookup_field = 'name'
 
 
 class ProductViewSet(ReadOnlyModelViewSet):
@@ -67,5 +75,6 @@ class ProductViewSet(ReadOnlyModelViewSet):
     View to the Products provided by the API.
     """
 
-    queryset = Product.objects.all()
+    queryset = Product.objects.prefetch_related('gittrees').all()
     serializer_class = ProductSerializer
+    lookup_field = 'name'

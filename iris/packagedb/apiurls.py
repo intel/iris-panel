@@ -23,20 +23,44 @@ from iris.packagedb.apiviews import (
     DomainViewSet, SubDomainViewSet, GitTreeViewSet, PackageViewSet,
     ProductViewSet,)
 
+list_gittrees = GitTreeViewSet.as_view({
+    'get': 'list'
+})
+get_gittree = GitTreeViewSet.as_view({
+    'get': 'retrieve'
+})
+
+list_packages = PackageViewSet.as_view({
+    'get': 'list'
+})
+get_package = PackageViewSet.as_view({
+    'get': 'retrieve'
+})
+
+list_products = ProductViewSet.as_view({
+    'get': 'list'
+})
+get_product = ProductViewSet.as_view({
+    'get': 'retrieve'
+})
 
 # Create a router and register our views with it.
 router = DefaultRouter()
 router.register(r'domains', DomainViewSet)
 router.register(r'subdomains', SubDomainViewSet)
-router.register(r'gittrees', GitTreeViewSet)
-router.register(r'packages', PackageViewSet)
-router.register(r'products', ProductViewSet)
 
 # The API URLs are now determined automatically by the router.
 # Additionally, we include the login URLs for the browseable API.
 urlpatterns = patterns(
     'iris.packagedb.apiviews',
     url(r'^', include(router.urls)),
+    url(r'^gittrees/$', list_gittrees, name='gittrees_list'),
+    url(r'^gittrees/(?P<gitpath>[\w/_-]+)/$',
+        get_gittree, name='gittree_detail'),
+    url(r'^packages/$', list_packages, name='packages_list'),
+    url(r'^packages/(?P<name>[\w.-]+)/$', get_package, name='package_detail'),
+    url(r'^products/$', list_products, name='products_list'),
+    url(r'^products/(?P<name>[\w:]+)/$', get_product, name='product_detail'),
     url(r'^api-auth/', include('rest_framework.urls',
         namespace='rest_framework')),
 )
