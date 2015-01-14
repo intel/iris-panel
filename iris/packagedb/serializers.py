@@ -17,10 +17,9 @@ Permittable fields and serializer validation behaviour is defined here.
 # pylint: disable=W0232,C0111,R0903
 
 from rest_framework.serializers import (
-    ModelSerializer, RelatedField, SlugRelatedField)
+    ModelSerializer, RelatedField, SlugRelatedField, Serializer, CharField)
 
-from iris.core.models import (
-    Domain, SubDomain, GitTree, Package, Product, role_users)
+from iris.core.models import (GitTree, Package, Product, role_users)
 
 
 class DomainField(RelatedField):
@@ -37,24 +36,21 @@ class RoleSetField(RelatedField):
         return role_users(value.all(), 'first_name', 'last_name', 'email')
 
 
-class DomainSerializer(ModelSerializer):
-    """
-    Serializer class for the Domain model.
-    """
+class DomainSerializer(Serializer):
+    """ Serializer class for the Domain model. """
 
-    class Meta:
-        model = Domain
-        fields = ('name',)
+    name = CharField(max_length=200)
+    roles = CharField(max_length=512)
 
-
-class SubDomainSerializer(ModelSerializer):
-    """
-    Serializer class for the SubDomain model.
-    """
-
-    class Meta:
-        model = SubDomain
-        fields = ('name', 'domain')
+    def to_native(self, obj):
+        if obj.name.lower() == 'uncategorized':
+            # get roles by domain
+            ins = obj.domain
+        else:
+            # get roles by subdomain
+            ins = obj
+        return {'name': obj.fullname,
+                'roles': ins.roles('first_name', 'last_name', 'email')}
 
 
 class GitTreeSerializer(ModelSerializer):

@@ -78,6 +78,9 @@ class Domain(models.Model, RolesMixin):
     def __unicode__(self):
         return self.name
 
+    def roles(self, *args):
+        return role_users(self.role_set.all(), *args)
+
     class Meta:
         app_label = APP_LABEL
 
@@ -98,6 +101,9 @@ class SubDomain(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def roles(self, *args):
+        return role_users(self.subdomainrole_set.all(), *args)
 
     class Meta:
         app_label = APP_LABEL

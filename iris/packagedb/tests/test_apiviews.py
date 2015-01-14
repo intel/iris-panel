@@ -17,8 +17,9 @@ import urllib
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from iris.core.models import (Domain, SubDomain, License, GitTree, Package,
-    Product, Image, GitTreeRole)
+from iris.core.models import (
+    Domain, SubDomain, GitTree, Package, Product, License, DomainRole,
+    SubDomainRole, GitTreeRole)
 
 
 def basic_auth_header(username, password):
@@ -133,15 +134,22 @@ class DomainsTests(TestCase):
 
     def setUp(self):
         """
-        Create 1 Domain instance.
+        Create 2 SubDomain instance, one of them is 'Uncategorized',
+        one domainrole, one subdomainrole.
         Create 1 test user.
         """
         user = User.objects.create_user(username='nemo', password='password')
         self.credentials = basic_auth_header(user.username, 'password')
 
-        Domain.objects.create(name='domain')
-        self.data = [{'name': obj.name}for obj in Domain.objects.all()]
+        self.d1 = Domain.objects.create(name='domain1')
+        self.d2 = Domain.objects.create(name='domain2')
+        self.sd1 = SubDomain.objects.create(name='subdomain', domain=self.d1)
+        self.sd2 = SubDomain.objects.create(name='Uncategorized', domain=self.d2)
 
+        dr = DomainRole.objects.create(role='Architect', domain=self.d2, name="%s: %s" %('Architect', self.d2.name))
+        user.groups.add(dr)
+        sdr = SubDomainRole.objects.create(role='Maintainer', subdomain=self.sd1, name="%s: %s" %('Maintainer', self.sd1.name))
+        user.groups.add(sdr)
 
     def test_get_info(self):
         """
@@ -150,36 +158,34 @@ class DomainsTests(TestCase):
         url = '/api/packagedb/domains/'
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, self.data)
+        data = []
+        subdomains = SubDomain.objects.all()
+        for subdomain in subdomains:
+            content = {}
+            content['name'] = subdomain.fullname
 
+            if subdomain.name.lower() == 'uncategorized':
+                obj = subdomain.domain
+            else:
+                obj = subdomain
+            content['roles'] = obj.roles('first_name', 'last_name', 'email')
+            data.append(content)
 
-class SubDomainsTests(TestCase):
-    """
-    The REST framework test case class of SubDomain APIView
-    """
+        self.assertEqual(response.data, data)
 
-    def setUp(self):
+    def test_get_detail(self):
         """
-        Create 1 SubDomain instance.
-        Create 1 test user.
+        GET requests to APIView should return single objects.
         """
-        user = User.objects.create_user(username='nemo', password='password')
-        self.credentials = basic_auth_header(user.username, 'password')
-
-        domain = Domain.objects.create(name='domain')
-        SubDomain.objects.create(name='subdomain', domain=domain)
-        self.data = [{'name': obj.name, 'domain': obj.domain.id}
-                     for obj in SubDomain.objects.all()]
-
-
-    def test_get_info(self):
-        """
-        GET requests to APIView should return list of objects.
-        """
-        url = '/api/packagedb/subdomains/'
+        url = '/api/packagedb/domains/%s/' % self.sd2.fullname
+        url = urllib.quote(url)
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, self.data)
+        data = {}
+        data['name'] = self.sd2.fullname
+        data['roles'] = self.d2.roles('first_name', 'last_name', 'email')
+
+        self.assertEqual(response.data, data)
 
 
 class GitTreesTests(TestCase):

@@ -17,11 +17,17 @@ Permittable URLs and views accessible through REST API are defined here.
 # pylint: disable=C0103
 
 from django.conf.urls import patterns, url, include
-from rest_framework.routers import DefaultRouter
 
 from iris.packagedb.apiviews import (
-    DomainViewSet, SubDomainViewSet, GitTreeViewSet, PackageViewSet,
-    ProductViewSet,)
+    DomainViewSet, GitTreeViewSet, PackageViewSet, ProductViewSet)
+
+
+list_domains = DomainViewSet.as_view({
+    'get': 'list'
+})
+get_domain = DomainViewSet.as_view({
+    'get': 'retrieve'
+})
 
 list_gittrees = GitTreeViewSet.as_view({
     'get': 'list'
@@ -44,16 +50,10 @@ get_product = ProductViewSet.as_view({
     'get': 'retrieve'
 })
 
-# Create a router and register our views with it.
-router = DefaultRouter()
-router.register(r'domains', DomainViewSet)
-router.register(r'subdomains', SubDomainViewSet)
-
-# The API URLs are now determined automatically by the router.
-# Additionally, we include the login URLs for the browseable API.
 urlpatterns = patterns(
     'iris.packagedb.apiviews',
-    url(r'^', include(router.urls)),
+    url(r'^domains/$', list_domains, name='domains_list'),
+    url(r'^domains/(?P<name>[\w&/ ]+)/$', get_domain, name='domain_detail'),
     url(r'^gittrees/$', list_gittrees, name='gittrees_list'),
     url(r'^gittrees/(?P<gitpath>[\w/_-]+)/$',
         get_gittree, name='gittree_detail'),

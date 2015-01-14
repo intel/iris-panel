@@ -14,34 +14,37 @@ This is the API view file for the iris-packagedb application.
 Views shown by REST Framework under API URLs are defined here.
 """
 
-# pylint: disable=E1101,W0232,C0111,R0901,R0904
+# pylint: disable=E1101,W0232,C0111,R0901,R0904,W0613
+#W0613: Unused argument %r(here it is request)
 
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
-
-from iris.core.models import (Domain, SubDomain, License, GitTree, Package,
-    Product, Image)
+from iris.core.models import (SubDomain, GitTree, Package, Product)
 from iris.packagedb.serializers import (
-    DomainSerializer, SubDomainSerializer, GitTreeSerializer,
-    PackageSerializer, ProductSerializer,)
+    DomainSerializer, GitTreeSerializer, PackageSerializer, ProductSerializer)
 
 
-class DomainViewSet(ReadOnlyModelViewSet):
+class DomainViewSet(ViewSet):
     """
     View to the Domains provided by the API.
     """
 
-    queryset = Domain.objects.all()
-    serializer_class = DomainSerializer
+    def list(self, request):
+        queryset = SubDomain.objects.prefetch_related(
+            'domain__role_set__user_set',
+            'subdomainrole_set__user_set')
+        serializer = DomainSerializer(queryset, many=True)
+        return Response(serializer.data)
 
-
-class SubDomainViewSet(ReadOnlyModelViewSet):
-    """
-    View to the SubDomains provided by the API.
-    """
-
-    queryset = SubDomain.objects.all()
-    serializer_class = SubDomainSerializer
+    def retrieve(self, request, name=None):
+        domain, subdomain = name.split('/')
+        obj = get_object_or_404(SubDomain,
+                                name=subdomain.strip(),
+                                domain__name=domain.strip())
+        serializer = DomainSerializer(obj)
+        return Response(serializer.data)
 
 
 class GitTreeViewSet(ReadOnlyModelViewSet):
