@@ -19,20 +19,18 @@ Permittable URLs and views accessible through REST API are defined here.
 from django.conf.urls import patterns, url, include
 from rest_framework.routers import DefaultRouter
 
-from iris.packagedb.apiviews import (DomainViewSet, SubDomainViewSet,
-    LicenseViewSet, GitTreeViewSet, PackageViewSet, ProductViewSet,
-    ImageViewSet)
+from iris.packagedb.apiviews import (
+    DomainViewSet, SubDomainViewSet, GitTreeViewSet, PackageViewSet,
+    ProductViewSet,)
 
 
 # Create a router and register our views with it.
 router = DefaultRouter()
 router.register(r'domains', DomainViewSet)
 router.register(r'subdomains', SubDomainViewSet)
-router.register(r'licenses', LicenseViewSet)
 router.register(r'gittrees', GitTreeViewSet)
 router.register(r'packages', PackageViewSet)
 router.register(r'products', ProductViewSet)
-router.register(r'images', ImageViewSet)
 
 # The API URLs are now determined automatically by the router.
 # Additionally, we include the login URLs for the browseable API.

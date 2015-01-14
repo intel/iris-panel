@@ -18,8 +18,7 @@ Permittable fields and serializer validation behaviour is defined here.
 
 from rest_framework.serializers import ModelSerializer
 
-from iris.core.models import (Domain, SubDomain, License, GitTree,
-        Package, Product, Image)
+from iris.core.models import (Domain, SubDomain, GitTree, Package, Product)
 
 
 class DomainSerializer(ModelSerializer):
@@ -40,16 +39,6 @@ class SubDomainSerializer(ModelSerializer):
     class Meta:
         model = SubDomain
         fields = ('name', 'domain')
-
-
-class LicenseSerializer(ModelSerializer):
-    """
-    Serializer class for the License model.
-    """
-
-    class Meta:
-        model = License
-        fields = ('shortname', 'text', 'fullname')
 
 
 class GitTreeSerializer(ModelSerializer):
@@ -80,13 +69,3 @@ class ProductSerializer(ModelSerializer):
     class Meta:
         model = Product
         fields = ('name', 'description', 'gittrees')
-
-
-class ImageSerializer(ModelSerializer):
-    """
-    Serializer class for the Image model.
-    """
-
-    class Meta:
-        model = Image
-        fields = ('name', 'target', 'arch', 'product')

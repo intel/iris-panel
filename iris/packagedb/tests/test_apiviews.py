@@ -46,7 +46,6 @@ class AuthTests(TestCase):
         Get requests to APIView should raise 403
         if dose not sign in.
         """
-
         url = '/api/packagedb/products/'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
@@ -87,7 +86,6 @@ class ProductsTests(TestCase):
         """
         GET requests to APIView should return list of objects.
         """
-
         url = '/api/packagedb/products/'
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
@@ -98,7 +96,6 @@ class ProductsTests(TestCase):
         """
         GET requests to APIView should return a single object.
         """
-
         url = "/api/packagedb/products/%d/" % (self.fixture_obj.pk,)
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
@@ -110,7 +107,6 @@ class ProductsTests(TestCase):
         GET requests to APIView should raise 404
         If it does not currently exist.
         """
-
         url = "/api/packagedb/products/999/"
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 404)
@@ -137,7 +133,6 @@ class DomainsTests(TestCase):
         """
         GET requests to APIView should return list of objects.
         """
-
         url = '/api/packagedb/domains/'
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
@@ -167,42 +162,10 @@ class SubDomainsTests(TestCase):
         """
         GET requests to APIView should return list of objects.
         """
-
         url = '/api/packagedb/subdomains/'
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, self.data)
-
-
-class LicensesTests(TestCase):
-    """
-    The REST framework test case class of License APIView
-    """
-
-    def setUp(self):
-        """
-        Create 1 License instance.
-        Create 1 test user.
-        """
-        user = User.objects.create_user(username='nemo', password='password')
-        self.credentials = basic_auth_header(user.username, 'password')
-
-        License.objects.create(fullname='license', shortname='lic')
-        self.data = [{'fullname': obj.fullname, 'shortname': obj.shortname,
-                      'text': obj.text
-                     } for obj in License.objects.all()]
-
-
-    def test_get_info(self):
-        """
-        GET requests to APIView should return list of objects.
-        """
-
-        url = '/api/packagedb/licenses/'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, self.data)
-
 
 
 class GitTreesTests(TestCase):
@@ -230,7 +193,6 @@ class GitTreesTests(TestCase):
         """
         GET requests to APIView should return list of objects.
         """
-
         url = '/api/packagedb/gittrees/'
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
@@ -262,40 +224,7 @@ class PackagesTests(TestCase):
         """
         GET requests to APIView should return list of objects.
         """
-
         url = '/api/packagedb/packages/'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, self.data)
-
-
-class ImagesTests(TestCase):
-    """
-    The REST framework test case class of Image APIView
-    """
-
-    def setUp(self):
-        """
-        Create 1 Image instance.
-        Create 1 test user.
-        """
-        user = User.objects.create_user(username='nemo', password='password')
-        self.credentials = basic_auth_header(user.username, 'password')
-
-        product = Product.objects.create(name='product')
-        Image.objects.create(name='image', target='target',
-            arch='arch', product=product)
-        self.data = [{'name': obj.name, 'target': obj.target,
-                      'arch': obj.arch, 'product': obj.product.pk
-                     } for obj in Image.objects.all()]
-
-
-    def test_get_info(self):
-        """
-        GET requests to APIView should return list of objects.
-        """
-
-        url = '/api/packagedb/images/'
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, self.data)

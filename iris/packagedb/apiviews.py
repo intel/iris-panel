@@ -21,9 +21,9 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from iris.core.models import (Domain, SubDomain, License, GitTree, Package,
     Product, Image)
-from iris.packagedb.serializers import (DomainSerializer, SubDomainSerializer,
-    LicenseSerializer, GitTreeSerializer, PackageSerializer, ProductSerializer,
-    ImageSerializer)
+from iris.packagedb.serializers import (
+    DomainSerializer, SubDomainSerializer, GitTreeSerializer,
+    PackageSerializer, ProductSerializer,)
 
 
 class DomainViewSet(ReadOnlyModelViewSet):
@@ -42,15 +42,6 @@ class SubDomainViewSet(ReadOnlyModelViewSet):
 
     queryset = SubDomain.objects.all()
     serializer_class = SubDomainSerializer
-
-
-class LicenseViewSet(ReadOnlyModelViewSet):
-    """
-    View to the Licenses provided by the API.
-    """
-
-    queryset = License.objects.all()
-    serializer_class = LicenseSerializer
 
 
 class GitTreeViewSet(ReadOnlyModelViewSet):
@@ -78,12 +69,3 @@ class ProductViewSet(ReadOnlyModelViewSet):
 
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-
-
-class ImageViewSet(ReadOnlyModelViewSet):
-    """
-    View to the Images provided by the API.
-    """
-
-    queryset = Image.objects.all()
-    serializer_class = ImageSerializer
