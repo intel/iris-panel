@@ -134,11 +134,11 @@ class Migration(SchemaMigration):
             'Meta': {'unique_together': "(('name', 'group'),)", 'object_name': 'ImageBuild'},
             'group': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['core.BuildGroup']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'log': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
+            'log': ('django.db.models.fields.URLField', [], {'max_length': '512'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'db_index': 'True'}),
             'repo': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'status': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'url': ('django.db.models.fields.URLField', [], {'max_length': '200'})
+            'url': ('django.db.models.fields.URLField', [], {'max_length': '512'})
         },
         'core.license': {
             'Meta': {'object_name': 'License'},
