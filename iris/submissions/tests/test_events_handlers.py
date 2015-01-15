@@ -78,15 +78,16 @@ class EventHandlerTest(TestCase):
                 })
         self.assertEquals(406, r.status_code)
 
-    def test_pre_created_bad_product(self):
+    def test_pre_created_un_exist_product(self):
         self.login()
         r = self.client.post(self.url % 'pre_created', {
                 'gitpath': 'framework/system/dlog',
                 'tag': 'submit/trunk/01',
-                'product': 'Bad',
+                'product': 'Tizen:Test',
                 'project': 'home:prerelease:tizen:ivi:submit:trunk:01',
                 })
-        self.assertEquals(406, r.status_code)
+        self.assertEquals(201, r.status_code)
+        Product.objects.get(name="Tizen:Test")
 
     def test_pre_created_with_same_product_in_one_project(self):
         gittrees = ['platform/upstream/bluez', 'framework/system/dlog']

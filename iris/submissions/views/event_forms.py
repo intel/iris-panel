@@ -56,10 +56,8 @@ class PreCreatedForm(forms.Form):
 
     def clean_product(self):
         product = self.cleaned_data['product']
-        try:
-            return Product.objects.get(name=product)
-        except Product.DoesNotExist as err:
-            raise forms.ValidationError(str(err))
+        obj, created = Product.objects.get_or_create(name=product)
+        return obj
 
     def clean_project(self):
         project = self.cleaned_data['project']
