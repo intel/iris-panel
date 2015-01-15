@@ -53,6 +53,7 @@ def events_handler(request, typ):
     handlers = {
         'submitted': submitted,
         'pre_created': pre_created,
+        'pre_created_failed': pre_created_failed,
         'package_built': package_built,
         'image_building': image_building,
         'image_created': image_created,
@@ -143,6 +144,30 @@ def pre_created(request):
     group.populate_status()
     return Response({'detail': 'Pre-release project created'},
                     status=HTTP_201_CREATED)
+
+
+def pre_created_failed(request):
+    """
+    Event that happens when a pre-release project failed to create
+    tag -- Tag name
+    gitpath -- Git tree path
+    reason -- Why pre-release project creat fail
+    """
+    try:
+        sub = Submission.objects.get(
+            name=request.POST['tag'],
+            gittree__gitpath=request.POST['gitpath'].strip('/')
+            )
+    except Submission.DoesNotExist as err:
+        return Response({'detail': 'wrong tag name or gitpath'},
+                        status=HTTP_406_NOT_ACCEPTABLE)
+    else:
+        sub.status='ERROR'
+        sub.reason = request.POST['reason']
+        sub.save()
+        return Response(
+            {'detail': 'submission status updated'},
+            status=HTTP_200_OK)
 
 
 def guess_live_repo_url(server, project, repo):

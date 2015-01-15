@@ -242,6 +242,7 @@ class Submission(models.Model):
 
     STATUS = {
         'SUBMITTED': 'Submitted',
+        'ERROR': 'error',
         }
     # when all build groups related to this submission are in final states
     # this submission can be set to DONE state
@@ -259,6 +260,7 @@ class Submission(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    reason = models.TextField()
     # TODO: update "updated" field when package created and image created
 
     def __unicode__(self):
@@ -267,7 +269,6 @@ class Submission(models.Model):
     @property
     def display_status(self):
         return dict(self.STATUS, **BuildGroup.STATUS)[self.status]
-
 
     @property
     def opened(self):
@@ -284,7 +285,9 @@ class Submission(models.Model):
             if not_opened_count == len(groups):
                 # all accepted or rejected
                 return False
-        return True
+            return True
+        else:
+            return self.status == 'SUBMITTED'
 
     @property
     def accepted(self):

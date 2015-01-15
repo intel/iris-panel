@@ -68,6 +68,15 @@ class EventHandlerTest(TestCase):
                 })
         self.assertEquals(201, r.status_code)
 
+    def test_pre_created_failed(self):
+        self.login()
+        r = self.client.post(self.url % 'pre_created_failed', {
+                'tag': 'submit/trunk/01',
+                'gitpath': 'framework/system/dlog',
+                'reason': 'pre-relase project created failed'
+                })
+        self.assertEquals(200, r.status_code)
+
     def test_pre_created_bad_submission(self):
         self.login()
         r = self.client.post(self.url % 'pre_created', {
