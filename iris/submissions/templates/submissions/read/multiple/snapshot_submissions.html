@@ -1,6 +1,6 @@
 {% for snapshot in snapshots %}
   <li>
-    <h3><a href="{% url 'snapshot_detail' snapshot.id %}">{{ snapshot.buildid }}</a></h3>
+    <div class="down-triangle" style="cursor: pointer;float:left;"></div><h4><a href="{% url 'snapshot_detail' snapshot.id %}">{{ snapshot.buildid }}</a></h4>
     {% if snapshot.groups %}
       <ul>
         {% for group in snapshot.groups %}

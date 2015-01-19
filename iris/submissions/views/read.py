@@ -237,7 +237,9 @@ def snapshot_by_product(request, product_id, offset=0, limit=10):
     snapshots = all_snapshots[offset:end]
     for snapshot in snapshots:
         groups = SubmissionGroup.group(snapshot.submissions)
-        snapshot.groups = groups
+        snapshot.groups = sorted(groups,
+                                key=lambda group: group.name,
+                                reverse=True)
 
     if request.is_ajax():
         response = render(request, 'submissions/read/multiple/snapshot_submissions.html', {

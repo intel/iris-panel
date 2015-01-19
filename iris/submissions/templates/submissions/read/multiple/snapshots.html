@@ -3,6 +3,28 @@
 {% block title %}IRIS - Submissions - Snapshots{% endblock %}
 
 {% block content %}
+<style>
+  li {list-style-type: none;}
+  .right-triangle{
+    margin-right: 0.5em;
+    margin-top: 0.2em;
+    width: 0;
+    height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 7px solid #428bca;
+  }
+  .down-triangle {
+    margin-right: 0.5em;
+    margin-top: 0.2em;
+    clear:none;
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 7px solid #428bca;
+  }
+</style>
 
 <div class="container">
   {% include "submissions/menu.html" %}
@@ -21,6 +43,20 @@
   {% endif %}
 </div>
 <script type="text/javascript">
+    function add_toggle_submissions_event(){
+      $('#submission_list > li > div').each(function(index){
+        $(this).unbind('click').click(function(){
+            classname = $(this).attr("class");
+            if (classname == "down-triangle"){
+                $(this).attr("class", "right-triangle");
+            }else{
+                $(this).attr("class", "down-triangle");
+            }
+            $(this).siblings("ul").toggle();
+       });
+    });
+  }
+
 limit = 10;
 offset = limit;
 product_id = "{{ product.id }}"
@@ -30,6 +66,7 @@ $(document ).ready(function() {
         var outter = $(this);
         $.get(url, function(data, textStatus, jqXHR) {
             $("#submission_list" ).append(data);
+            add_toggle_submissions_event();
             offset = $('#submission_list > li').length;
             if (jqXHR.getResponseHeader('X-No-More') == "False"){
                 outter.hide();
@@ -37,6 +74,7 @@ $(document ).ready(function() {
         });
         return false;
     });
+    add_toggle_submissions_event();
 })
 </script>
 {% endblock %}
