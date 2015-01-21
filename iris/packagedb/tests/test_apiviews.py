@@ -31,6 +31,17 @@ def basic_auth_header(username, password):
     return 'Basic %s' % base64_credentials
 
 
+def sort_data(data):
+    if isinstance(data, list):
+        data.sort()
+        for item in data:
+            sort_data(item)
+
+    if isinstance(data, dict):
+        for key, value in data.iteritems():
+            sort_data(value)
+
+
 class AuthTests(TestCase):
     """
     The REST framework test case class of Authorization
@@ -74,7 +85,7 @@ class ProductsTests(TestCase):
         """
         Create 2 Product instance. One includes 2 gittrees, the other includes
         1 gittree.
-        Create 1 test user.
+        Create 2 test user.
         """
         user = User.objects.create_user(username='nemo', password='password')
         self.credentials = basic_auth_header(user.username, 'password')
@@ -83,16 +94,10 @@ class ProductsTests(TestCase):
         sd = SubDomain.objects.create(name='subdoamin', domain=d)
         gt1 = GitTree.objects.create(gitpath='a/b', subdomain=sd)
         gt2 = GitTree.objects.create(gitpath='c/d', subdomain=sd)
-        self.fixture_obj1 = Product.objects.create(name='product',
-            description='product2')
-        self.fixture_obj2 = Product.objects.create(name='a:b',
-            description='product2')
-        self.fixture_obj1.gittrees.add(gt1, gt2)
-        self.fixture_obj2.gittrees.add(gt2)
-
-        self.data = [{'name': obj.name,'description': obj.description,
-                      'gittrees': [item.gitpath for item in obj.gittrees.all()]
-                     } for obj in Product.objects.all()]
+        p1 = Product.objects.create(name='product', description='product1')
+        p2 = Product.objects.create(name='a:b', description='product2')
+        p1.gittrees.add(gt1, gt2)
+        p2.gittrees.add(gt2)
 
     def test_get_info(self):
         """
@@ -101,21 +106,36 @@ class ProductsTests(TestCase):
         url = '/api/packagedb/products/'
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, self.data)
+        data = [
+                {'name': 'a:b',
+                'description': 'product2',
+                'gittrees': ['c/d']
+                },
+               {'name': 'product',
+                'description': 'product1',
+                'gittrees': ['a/b', 'c/d']
+                },
+                ]
+
+        sort_data(data)
+        sort_data(response.data)
+        self.assertEqual(response.data, data)
 
     def test_get_detail(self):
         """
         GET requests to APIView should return a single object.
         """
-        url = "/api/packagedb/products/%s/" % (self.fixture_obj2.name,)
+        url = "/api/packagedb/products/a:b/"
         url = urllib.quote(url)
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data,
-                    {'name': self.fixture_obj2.name,
-                     'description': self.fixture_obj2.description,
-                    'gittrees': [item.gitpath for item in self.fixture_obj2.gittrees.all()]
-                    })
+        data = {'name': 'a:b',
+                  'description': 'product2',
+                  'gittrees': ['c/d']
+                }
+        sort_data(data)
+        sort_data(response.data)
+        self.assertEqual(response.data, data)
 
     def test_get_not_deleted_detail(self):
         """
@@ -136,20 +156,23 @@ class DomainsTests(TestCase):
         """
         Create 2 SubDomain instance, one of them is 'Uncategorized',
         one domainrole, one subdomainrole.
-        Create 1 test user.
+        Create 2 test user.
         """
-        user = User.objects.create_user(username='nemo', password='password')
+        user = User.objects.create_user(username='nemo', password='password', email='nemo@a.com')
+        user2 = User.objects.create_user(username='lucy', password='lucy', first_name='jaeho81', last_name='lucy', email='jaeho81.lucy@a.com')
         self.credentials = basic_auth_header(user.username, 'password')
 
-        self.d1 = Domain.objects.create(name='domain1')
-        self.d2 = Domain.objects.create(name='domain2')
-        self.sd1 = SubDomain.objects.create(name='subdomain', domain=self.d1)
-        self.sd2 = SubDomain.objects.create(name='Uncategorized', domain=self.d2)
+        d1 = Domain.objects.create(name='domain1')
+        d2 = Domain.objects.create(name='domain2')
+        sd1 = SubDomain.objects.create(name='subdomain', domain=d1)
+        sd2 = SubDomain.objects.create(name='Uncategorized', domain=d2)
 
-        dr = DomainRole.objects.create(role='Architect', domain=self.d2, name="%s: %s" %('Architect', self.d2.name))
+        dr = DomainRole.objects.create(role='Architect', domain=d2, name="%s: %s" %('Architect', d2.name))
         user.groups.add(dr)
-        sdr = SubDomainRole.objects.create(role='Maintainer', subdomain=self.sd1, name="%s: %s" %('Maintainer', self.sd1.name))
+        user2.groups.add(dr)
+        sdr = SubDomainRole.objects.create(role='Maintainer', subdomain=sd1, name="%s: %s" %('Maintainer', sd1.name))
         user.groups.add(sdr)
+        user2.groups.add(sdr)
 
     def test_get_info(self):
         """
@@ -158,33 +181,57 @@ class DomainsTests(TestCase):
         url = '/api/packagedb/domains/'
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
-        data = []
-        subdomains = SubDomain.objects.all()
-        for subdomain in subdomains:
-            content = {}
-            content['name'] = subdomain.fullname
-
-            if subdomain.name.lower() == 'uncategorized':
-                obj = subdomain.domain
-            else:
-                obj = subdomain
-            content['roles'] = obj.roles('first_name', 'last_name', 'email')
-            data.append(content)
-
+        data = [
+                {'name': 'domain1 / subdomain',
+                 'roles': {
+                        'Maintainer': [
+                            {'first_name': '',
+                            'last_name': '',
+                            'email': 'nemo@a.com'},
+                            {'first_name': 'jaeho81',
+                            'last_name': 'lucy',
+                            'email': 'jaeho81.lucy@a.com'},
+                            ]
+                    }
+                },
+                {'name': 'domain2 / Uncategorized',
+                 'roles': {
+                        'Architect': [
+                        {'first_name': '',
+                         'last_name': '',
+                         'email': 'nemo@a.com'},
+                        {'first_name': 'jaeho81',
+                         'last_name': 'lucy',
+                         'email': 'jaeho81.lucy@a.com'},
+                        ]
+                    },
+                }
+                ]
+        sort_data(data)
+        sort_data(response.data)
         self.assertEqual(response.data, data)
 
     def test_get_detail(self):
         """
         GET requests to APIView should return single objects.
         """
-        url = '/api/packagedb/domains/%s/' % self.sd2.fullname
+        url = '/api/packagedb/domains/domain2 / Uncategorized/'
         url = urllib.quote(url)
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
-        data = {}
-        data['name'] = self.sd2.fullname
-        data['roles'] = self.d2.roles('first_name', 'last_name', 'email')
-
+        data = {'name': 'domain2 / Uncategorized',
+                'roles': {
+                     'Architect': [
+                     {'first_name': '',
+                      'last_name': '',
+                      'email': 'nemo@a.com'},
+                     {'first_name': 'jaeho81',
+                      'last_name': 'lucy',
+                      'email': 'jaeho81.lucy@a.com'},
+                     ]}
+                 }
+        sort_data(data)
+        sort_data(response.data)
         self.assertEqual(response.data, data)
 
 
@@ -198,28 +245,38 @@ class GitTreesTests(TestCase):
         Create 2 GitTree instance. One realted with domain, two packages,
         another one realted with subdomain, one license.
         with subdomain,
-        Create 1 test user.
+        Create 2 test user.
         """
-        user = User.objects.create_user(username='nemo', password='password')
-        self.credentials = basic_auth_header(user.username, 'password')
+        user1 = User.objects.create_user(username='nemo', password='password', email='nemo@a.com')
+        user2 = User.objects.create_user(username='lucy', password='password', first_name='jaeho81', last_name='lucy', email='jaeho81.lucy@a.com')
+        self.credentials = basic_auth_header(user1.username, 'password')
 
         domain = Domain.objects.create(name='domain')
         sd1  = SubDomain.objects.create(name='subdomain', domain=domain)
         sd2  = SubDomain.objects.create(name='Uncategorized', domain=domain)
 
-        self.gt1 = GitTree.objects.create(gitpath='d/f', subdomain=sd1)
-        self.gt2 = GitTree.objects.create(gitpath='a/b/c', subdomain=sd2)
+        gt1 = GitTree.objects.create(gitpath='d/f', subdomain=sd1)
+        gt2 = GitTree.objects.create(gitpath='a/b/c', subdomain=sd2)
 
-        p1 = Package.objects.create(name='p1')
+        p1 = Package.objects.create(name='xap1')
         p2 = Package.objects.create(name='p2')
-        self.gt1.packages.add(p1, p2)
+        gt1.packages.add(p1, p2)
+        gt2.packages.add(p2)
 
-        l1 = License.objects.create(shortname='l1',
+        l1 = License.objects.create(shortname='license1',
                                     fullname='labc def',
                                     text='helo')
-        self.gt2.licenses.add(l1)
+        l2 = License.objects.create(shortname='abc',
+                                    fullname='weldome sdfs',
+                                    text='helo world')
+        gt2.licenses.add(l1, l2)
 
-        GitTreeRole.objects.create(role='Integrator', gittree=self.gt1, name='Integrator: %s' % self.gt1.gitpath)
+        gr1 = GitTreeRole.objects.create(role='Integrator', gittree=gt1, name='Integrator: %s' % gt1.gitpath)
+        user1.groups.add(gr1)
+        user2.groups.add(gr1)
+        gr2 = GitTreeRole.objects.create(role='Maintainer', gittree=gt2, name='Integrator: %s' % gt2.gitpath)
+        user1.groups.add(gr2)
+        user2.groups.add(gr2)
 
     def test_get_info(self):
         """
@@ -228,30 +285,62 @@ class GitTreesTests(TestCase):
         url = '/api/packagedb/gittrees/'
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
-        data = [{'gitpath': obj.gitpath,
-                'domain': ' / '.join((obj.subdomain.domain.name, obj.subdomain.name)),
-                'licenses': [item.shortname for item in obj.licenses.all()],
-                'packages': [item.name for item in obj.packages.all()],
-                'roles': obj.roles()
-                } for obj in GitTree.objects.all()]
-
+        data = [
+              {'gitpath': 'a/b/c',
+               'domain': 'domain / Uncategorized',
+               'roles': {'Maintainer': [
+                            {'first_name': '',
+                             'last_name': '',
+                             'email': 'nemo@a.com'},
+                            {'first_name': 'jaeho81',
+                             'last_name': 'lucy',
+                             'email': 'jaeho81.lucy@a.com'}]
+                         },
+                'packages': ['p2'],
+                'licenses': ['license1', 'abc'],
+             },
+             {'gitpath': 'd/f',
+              'domain': 'domain / subdomain',
+              'roles': {'Integrator': [
+                            {'first_name': '',
+                             'last_name': '',
+                             'email': 'nemo@a.com'},
+                            {'first_name': 'jaeho81',
+                             'last_name': 'lucy',
+                             'email': 'jaeho81.lucy@a.com'}]
+                         },
+              'packages': ['xap1', 'p2'],
+              'licenses': [],
+             },
+            ]
+        sort_data(data)
+        sort_data(response.data)
         self.assertEqual(response.data, data)
 
     def test_get_detail(self):
         """
         GET requests to APIView should return single objects.
         """
-        url = '/api/packagedb/gittrees/%s/' % self.gt1.gitpath
+        url = '/api/packagedb/gittrees/d/f/'
         url = urllib.quote(url)
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
-        data = {'gitpath': self.gt1.gitpath,
-                'domain': ' / '.join((self.gt1.subdomain.domain.name, self.gt1.subdomain.name)),
-                'roles': self.gt1.roles(),
-                'packages': [item.name for item in self.gt1.packages.all()],
-                'licenses': [item.shortname for item in self.gt1.licenses.all()],
+        data = {'gitpath': 'd/f',
+                'domain': 'domain / subdomain',
+                'roles': {'Integrator': [
+                            {'first_name': '',
+                             'last_name': '',
+                             'email': 'nemo@a.com'},
+                            {'first_name': 'jaeho81',
+                             'last_name': 'lucy',
+                             'email': 'jaeho81.lucy@a.com'}]
+                         },
+                'packages': ['xap1', 'p2'],
+                'licenses': [],
                 }
 
+        sort_data(data)
+        sort_data(response.data)
         self.assertEqual(response.data, data)
 
 
@@ -271,13 +360,13 @@ class PackagesTests(TestCase):
 
         domain = Domain.objects.create(name='domain')
         subdomain = SubDomain.objects.create(name='subdomain', domain=domain)
-        self.gt1 = GitTree.objects.create(gitpath='gitpath1', subdomain=subdomain)
-        self.gt2 = GitTree.objects.create(gitpath='gitpath2', subdomain=subdomain)
+        gt1 = GitTree.objects.create(gitpath='agitpath1', subdomain=subdomain)
+        gt2 = GitTree.objects.create(gitpath='gitpath2', subdomain=subdomain)
 
-        self.pack1 = Package.objects.create(name='package1')
-        self.pack2 = Package.objects.create(name='package2')
-        self.gt1.packages.add(self.pack1, self.pack2)
-        self.gt2.packages.add(self.pack2)
+        pack1 = Package.objects.create(name='package1')
+        pack2 = Package.objects.create(name='package2')
+        gt1.packages.add(pack1, pack2)
+        gt2.packages.add(pack2)
 
     def test_get_info(self):
         """
@@ -287,17 +376,22 @@ class PackagesTests(TestCase):
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
         data = [
-                {'name': self.pack1.name, 'gittrees': [self.gt1.gitpath]},
-                {'name': self.pack2.name, 'gittrees': [self.gt1.gitpath, self.gt2.gitpath]},
+                {'name': 'package1', 'gittrees': ['agitpath1']},
+                {'name': 'package2', 'gittrees': ['gitpath2', 'agitpath1']},
                ]
+
+        sort_data(data)
+        sort_data(response.data)
         self.assertEqual(response.data, data)
 
     def test_get_detail(self):
         """
         GET requests to APIView should return a single object.
         """
-        url = '/api/packagedb/packages/%s/' % self.pack2.name
+        url = '/api/packagedb/packages/package2/'
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data,
-            {'name': self.pack2.name, 'gittrees': [self.gt1.gitpath, self.gt2.gitpath]})
+        data = {'name': 'package2', 'gittrees': ['agitpath1', 'gitpath2']}
+        sort_data(data)
+        sort_data(response.data)
+        self.assertEqual(response.data, data)

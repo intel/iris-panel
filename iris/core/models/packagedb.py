@@ -32,16 +32,12 @@ def role_users(roles_set, *args):
         return all users of roles in queryset: role_set
         don't use values() here, because values() doesn't use cache
     '''
-    users = {}
+    result = {}
     for role in roles_set:
-        user_dict = {}
-        user_data = []
-        for user in role.user_set.all():
-            for arg in args:
-                user_dict[arg] = getattr(user, arg)
-            user_data.append(user_dict)
-        users.update({role.get_role_display(): user_data})
-    return users
+        users = [{arg: getattr(user, arg) for arg in args}
+                for user in role.user_set.all()]
+        result[role.get_role_display()] = users
+    return result
 
 
 class RolesMixin(object):

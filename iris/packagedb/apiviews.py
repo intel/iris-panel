@@ -34,7 +34,8 @@ class DomainViewSet(ViewSet):
     def list(self, request):
         queryset = SubDomain.objects.prefetch_related(
             'domain__role_set__user_set',
-            'subdomainrole_set__user_set')
+            'subdomainrole_set__user_set'
+            ).order_by('domain__name', 'name')
         serializer = DomainSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -58,7 +59,7 @@ class GitTreeViewSet(ReadOnlyModelViewSet):
             'packages',
             'licenses',
             'role_set__user_set'
-        ).all()
+        ).order_by('gitpath')
     serializer_class = GitTreeSerializer
     lookup_field = 'gitpath'
 
@@ -68,7 +69,7 @@ class PackageViewSet(ReadOnlyModelViewSet):
     View to the Packages provided by the API.
     """
 
-    queryset = Package.objects.prefetch_related('gittree_set').all()
+    queryset = Package.objects.prefetch_related('gittree_set').order_by('name')
     serializer_class = PackageSerializer
     lookup_field = 'name'
 
@@ -78,6 +79,6 @@ class ProductViewSet(ReadOnlyModelViewSet):
     View to the Products provided by the API.
     """
 
-    queryset = Product.objects.prefetch_related('gittrees').all()
+    queryset = Product.objects.prefetch_related('gittrees').order_by('name')
     serializer_class = ProductSerializer
     lookup_field = 'name'
