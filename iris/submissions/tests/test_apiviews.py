@@ -11,10 +11,9 @@
 """
 This is the REST framework test class for the iris-submissions project REST API.
 """
+#pylint: skip-file
+import urllib
 
-# pylint: disable=E1101,E1103,R0904,C0103
-
-import base64
 from django.test import TestCase
 from django.contrib.auth.models import User
 
@@ -22,19 +21,13 @@ from rest_framework.status import (HTTP_200_OK, HTTP_404_NOT_FOUND,
                                    HTTP_406_NOT_ACCEPTABLE, HTTP_201_CREATED,
                                    HTTP_400_BAD_REQUEST)
 
-from iris.core.models import Product, Submission
+from iris.core.models import (
+    Product, Submission, Domain, SubDomain, GitTree, BuildGroup,
+    SubmissionBuild, PackageBuild, Package)
+from iris.packagedb.tests.test_apiviews import sort_data
 
 
-def basic_auth_header(username, password):
-    """
-    Build basic authorization header
-    """
-    credentials = '%s:%s' % (username, password)
-    base64_credentials = base64.b64encode(credentials)
-    return 'Basic %s' % base64_credentials
-
-
-class _AuthTests(object):
+class AuthTests(TestCase):
     """
     The REST framework test case class of Authorization
     """
@@ -44,33 +37,30 @@ class _AuthTests(object):
         Create 1 test user.
         """
         user = User.objects.create_user(username='nemo', password='password')
-        self.credentials = basic_auth_header(user.username, 'password')
-
 
     def test_auth_fail(self):
         """
         Get requests to APIView should raise 403
         if dose not sign in.
         """
-
-        url = '/api/submissions/items/'
+        url = '/api/submissions/submissions/Tizen:Common/'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.data,
             {u'detail': u'Authentication credentials were not provided.'})
 
-
     def test_auth_success(self):
         """
         Login success should return True.
         """
-        url = '/api/submissions/items/'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
+        url = '/api/submissions/submissions/Tizen:Common/'
+        self.client.login(username='nemo', password='password')
+        response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertTrue(response)
 
 
-class _SubmissionsTests(object):
+class SubmissionsTests(TestCase):
     """
     The REST framework test case class of Submissions APIView
     """
@@ -81,34 +71,77 @@ class _SubmissionsTests(object):
         Create 1 test user.
         """
         user = User.objects.create_user(username='nemo', password='password')
-        self.credentials = basic_auth_header(user.username, 'password')
+        self.client.login(username='nemo', password='password')
 
-        product = Product.objects.create(name='prod', description='Product')
+        product = Product.objects.create(name='Tizen:Common', description='Product')
+        d = Domain.objects.create(name='domain')
+        sd =  SubDomain.objects.create(name='subdomain', domain=d)
+        gt = GitTree.objects.create(gitpath='gitpath', subdomain=sd)
 
-        self.fixture_obj = Submission.objects.create(
-                               name='submit/product/20140321.223750',
-                               commit='2ae265f9820cb36e',
-                               status='SUBMITTED', product=product)
+        submission_name_status = {
+            'submit/product/20140321.223750': '20_IMGBUILDING',
+            'submit/product/20140421.223750': '15_PKGFAILED',
+            'submit/product/20140521.223750': '15_PKGFAILED',
+            'submit/product/20140621.223750': '33_ACCEPTED',
+            'submit/product/20140721.223750': '36_REJECTED'
+        }
+        for key, value in submission_name_status.iteritems():
+            sb1 = Submission.objects.create(
+                name=key,
+                commit='2ae265f9820cb36e',
+                owner=user,
+                gittree=gt,
+                status=value)
+            bg1 = BuildGroup.objects.create(
+                name='home:pre-release:Tizen:Common:%s' % key,
+                status=value)
+            SubmissionBuild.objects.create(
+                submission=sb1,
+                product = product,
+                group=bg1)
 
-        self.data = [{'id': obj.id, 'name': obj.name, 'commit': obj.commit,
-                      'product': obj.product.name, 'status': obj.status,
-                      'comment': obj.comment,
-                      'gittree': [item for item in obj.gittree.all()],
-                      'submitters': [item for item in obj.submitters.all()],
-                     } for obj in Submission.objects.all()]
+        buildgroup_name_packages_status = {
+        'submit/product/20140321.223750': [('pac1', 'pac3'), 'SUCCESS'],
+        'submit/product/20140421.223750': [('pac2',), 'FAILURE'],
+        'submit/product/20140521.223750': [('pac1',), 'FAILURE'],
+        }
+        for key, value in buildgroup_name_packages_status.iteritems():
+            bg = BuildGroup.objects.get(name='home:pre-release:Tizen:Common:%s' % key)
+            packages, status = value
+            for pac in packages:
+                p, created = Package.objects.get_or_create(name=pac)
+                PackageBuild.objects.create(package=p, group=bg, status=status)
 
-
-    def test_get_full_list(self):
+    def test_get_query_by_product(self):
         """
         GET full list of submissions
         """
 
-        url = '/api/submissions/items/'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
+        url = '/api/submissions/submissions/Tizen:Common/'
+        response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response.data, self.data)
+        data = [{
+                'submission': 'submit/product/20140321.223750',
+                'status': 'Image building',
+                'packages': ['pac1', 'pac3']
+                },
+                {
+                'submission': 'submit/product/20140421.223750',
+                'status': 'Package building failed',
+                'packages': ['pac2']
+                },
+                {
+                'submission': 'submit/product/20140521.223750',
+                'status': 'Package building failed',
+                'packages': ['pac1']
+                },
+            ]
+        res_data = eval(response.content)
+        sort_data(data)
+        sort_data(res_data)
+        self.assertEqual(res_data, data)
 
-    def test_query_by_name(self):
+    def _test_query_by_name(self):
         """
          GET submissions by name.
         """
@@ -117,7 +150,7 @@ class _SubmissionsTests(object):
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(response.data, self.data)
 
-    def test_empty_query_by_name(self):
+    def _test_empty_query_by_name(self):
         """"
         GET empty results by querying by non-existing name
         """
@@ -126,50 +159,69 @@ class _SubmissionsTests(object):
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(response.data, [])
 
-    def test_query_by_product(self):
-        """
-        GET submissions by product
-        """
-        url = '/api/submissions/items/?product=prod'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response.data, self.data)
-
-    def test_failed_query_by_product(self):
+    def test_query_by_un_exist_product(self):
         """
         Test failed query by querying non-existing product
         """
-        url = '/api/submissions/items/?product=this_product_doesnt_exist'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
-        self.assertEqual(response.status_code, HTTP_406_NOT_ACCEPTABLE)
+        url = '/api/submissions/submissions/this_product_doesnt_exist/'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(eval(response.content), [])
 
     def test_query_by_status(self):
         """
         GET submissions by status
         """
-        url = '/api/submissions/items/?status=SUBMITTED'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
+        url = '/api/submissions/submissions/Tizen:Common/?status=%s' % urllib.quote('Package building failed')
+        data = [
+                {
+                'submission': 'submit/product/20140421.223750',
+                'status': 'Package building failed',
+                'packages': ['pac2']
+                },
+                {
+                'submission': 'submit/product/20140521.223750',
+                'status': 'Package building failed',
+                'packages': ['pac1']
+                },
+            ]
+        response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response.data, self.data)
+        res_data = eval(response.content)
+        sort_data(data)
+        sort_data(res_data)
+        self.assertEqual(res_data, data)
 
-    def test_failed_query_by_status(self):
+    def test_by_un_exist_status(self):
         """
         Test failed query by querying non-existing status
         """
-        url = '/api/submissions/items/?status=this_status_doesnt_exist'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
-        self.assertEqual(response.status_code, HTTP_406_NOT_ACCEPTABLE)
+        url = '/api/submissions/submissions/Tizen:Common/?status=hello'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(eval(response.content), [])
 
     def test_case_insensitive_status(self):
         """
         Test that status can be case insensitive
         """
-        url = '/api/submissions/items/?status=SuBmiTTeD'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
+        url = '/api/submissions/submissions/Tizen:Common/?status=%s' % urllib.quote('image building')
+        response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response.data, self.data)
+        print url
+        data = [
+                {
+                'submission': 'submit/product/20140321.223750',
+                'status': 'Image building',
+                'packages': ['pac1', 'pac3']
+                },
+            ]
+        res_data = eval(response.content)
+        sort_data(data)
+        sort_data(res_data)
+        self.assertEqual(res_data, data)
 
-    def test_query_active_submissions(self):
+    def _test_query_active_submissions(self):
         """
         Test query for active submissions
         """
@@ -178,7 +230,7 @@ class _SubmissionsTests(object):
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(response.data, self.data)
 
-    def test_query_not_active_submissions(self):
+    def _test_query_not_active_submissions(self):
         """
         Test query for not active submissions
         """
@@ -187,7 +239,7 @@ class _SubmissionsTests(object):
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(response.data, [])
 
-    def test_wrong_active_parameter(self):
+    def _test_wrong_active_parameter(self):
         """
         Valid 'active' values are 0 and 1. Everything els should cause failure.
         """
@@ -195,7 +247,7 @@ class _SubmissionsTests(object):
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, HTTP_406_NOT_ACCEPTABLE)
 
-    def test_query_status_and_active(self):
+    def _test_query_status_and_active(self):
         """
         Usage of 'active' and 'ststus' together should cause failure
         """
@@ -203,7 +255,7 @@ class _SubmissionsTests(object):
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, HTTP_406_NOT_ACCEPTABLE)
 
-    def test_multiple_parameters(self):
+    def _test_multiple_parameters(self):
         """
         Test query with multiple parameters
         """
@@ -213,7 +265,7 @@ class _SubmissionsTests(object):
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(response.data, self.data)
 
-    def test_get_detail(self):
+    def _test_get_detail(self):
         """
         GET requests to APIView should return a single object.
         """
@@ -224,7 +276,7 @@ class _SubmissionsTests(object):
         self.assertEqual(response.data, self.data[0])
 
 
-    def test_get_not_existing_id(self):
+    def _test_get_not_existing_id(self):
         """
         GET requests to APIView should raise 404
         If it does not currently exist.
@@ -234,7 +286,7 @@ class _SubmissionsTests(object):
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
 
-    def test_create(self):
+    def _test_create(self):
         """"
         Test creation of new submission
         """
@@ -251,7 +303,7 @@ class _SubmissionsTests(object):
         Submission.objects.get(name__exact=name, product__name__exact=product,
                                status__exact=status, commit__exact=commit)
 
-    def test_create_duplicated(self):
+    def _test_create_duplicated(self):
         """
         Creation of duplicated submission should fail
         """
