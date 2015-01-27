@@ -5,9 +5,12 @@
 # IRIS is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # version 2.0 as published by the Free Software Foundation.
-#pylint: skip-file
+
+#pylint: disable=missing-docstring,invalid-name
+#C: 27, 4: Missing method docstring (missing-docstring)
+#C: 33, 4: Invalid method name "test_one_value_one_wrong_status_pair" (invalid-name)
+
 from django.test import TestCase
-from django.core.exceptions import ValidationError
 
 from iris.submissions.views.read import parse_query_string as parse
 

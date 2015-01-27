@@ -11,20 +11,26 @@
 """
 This is the REST framework test class for the iris-submissions project REST API.
 """
-#pylint: skip-file
 import urllib
 
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from rest_framework.status import (HTTP_200_OK, HTTP_404_NOT_FOUND,
-                                   HTTP_406_NOT_ACCEPTABLE, HTTP_201_CREATED,
-                                   HTTP_400_BAD_REQUEST)
+from rest_framework.status import (
+    HTTP_200_OK, HTTP_404_NOT_FOUND,
+    HTTP_406_NOT_ACCEPTABLE, HTTP_201_CREATED,
+    HTTP_400_BAD_REQUEST)
 
 from iris.core.models import (
     Product, Submission, Domain, SubDomain, GitTree, BuildGroup,
     SubmissionBuild, PackageBuild, Package)
 from iris.packagedb.tests.test_apiviews import sort_data
+
+# pylint: disable=no-member,invalid-name,eval-used,too-many-locals
+#E:266,25: Instance of 'WSGIRequest' has no 'data' member (no-member)
+#C:236, 4: Invalid method name "_test_query_not_active_submissions" (invalid-name)
+#W:143,19: Use of eval (eval-used)
+#R: 73, 4: Too many local variables (18/15) (too-many-locals)
 
 
 class AuthTests(TestCase):
@@ -36,7 +42,7 @@ class AuthTests(TestCase):
         """
         Create 1 test user.
         """
-        user = User.objects.create_user(username='nemo', password='password')
+        User.objects.create_user(username='nemo', password='password')
 
     def test_auth_fail(self):
         """
@@ -46,8 +52,8 @@ class AuthTests(TestCase):
         url = '/api/submissions/submissions/Tizen:Common/'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.data,
-            {u'detail': u'Authentication credentials were not provided.'})
+        self.assertEqual(response.data, {
+            u'detail': u'Authentication credentials were not provided.'})
 
     def test_auth_success(self):
         """
@@ -75,7 +81,7 @@ class SubmissionsTests(TestCase):
 
         product = Product.objects.create(name='Tizen:Common', description='Product')
         d = Domain.objects.create(name='domain')
-        sd =  SubDomain.objects.create(name='subdomain', domain=d)
+        sd = SubDomain.objects.create(name='subdomain', domain=d)
         gt = GitTree.objects.create(gitpath='gitpath', subdomain=sd)
 
         submission_name_status = {
@@ -97,19 +103,19 @@ class SubmissionsTests(TestCase):
                 status=value)
             SubmissionBuild.objects.create(
                 submission=sb1,
-                product = product,
+                product=product,
                 group=bg1)
 
         buildgroup_name_packages_status = {
-        'submit/product/20140321.223750': [('pac1', 'pac3'), 'SUCCESS'],
-        'submit/product/20140421.223750': [('pac2',), 'FAILURE'],
-        'submit/product/20140521.223750': [('pac1',), 'FAILURE'],
+            'submit/product/20140321.223750': [('pac1', 'pac3'), 'SUCCESS'],
+            'submit/product/20140421.223750': [('pac2',), 'FAILURE'],
+            'submit/product/20140521.223750': [('pac1',), 'FAILURE'],
         }
         for key, value in buildgroup_name_packages_status.iteritems():
             bg = BuildGroup.objects.get(name='home:pre-release:Tizen:Common:%s' % key)
             packages, status = value
             for pac in packages:
-                p, created = Package.objects.get_or_create(name=pac)
+                p, _ = Package.objects.get_or_create(name=pac)
                 PackageBuild.objects.create(package=p, group=bg, status=status)
 
     def test_get_query_by_product(self):
@@ -121,21 +127,18 @@ class SubmissionsTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
         data = [{
-                'submission': 'submit/product/20140321.223750',
-                'status': 'Image building',
-                'packages': ['pac1', 'pac3']
-                },
-                {
-                'submission': 'submit/product/20140421.223750',
-                'status': 'Package building failed',
-                'packages': ['pac2']
-                },
-                {
-                'submission': 'submit/product/20140521.223750',
-                'status': 'Package building failed',
-                'packages': ['pac1']
-                },
-            ]
+            'submission': 'submit/product/20140321.223750',
+            'status': 'Image building',
+            'packages': ['pac1', 'pac3']
+        }, {
+            'submission': 'submit/product/20140421.223750',
+            'status': 'Package building failed',
+            'packages': ['pac2']
+        }, {
+            'submission': 'submit/product/20140521.223750',
+            'status': 'Package building failed',
+            'packages': ['pac1']
+        }]
         res_data = eval(response.content)
         sort_data(data)
         sort_data(res_data)
@@ -172,19 +175,17 @@ class SubmissionsTests(TestCase):
         """
         GET submissions by status
         """
-        url = '/api/submissions/submissions/Tizen:Common/?status=%s' % urllib.quote('Package building failed')
-        data = [
-                {
-                'submission': 'submit/product/20140421.223750',
-                'status': 'Package building failed',
-                'packages': ['pac2']
-                },
-                {
-                'submission': 'submit/product/20140521.223750',
-                'status': 'Package building failed',
-                'packages': ['pac1']
-                },
-            ]
+        url = '/api/submissions/submissions/Tizen:Common/?status=%s' % \
+              urllib.quote('Package building failed')
+        data = [{
+            'submission': 'submit/product/20140421.223750',
+            'status': 'Package building failed',
+            'packages': ['pac2']
+        }, {
+            'submission': 'submit/product/20140521.223750',
+            'status': 'Package building failed',
+            'packages': ['pac1']
+        }]
         response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
         res_data = eval(response.content)
@@ -205,17 +206,16 @@ class SubmissionsTests(TestCase):
         """
         Test that status can be case insensitive
         """
-        url = '/api/submissions/submissions/Tizen:Common/?status=%s' % urllib.quote('image building')
+        url = '/api/submissions/submissions/Tizen:Common/?status=%s' % \
+              urllib.quote('image building')
         response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
         print url
-        data = [
-                {
-                'submission': 'submit/product/20140321.223750',
-                'status': 'Image building',
-                'packages': ['pac1', 'pac3']
-                },
-            ]
+        data = [{
+            'submission': 'submit/product/20140321.223750',
+            'status': 'Image building',
+            'packages': ['pac1', 'pac3']
+            }]
         res_data = eval(response.content)
         sort_data(data)
         sort_data(res_data)
@@ -295,10 +295,12 @@ class SubmissionsTests(TestCase):
         commit = '80392ccb45f80b554f99786b01ed7183899c2d1c'
         status = 'REJECTED'
         product = 'prod'
-        response = self.client.post(url,
-                       {'name': name, 'commit': commit,
-                        'status': status, 'product': product},
-                       HTTP_AUTHORIZATION=self.credentials)
+        response = self.client.post(
+            url, {
+                'name': name, 'commit': commit,
+                'status': status, 'product': product
+            },
+            HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, HTTP_201_CREATED)
         Submission.objects.get(name__exact=name, product__name__exact=product,
                                status__exact=status, commit__exact=commit)

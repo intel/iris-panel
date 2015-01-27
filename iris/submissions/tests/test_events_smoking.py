@@ -5,7 +5,12 @@
 # IRIS is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # version 2.0 as published by the Free Software Foundation.
-#pylint: skip-file
+
+#pylint: disable=missing-docstring,import-error,invalid-name
+#C: 23, 0: Missing class docstring (missing-docstring)
+#F: 55, 4: Unable to import 'common.iris_rest_client' (import-error)
+#C: 44,12: Invalid variable name "r" (invalid-name)
+
 import os
 import ast
 
@@ -24,10 +29,12 @@ class SmokingTest(TestCase):
 
     fixtures = ['users', 'domains', 'subdomains', 'gittrees', 'products']
 
-    def url(self, typ):
+    @staticmethod
+    def url(typ):
         return '/api/submissions/events/%s/' % typ
 
-    def _get_events(self):
+    @staticmethod
+    def _get_events():
         filename = os.path.join(os.path.dirname(__file__), 'events.log')
         with open(filename) as reader:
             return list(parse_events_log(reader))

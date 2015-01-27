@@ -5,14 +5,17 @@
 # IRIS is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # version 2.0 as published by the Free Software Foundation.
-#pylint: skip-file
-from django.test import TestCase
-from django.contrib.auth.models import User
 
-from iris.core.models import (
-    Domain, SubDomain, GitTree, Product,
-    Submission, Snapshot, BuildGroup
-    )
+#pylint: disable=no-member,missing-docstring,invalid-name,too-many-public-methods,line-too-long
+#E:326, 8: Class 'Snapshot' has no 'objects' member (no-member)
+#C:309, 4: Missing method docstring (missing-docstring)
+#C:148, 4: Invalid method name "test_pre_created_with_different_product_in_different_project" (invalid-name)
+#R: 23, 0: Too many public methods (25/20) (too-many-public-methods)
+#C: 12, 0: Line too long (108/100) (line-too-long)
+
+from django.test import TestCase
+
+from iris.core.models import Product, Submission, Snapshot, BuildGroup
 
 
 class EventHandlerTest(TestCase):
@@ -35,11 +38,11 @@ class EventHandlerTest(TestCase):
     def test_permission_required(self):
         self.login('alice', 'alice')
         r = self.client.post(self.url % 'submitted', {
-                'gitpath': 'framework/system/dlog',
-                'tag': 'submit/trunk/yyyy-mm-dd',
-                'commit_id': 'sha1',
-                'submitter_email': 'someone@localhost',
-                })
+            'gitpath': 'framework/system/dlog',
+            'tag': 'submit/trunk/yyyy-mm-dd',
+            'commit_id': 'sha1',
+            'submitter_email': 'someone@localhost',
+        })
         self.assertEquals(403, r.status_code)
 
     def test_missing_parameter(self):
@@ -50,51 +53,51 @@ class EventHandlerTest(TestCase):
     def test_submitted(self):
         self.login()
         r = self.client.post(self.url % 'submitted', {
-                'gitpath': 'framework/system/dlog',
-                'tag': 'submit/trunk/yyyy-mm-dd',
-                'commit_id': 'sha1',
-                'submitter_email': 'someone@localhost',
-                })
+            'gitpath': 'framework/system/dlog',
+            'tag': 'submit/trunk/yyyy-mm-dd',
+            'commit_id': 'sha1',
+            'submitter_email': 'someone@localhost',
+        })
         self.assertEquals(201, r.status_code)
         Submission.objects.get(name='submit/trunk/yyyy-mm-dd')
 
     def test_pre_created(self):
         self.login()
         r = self.client.post(self.url % 'pre_created', {
-                'gitpath': 'framework/system/dlog',
-                'tag': 'submit/trunk/01',
-                'product': 'Tizen:IVI',
-                'project': 'home:prerelease:tizen:ivi:submit:trunk:01',
-                })
+            'gitpath': 'framework/system/dlog',
+            'tag': 'submit/trunk/01',
+            'product': 'Tizen:IVI',
+            'project': 'home:prerelease:tizen:ivi:submit:trunk:01',
+        })
         self.assertEquals(201, r.status_code)
 
     def test_pre_created_failed(self):
         self.login()
         r = self.client.post(self.url % 'pre_created_failed', {
-                'tag': 'submit/trunk/01',
-                'gitpath': 'framework/system/dlog',
-                'reason': 'pre-relase project created failed'
-                })
+            'tag': 'submit/trunk/01',
+            'gitpath': 'framework/system/dlog',
+            'reason': 'pre-relase project created failed'
+        })
         self.assertEquals(200, r.status_code)
 
     def test_pre_created_bad_submission(self):
         self.login()
         r = self.client.post(self.url % 'pre_created', {
-                'gitpath': 'does/not/exist',
-                'tag': 'does/not/exist',
-                'product': 'Tizen:IVI',
-                'project': 'home:prerelease:tizen:ivi:submit:trunk:01',
-                })
+            'gitpath': 'does/not/exist',
+            'tag': 'does/not/exist',
+            'product': 'Tizen:IVI',
+            'project': 'home:prerelease:tizen:ivi:submit:trunk:01',
+        })
         self.assertEquals(406, r.status_code)
 
     def test_pre_created_un_exist_product(self):
         self.login()
         r = self.client.post(self.url % 'pre_created', {
-                'gitpath': 'framework/system/dlog',
-                'tag': 'submit/trunk/01',
-                'product': 'Tizen:Test',
-                'project': 'home:prerelease:tizen:ivi:submit:trunk:01',
-                })
+            'gitpath': 'framework/system/dlog',
+            'tag': 'submit/trunk/01',
+            'product': 'Tizen:Test',
+            'project': 'home:prerelease:tizen:ivi:submit:trunk:01',
+        })
         self.assertEquals(201, r.status_code)
         Product.objects.get(name="Tizen:Test")
 
@@ -127,17 +130,17 @@ class EventHandlerTest(TestCase):
                 'submitter_email': 'someone@localhost',
                 })
         self.client.post(self.url % 'pre_created', {
-           'gitpath': gittrees[0],
-           'tag': 'submit/trunk/product-different',
-           'product': 'Tizen:IVI',
-           'project': 'home:prerelease:tizen:ivi:submit:trunk:different',
+            'gitpath': gittrees[0],
+            'tag': 'submit/trunk/product-different',
+            'product': 'Tizen:IVI',
+            'project': 'home:prerelease:tizen:ivi:submit:trunk:different',
         })
 
         r = self.client.post(self.url % 'pre_created', {
-           'gitpath': gittrees[0],
-           'tag': 'submit/trunk/product-different',
-           'product': 'Tizen:Common',
-           'project': 'home:prerelease:tizen:ivi:submit:trunk:different',
+            'gitpath': gittrees[0],
+            'tag': 'submit/trunk/product-different',
+            'product': 'Tizen:Common',
+            'project': 'home:prerelease:tizen:ivi:submit:trunk:different',
         })
         self.assertEquals(406, r.status_code)
 
@@ -152,135 +155,134 @@ class EventHandlerTest(TestCase):
                 'submitter_email': 'someone@localhost',
                 })
         self.client.post(self.url % 'pre_created', {
-           'gitpath': gittrees[0],
-           'tag': 'submit/trunk/product-different',
-           'product': 'Tizen:IVI',
-           'project': 'home:prerelease:tizen:ivi:submit:trunk:different-1',
+            'gitpath': gittrees[0],
+            'tag': 'submit/trunk/product-different',
+            'product': 'Tizen:IVI',
+            'project': 'home:prerelease:tizen:ivi:submit:trunk:different-1',
         })
 
         r = self.client.post(self.url % 'pre_created', {
-           'gitpath': gittrees[0],
-           'tag': 'submit/trunk/product-different',
-           'product': 'Tizen:Common',
-           'project': 'home:prerelease:tizen:ivi:submit:trunk:different-2',
+            'gitpath': gittrees[0],
+            'tag': 'submit/trunk/product-different',
+            'product': 'Tizen:Common',
+            'project': 'home:prerelease:tizen:ivi:submit:trunk:different-2',
         })
         self.assertEquals(201, r.status_code)
 
     def test_package_built_succeeded(self):
         self.login()
         r = self.client.post(self.url % 'package_built', {
-                'name': 'dlog',
-                'repo': 'standard',
-                'arch': 'i586',
-                'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
-                'status': 'OBS_BUILD_SUCCESS',
-                'repo_server': 'http://build.server',
-                })
+            'name': 'dlog',
+            'repo': 'standard',
+            'arch': 'i586',
+            'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
+            'status': 'OBS_BUILD_SUCCESS',
+            'repo_server': 'http://build.server',
+        })
         self.assertEquals(200, r.status_code)
 
     def test_package_built_failed(self):
         self.login()
         r = self.client.post(self.url % 'package_built', {
-                'name': 'dlog',
-                'repo': 'standard',
-                'arch': 'armv7el',
-                'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
-                'status': 'OBS_BUILD_FAIL',
-                'repo_server': 'http://build.server',
-                })
+            'name': 'dlog',
+            'repo': 'standard',
+            'arch': 'armv7el',
+            'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
+            'status': 'OBS_BUILD_FAIL',
+            'repo_server': 'http://build.server',
+        })
         self.assertEquals(200, r.status_code)
 
     def test_image_building(self):
         self.login()
         r = self.client.post(self.url % 'image_building', {
-                'name': 'ivi-mbr-i586',
-                'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
-                'repo': 'atom',
-                })
+            'name': 'ivi-mbr-i586',
+            'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
+            'repo': 'atom',
+        })
         self.assertEquals(200, r.status_code)
 
     def test_image_building_bad_project(self):
         self.login()
         r = self.client.post(self.url % 'image_building', {
-                'name': 'ivi-mbr-i586',
-                'project': 'doesnotexist',
-                'repo': 'atom',
-                })
+            'name': 'ivi-mbr-i586',
+            'project': 'doesnotexist',
+            'repo': 'atom',
+        })
         self.assertEquals(406, r.status_code)
 
     def test_image_created(self):
         self.login()
         r = self.client.post(self.url % 'image_created', {
-                'name': 'ivi-mbr-x64',
-                'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
-                'status': 'success',
-                'url': 'http://url.to.image',
-                'log': 'http://url.to.image.log',
-                })
+            'name': 'ivi-mbr-x64',
+            'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
+            'status': 'success',
+            'url': 'http://url.to.image',
+            'log': 'http://url.to.image.log',
+        })
         self.assertEquals(200, r.status_code)
 
     def test_image_created_image_doesnot_exist(self):
         self.login()
         r = self.client.post(self.url % 'image_created', {
-                'name': 'ivi-mbr-i586',
-                'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
-                'status': 'success',
-                'url': 'http://url.to.image',
-                'log': 'http://url.to.image.log',
-                })
+            'name': 'ivi-mbr-i586',
+            'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
+            'status': 'success',
+            'url': 'http://url.to.image',
+            'log': 'http://url.to.image.log',
+        })
         self.assertEquals(406, r.status_code)
 
     def test_image_created_project_doesnot_exist(self):
         self.login()
         r = self.client.post(self.url % 'image_created', {
-                'name': 'ivi-mbr-i586',
-                'project': 'doesnt exist',
-                'status': 'success',
-                'url': 'http://url.to.image',
-                'log': 'http://url.to.image.log',
-                })
+            'name': 'ivi-mbr-i586',
+            'project': 'doesnt exist',
+            'status': 'success',
+            'url': 'http://url.to.image',
+            'log': 'http://url.to.image.log',
+        })
         self.assertEquals(406, r.status_code)
 
     def test_repa_accepted(self):
         self.login()
         r = self.client.post(self.url % 'repa_action', {
-                'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
-                'status': 'accepted',
-                'who': 'someone@tizen.org',
-                'reason': 'Good!',
-                })
+            'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
+            'status': 'accepted',
+            'who': 'someone@tizen.org',
+            'reason': 'Good!',
+        })
         self.assertEquals(200, r.status_code)
 
     def test_repa_rejected(self):
         self.login()
         r = self.client.post(self.url % 'repa_action', {
-                'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
-                'status': 'declined',
-                'who': 'someone@tizen.org',
-                'reason': "Errors found in QA tests",
-                })
+            'project': 'home:prerelease:tizen:ivi:submit:trunk:02',
+            'status': 'declined',
+            'who': 'someone@tizen.org',
+            'reason': "Errors found in QA tests",
+        })
         self.assertEquals(200, r.status_code)
 
     def test_snapshot_start(self):
         self.login()
         r = self.client.post(self.url % 'snapshot_start', {
-                'project': 'Tizen:IVI',
-                'buildid': 'tizen-ivi_20141107.5',
-                'started_time': '2014-10-30 13:34:15'
-
-                })
+            'project': 'Tizen:IVI',
+            'buildid': 'tizen-ivi_20141107.5',
+            'started_time': '2014-10-30 13:34:15'
+        })
         self.assertEquals(200, r.status_code)
         Snapshot.objects.get(product__name='Tizen:IVI',
-                            buildid='tizen-ivi_20141107.5')
+                             buildid='tizen-ivi_20141107.5')
 
     def test_snapshot_finish(self):
         self.login()
         r = self.client.post(self.url % 'snapshot_finish', {
-                'project': 'Tizen:IVI',
-                'buildid': 'tizen-ivi_20141023.5',
-                'finished_time': '2014-10-23 11:30:02',
-                'url': 'http://url.to.snapshot'
-                })
+            'project': 'Tizen:IVI',
+            'buildid': 'tizen-ivi_20141023.5',
+            'finished_time': '2014-10-23 11:30:02',
+            'url': 'http://url.to.snapshot'
+        })
         self.assertEquals(200, r.status_code)
 
         snap = Snapshot.objects.get(product__name='Tizen:IVI',
@@ -290,11 +292,11 @@ class EventHandlerTest(TestCase):
         self.assertEqual(BuildGroup.objects.filter(snapshot=snap).count(), 1)
 
         r = self.client.post(self.url % 'snapshot_finish', {
-                'project': 'Tizen:IVI',
-                'buildid': 'tizen-ivi_20141024.5',
-                'finished_time': '2014-10-24 11:30:02',
-                'url': 'http://url.to.snapshot'
-                })
+            'project': 'Tizen:IVI',
+            'buildid': 'tizen-ivi_20141024.5',
+            'finished_time': '2014-10-24 11:30:02',
+            'url': 'http://url.to.snapshot'
+        })
         self.assertEquals(200, r.status_code)
         snap = Snapshot.objects.get(product__name='Tizen:IVI',
                                     buildid='tizen-ivi_20141024.5')
@@ -306,22 +308,22 @@ class EventHandlerTest(TestCase):
     def test_snapshot_release(self):
         self.login()
         r = self.client.post(self.url % 'snapshot_release', {
-                'project': 'Tizen:IVI',
-                'buildid': 'tizen-ivi_20141023.5',
-                'release_type': 'daily',
-                'url': 'http://url.to.daily/'
-                })
+            'project': 'Tizen:IVI',
+            'buildid': 'tizen-ivi_20141023.5',
+            'release_type': 'daily',
+            'url': 'http://url.to.daily/'
+        })
         self.assertEquals(200, r.status_code)
         Snapshot.objects.get(product__name='Tizen:IVI',
                              buildid='tizen-ivi_20141023.5',
                              daily_url='http://url.to.daily/')
 
         r = self.client.post(self.url % 'snapshot_release', {
-                'project': 'Tizen:IVI',
-                'buildid': 'tizen-ivi_20141023.5',
-                'release_type': 'weekly',
-                'url': 'http://url.to.weekly/'
-                })
+            'project': 'Tizen:IVI',
+            'buildid': 'tizen-ivi_20141023.5',
+            'release_type': 'weekly',
+            'url': 'http://url.to.weekly/'
+        })
         self.assertEquals(200, r.status_code)
         Snapshot.objects.get(product__name='Tizen:IVI',
                              buildid='tizen-ivi_20141023.5',
