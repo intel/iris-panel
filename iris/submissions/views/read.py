@@ -126,8 +126,10 @@ def parse_query_string(query_string):
 
 def validate_search(request):
     """ Ajax view for validte keyword before search """
-    kw = parse_query_string(request.GET.get('kw'))
-    return HttpResponse('ok') if kw else HttpResponseBadRequest('error')
+    if request.GET.get('kw'):
+        kw = parse_query_string(request.GET.get('kw'))
+        return HttpResponse('ok') if kw else HttpResponseBadRequest('error')
+    return HttpResponseBadRequest('no kw arguments')
 
 
 def make_query_conditions(kw):
