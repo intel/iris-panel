@@ -25,7 +25,7 @@ urlpatterns = patterns(
 
 urlpatterns += patterns(
     'iris.submissions.apiviews',
-    url(r'submissions/(?P<project>[\w:]+)/', 'list_submissions', name='submissions_list'),
+    url(r'^(?P<project>[\w:]+)/$', 'list_submissions_by_product', name='submissions_list_by_product'),
     url(r'^api-auth/', include('rest_framework.urls',
         namespace='rest_framework')),
 )

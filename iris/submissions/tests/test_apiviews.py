@@ -43,13 +43,14 @@ class AuthTests(TestCase):
         Create 1 test user.
         """
         User.objects.create_user(username='nemo', password='password')
+        self.base_url = '/api/submissions'
 
     def test_auth_fail(self):
         """
         Get requests to APIView should raise 403
         if dose not sign in.
         """
-        url = '/api/submissions/submissions/Tizen:Common/'
+        url = '%s/Tizen:Common/' % self.base_url
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.data, {
@@ -59,7 +60,7 @@ class AuthTests(TestCase):
         """
         Login success should return True.
         """
-        url = '/api/submissions/submissions/Tizen:Common/'
+        url = '%s/Tizen:Common/' % self.base_url
         self.client.login(username='nemo', password='password')
         response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
@@ -76,6 +77,7 @@ class SubmissionsTests(TestCase):
         Create 1 Submission instance.
         Create 1 test user.
         """
+        self.base_url = '/api/submissions'
         user = User.objects.create_user(username='nemo', password='password')
         self.client.login(username='nemo', password='password')
 
@@ -122,8 +124,7 @@ class SubmissionsTests(TestCase):
         """
         GET full list of submissions
         """
-
-        url = '/api/submissions/submissions/Tizen:Common/'
+        url = '%s/Tizen:Common/' % self.base_url
         response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
         data = [{
@@ -166,7 +167,7 @@ class SubmissionsTests(TestCase):
         """
         Test failed query by querying non-existing product
         """
-        url = '/api/submissions/submissions/this_product_doesnt_exist/'
+        url = '%s/this_product_doesnt_exist/' % self.base_url
         response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(eval(response.content), [])
@@ -175,8 +176,8 @@ class SubmissionsTests(TestCase):
         """
         GET submissions by status
         """
-        url = '/api/submissions/submissions/Tizen:Common/?status=%s' % \
-              urllib.quote('Package building failed')
+        url = '%s/Tizen:Common/?status=%s' % \
+              (self.base_url, urllib.quote('Package building failed'))
         data = [{
             'submission': 'submit/product/20140421.223750',
             'status': 'Package building failed',
@@ -197,7 +198,7 @@ class SubmissionsTests(TestCase):
         """
         Test failed query by querying non-existing status
         """
-        url = '/api/submissions/submissions/Tizen:Common/?status=hello'
+        url = '%s/Tizen:Common/?status=hello' % self.base_url
         response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(eval(response.content), [])
@@ -206,11 +207,10 @@ class SubmissionsTests(TestCase):
         """
         Test that status can be case insensitive
         """
-        url = '/api/submissions/submissions/Tizen:Common/?status=%s' % \
-              urllib.quote('image building')
+        url = '%s/Tizen:Common/?status=%s' % \
+            (self.base_url, urllib.quote('image building'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
-        print url
         data = [{
             'submission': 'submit/product/20140321.223750',
             'status': 'Image building',

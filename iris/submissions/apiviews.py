@@ -59,7 +59,7 @@ def get_query(request, project):
 
 
 @api_view(['GET'])
-def list_submissions(request, project):
+def list_submissions_by_product(request, project):
 
     bgs = BuildGroup.objects.filter(
         get_query(request, project)
