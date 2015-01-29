@@ -218,7 +218,27 @@ class BuildGroup(models.Model):
         All product attrs of submissionbuild_set must be equal,
         othewise they can be put into a build group to build.
         """
-        return self.submissionbuild_set.all()[:1].get().product
+        # don't use [:1].get() because Slicing a QuerySet that has been
+        # evaluated returns a list
+        return self.submissionbuild_set.all()[0].product
+
+    @property
+    def submissions(self):
+        return {sb.submission for sb in self.submissionbuild_set.all()}
+
+    @property
+    def gittrees(self):
+        return list({
+            sb.submission.gittree.gitpath
+            for sb in self.submissionbuild_set.all()
+        })
+
+    @property
+    def packages(self):
+        return list({
+            pb.package.name
+            for pb in self.packagebuild_set.all()
+        })
 
     def natural_key(self):
         return (self.name,)

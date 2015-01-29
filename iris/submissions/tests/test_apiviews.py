@@ -26,11 +26,13 @@ from iris.core.models import (
     SubmissionBuild, PackageBuild, Package)
 from iris.packagedb.tests.test_apiviews import sort_data
 
-# pylint: disable=no-member,invalid-name,eval-used,too-many-locals
+# pylint: disable=no-member,invalid-name,eval-used,too-many-locals,line-too-long,maybe-no-member, too-many-public-methods
 #E:266,25: Instance of 'WSGIRequest' has no 'data' member (no-member)
 #C:236, 4: Invalid method name "_test_query_not_active_submissions" (invalid-name)
 #W:143,19: Use of eval (eval-used)
 #R: 73, 4: Too many local variables (18/15) (too-many-locals)
+#R: 71, 0: Too many public methods (71/20) (too-many-public-methods)
+#E:349,25: Instance of 'WSGIRequest' has no 'status_code' member (but some types could not be inferred) (maybe-no-member)
 
 
 class AuthTests(TestCase):
@@ -82,47 +84,92 @@ class SubmissionsTests(TestCase):
         self.client.login(username='nemo', password='password')
 
         product = Product.objects.create(name='Tizen:Common', description='Product')
+        product2 = Product.objects.create(name='Tizen:IVI', description='Product2')
         d = Domain.objects.create(name='domain')
         sd = SubDomain.objects.create(name='subdomain', domain=d)
         gt = GitTree.objects.create(gitpath='gitpath', subdomain=sd)
+        gt2 = GitTree.objects.create(gitpath='gitpath2', subdomain=sd)
 
         submission_name_status = {
-            'submit/product/20140321.223750': '20_IMGBUILDING',
-            'submit/product/20140421.223750': '15_PKGFAILED',
-            'submit/product/20140521.223750': '15_PKGFAILED',
-            'submit/product/20140621.223750': '33_ACCEPTED',
-            'submit/product/20140721.223750': '36_REJECTED'
+            'submit/product/20140321.223750': ['20_IMGBUILDING', product, [gt, gt2]],
+            'submit/product/20140421.223750': ['15_PKGFAILED', product, [gt]],
+            'submit/product/20140521.223750': ['15_PKGFAILED', product, [gt]],
+            'submit/product/20140621.223750': ['33_ACCEPTED', product, [gt]],
+            'submit/product/20140721.223750': ['36_REJECTED', product, [gt]],
+            'submit/product/20140821.223750': ['15_PKGFAILED', product2, [gt]]
         }
         for key, value in submission_name_status.iteritems():
-            sb1 = Submission.objects.create(
-                name=key,
-                commit='2ae265f9820cb36e',
-                owner=user,
-                gittree=gt,
-                status=value)
-            bg1 = BuildGroup.objects.create(
-                name='home:pre-release:Tizen:Common:%s' % key,
-                status=value)
-            SubmissionBuild.objects.create(
-                submission=sb1,
-                product=product,
-                group=bg1)
+            status, product, gittrees = value
+            for g in gittrees:
+                sb1 = Submission.objects.create(
+                    name=key,
+                    commit='2ae265f9820cb36e',
+                    owner=user,
+                    gittree=g,
+                    status=status)
+                bg1, _ = BuildGroup.objects.get_or_create(
+                    name='home:pre-release:%s:%s' %(product.name, key),
+                    status=status)
+                SubmissionBuild.objects.create(
+                    submission=sb1,
+                    product=product,
+                    group=bg1)
 
         buildgroup_name_packages_status = {
-            'submit/product/20140321.223750': [('pac1', 'pac3'), 'SUCCESS'],
-            'submit/product/20140421.223750': [('pac2',), 'FAILURE'],
-            'submit/product/20140521.223750': [('pac1',), 'FAILURE'],
+            'home:pre-release:Tizen:Common:submit/product/20140321.223750': [('pac1', 'pac3'), 'SUCCESS'],
+            'home:pre-release:Tizen:Common:submit/product/20140421.223750': [('pac2',), 'FAILURE'],
+            'home:pre-release:Tizen:Common:submit/product/20140521.223750': [('pac1',), 'FAILURE'],
+            'home:pre-release:Tizen:IVI:submit/product/20140821.223750': [('pac4',), 'FAILURE'],
         }
         for key, value in buildgroup_name_packages_status.iteritems():
-            bg = BuildGroup.objects.get(name='home:pre-release:Tizen:Common:%s' % key)
+            bg = BuildGroup.objects.get(name=key)
             packages, status = value
             for pac in packages:
                 p, _ = Package.objects.get_or_create(name=pac)
                 PackageBuild.objects.create(package=p, group=bg, status=status)
 
-    def test_get_query_by_product(self):
+    def test_get_query_all(self):
         """
         GET full list of submissions
+        """
+        url = '%s/' % self.base_url
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        data = [{
+            'submission': 'submit/product/20140321.223750',
+            'status': 'Image building',
+            'packages': ['pac1', 'pac3'],
+            'product': 'Tizen:Common',
+            'gittrees': ['gitpath', 'gitpath2']
+        }, {
+            'submission': 'submit/product/20140421.223750',
+            'status': 'Package building failed',
+            'packages': ['pac2'],
+            'product': 'Tizen:Common',
+            'gittrees': ['gitpath']
+        }, {
+            'submission': 'submit/product/20140521.223750',
+            'status': 'Package building failed',
+            'packages': ['pac1'],
+            'product': 'Tizen:Common',
+            'gittrees': ['gitpath']
+        },
+        {
+            'submission': 'submit/product/20140821.223750',
+            'status': 'Package building failed',
+            'packages': ['pac4'],
+            'product': 'Tizen:IVI',
+            'gittrees': ['gitpath']
+        }
+        ]
+        res_data = eval(response.content)
+        sort_data(data)
+        sort_data(res_data)
+        self.assertEqual(res_data, data)
+
+    def _test_get_query_by_product(self):
+        """
+        GET full list of submissions of product: Tizen:Common
         """
         url = '%s/Tizen:Common/' % self.base_url
         response = self.client.get(url)
@@ -130,15 +177,18 @@ class SubmissionsTests(TestCase):
         data = [{
             'submission': 'submit/product/20140321.223750',
             'status': 'Image building',
-            'packages': ['pac1', 'pac3']
+            'packages': ['pac1', 'pac3'],
+            'gittrees': ['gitpath', 'gitpath2']
         }, {
             'submission': 'submit/product/20140421.223750',
             'status': 'Package building failed',
-            'packages': ['pac2']
+            'packages': ['pac2'],
+            'gittrees': ['gitpath']
         }, {
             'submission': 'submit/product/20140521.223750',
             'status': 'Package building failed',
-            'packages': ['pac1']
+            'packages': ['pac1'],
+            'gittrees': ['gitpath']
         }]
         res_data = eval(response.content)
         sort_data(data)
@@ -181,11 +231,13 @@ class SubmissionsTests(TestCase):
         data = [{
             'submission': 'submit/product/20140421.223750',
             'status': 'Package building failed',
-            'packages': ['pac2']
+            'packages': ['pac2'],
+            'gittrees': ['gitpath']
         }, {
             'submission': 'submit/product/20140521.223750',
             'status': 'Package building failed',
-            'packages': ['pac1']
+            'packages': ['pac1'],
+            'gittrees': ['gitpath']
         }]
         response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
@@ -214,7 +266,8 @@ class SubmissionsTests(TestCase):
         data = [{
             'submission': 'submit/product/20140321.223750',
             'status': 'Image building',
-            'packages': ['pac1', 'pac3']
+            'packages': ['pac1', 'pac3'],
+            'gittrees': ['gitpath', 'gitpath2']
             }]
         res_data = eval(response.content)
         sort_data(data)

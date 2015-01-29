@@ -17,62 +17,71 @@ Views shown by REST Framework under API URLs are defined here.
 # pylint: disable=E1101,W0232,C0111,R0901,R0904,W0613
 #W0613: Unused argument %r(here it is request)
 import json
-from collections import OrderedDict
 
-from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.http import HttpResponse
 
-from iris.core.models import (BuildGroup, GitTree, Package, Product)
+from iris.core.models import BuildGroup
 
 
-def get_submission_name(buildgroup):
-    submissions = {sbuild.submission.name
-                    for sbuild in buildgroup.submissionbuild_set.all()}
-
-    assert len(submissions) == 1
-    return submissions.pop()
-
-
-def get_packages(buildgroup):
-    packages = {pb.package.name
-                for pb in buildgroup.packagebuild_set.all()}
-    return list(packages)
-
-
-def get_query(request, project):
+def get_query(product_name=None, status=None):
     def get_key(value):
         # case insensitive for status
-        reverse_dict = dict((v.lower(), k)
-                        for k, v in BuildGroup.STATUS.iteritems())
+        reverse_dict = dict(
+            (v.lower(), k) for k, v in BuildGroup.STATUS.iteritems())
         return reverse_dict.get(value, 'un_exist')
+    query_list = [~Q(status='33_ACCEPTED'), ~Q(status='36_REJECTED')]
+    if product_name is not None:
+        query_list.append(Q(submissionbuild__product__name=product_name))
+    if status is not None:
+        query_list.append(Q(status=get_key(status.lower())))
+    return reduce(lambda a, b: a&b, query_list)
 
-    query = Q(submissionbuild__product__name=project)
-    query &= ~Q(status='33_ACCEPTED')
-    query &= ~Q(status='36_REJECTED')
+
+def get_active_submissions(request, product_name=None):
+    '''
+    return active Submission list
+
+    active means: submission related with pre-release project, and also
+    the project has not been accepted or rejected.
+
+    '''
     if 'status' in request.GET:
-        query &= Q(status=get_key(request.GET['status'].lower()))
-    return query
+        status = request.GET['status']
+    else:
+        status = None
+    bgs = BuildGroup.objects.filter(
+        get_query(product_name, status)
+        ).prefetch_related(
+            'submissionbuild_set__submission',
+            'packagebuild_set__package')
+
+    sub_list = []
+    for bdg in set(bgs):
+        sub_dict = dict()
+        if bdg.submissions:
+            # becuase submissions are deleted by merging user, then now some
+            # buildgroup don't related with submissions
+            sub_dict['submission'] = bdg.submissions.pop().name
+            sub_dict['status'] = bdg.STATUS[bdg.status]
+            sub_dict['packages'] = bdg.packages
+            sub_dict['gittrees'] = bdg.gittrees
+            if product_name is None:
+                sub_dict['product'] = bdg.product.name
+            sub_list.append(sub_dict)
+    sub_list = sorted(sub_list, key=lambda dict: dict['submission'])
+    return sub_list
+
+
+@api_view(['GET'])
+def list_submissions(request):
+    return HttpResponse(json.dumps(get_active_submissions(request)),
+                        content_type="application/json")
 
 
 @api_view(['GET'])
 def list_submissions_by_product(request, project):
-
-    bgs = BuildGroup.objects.filter(
-        get_query(request, project)
-        ).prefetch_related(
-        'submissionbuild_set__submission',
-        'packagebuild_set__package')
-
-    sub_list = []
-    for bg in bgs:
-        sub_dict = dict()
-        sub_dict['submission'] = get_submission_name(bg)
-        sub_dict['status'] = bg.STATUS[bg.status]
-        sub_dict['packages'] = get_packages(bg)
-        sub_list.append(sub_dict)
-    sub_list = sorted(sub_list, key=lambda dict: dict['submission'])
-    return HttpResponse(json.dumps(sub_list), content_type="application/json")
+    return HttpResponse(
+        json.dumps(get_active_submissions(request, project)),
+        content_type="application/json")
