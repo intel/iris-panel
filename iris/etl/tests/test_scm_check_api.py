@@ -9,13 +9,12 @@
 '''This mudule is used to test IRIS rest API: scm.check and scm_check in
 iris/packagedb/views/scm.py
 '''
+#pylint: disable=missing-docstring,invalid-name
+
 import StringIO
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
-
-#pylint: skip-file
 
 
 class EventHandlerTest(TestCase):
@@ -58,7 +57,9 @@ class EventHandlerTest(TestCase):
         gittrees_si.name = 'gittrees'
 
         r = self.client.post(reverse('scm.check'), {
-                'domains': domains_si, 'gittrees': gittrees_si})
+            'domains': domains_si,
+            'gittrees': gittrees_si
+        })
         self.assertEquals(406, r.status_code)
 
     def test_with_error_syntax_file(self):
@@ -76,7 +77,9 @@ class EventHandlerTest(TestCase):
         gittrees_si.name = 'gittrees'
 
         r = self.client.post(reverse('scm.check'), {
-                'domains': domains_si, 'gittrees': gittrees_si})
+            'domains': domains_si,
+            'gittrees': gittrees_si
+        })
         self.assertEquals(406, r.status_code)
 
     def test_with_error_semantic_file(self):
@@ -93,7 +96,9 @@ class EventHandlerTest(TestCase):
         gittrees_si.name = 'gittrees'
 
         r = self.client.post(reverse('scm.check'), {
-                'domains': domains_si, 'gittrees': gittrees_si})
+            'domains': domains_si,
+            'gittrees': gittrees_si
+        })
         self.assertEquals(406, r.status_code)
 
     def test_with_no_error_file(self):
@@ -111,5 +116,7 @@ class EventHandlerTest(TestCase):
         gittrees_si.name = 'gittrees'
 
         r = self.client.post(reverse('scm.check'), {
-                'domains': domains_si, 'gittrees': gittrees_si})
+            'domains': domains_si,
+            'gittrees': gittrees_si
+        })
         self.assertEquals(200, r.status_code)

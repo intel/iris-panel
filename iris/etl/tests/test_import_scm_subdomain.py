@@ -9,6 +9,8 @@
 '''
 This module is used to test import scm data module: iris/etl/scm.py
 '''
+#pylint: disable=missing-docstring,invalid-name
+
 
 import unittest
 
@@ -17,7 +19,6 @@ from django.contrib.auth.models import User
 from iris.core.models import Domain, SubDomain, SubDomainRole
 from iris.etl.scm import from_string, ROLES
 
-#pylint: skip-file
 
 class SubDomainTest(unittest.TestCase):
 
@@ -35,9 +36,9 @@ class SubDomainTest(unittest.TestCase):
         self.assertEquals(
             [('Alarm', )],
             list(SubDomain.objects.filter(
-                    domain__name='System').exclude(
+                domain__name='System').exclude(
                     name='Uncategorized').values_list('name'))
-            )
+        )
     def test_subdomain_includes_slash_colon(self):
         from_string('''
         D: System
@@ -48,12 +49,12 @@ class SubDomainTest(unittest.TestCase):
         self.assertEquals(
             [('Alarm:Clock/Hash', )],
             list(SubDomain.objects.filter(
-                    domain__name='System').exclude(
+                domain__name='System').exclude(
                     name='Uncategorized').values_list('name'))
-            )
+        )
 
-
-    def test_add_subdomain_dont_delete_others(self):
+    @staticmethod
+    def test_add_subdomain_dont_delete_others():
         from_string('''
         D: System
 
@@ -86,10 +87,10 @@ class SubDomainTest(unittest.TestCase):
         self.assertEqual(
             [('Alarm',), ('Call',)],
             list(SubDomain.objects.filter(
-                    domain__name='System').exclude(
+                domain__name='System').exclude(
                     name='Uncategorized').order_by(
-                    'name').values_list('name'))
-            )
+                        'name').values_list('name'))
+        )
 
     def test_delete_one_subdomain(self):
         from_string('''
@@ -112,8 +113,8 @@ class SubDomainTest(unittest.TestCase):
             'Call',
             SubDomain.objects.filter(
                 domain__name='System').exclude(
-                name='Uncategorized')[0].name
-            )
+                    name='Uncategorized')[0].name
+        )
 
     def test_delete_all_subdomains(self):
         from_string('''
@@ -151,13 +152,13 @@ class SubDomainTest(unittest.TestCase):
             'Alarm',
             SubDomain.objects.filter(
                 domain__name='App').exclude(
-                name='Uncategorized')[0].name
-            )
+                    name='Uncategorized')[0].name
+        )
         self.assertFalse(
             SubDomain.objects.filter(
                 domain__name='System').exclude(
-                name='Uncategorized')
-            )
+                    name='Uncategorized')
+        )
 
 class TestSubDomainRole(unittest.TestCase):
     def tearDown(self):
@@ -175,9 +176,9 @@ class TestSubDomainRole(unittest.TestCase):
         M: Mike <mike@i.com>
         ''')
         self.assertEqual(
-               ['mike@i.com'],
-               [i.email for i in SubDomainRole.objects.get(
-               subdomain__name='Clock', role="MAINTAINER").user_set.all()])
+            ['mike@i.com'],
+            [i.email for i in SubDomainRole.objects.get(
+                subdomain__name='Clock', role="MAINTAINER").user_set.all()])
 
     def test_adding_two_subdomain_reviewers(self):
         from_string('''
@@ -189,10 +190,10 @@ class TestSubDomainRole(unittest.TestCase):
         R: Lucy David <lucy.david@inher.com>
         ''')
         self.assertEqual(
-             ['Lucy', 'Mike'],
-             [i.first_name.encode('utf8') for i in SubDomainRole.objects.get(
-              subdomain__name='Clock',
-              role='REVIEWER').user_set.all().order_by('first_name')])
+            ['Lucy', 'Mike'],
+            [i.first_name.encode('utf8') for i in SubDomainRole.objects.get(
+                subdomain__name='Clock',
+                role='REVIEWER').user_set.all().order_by('first_name')])
 
     def test_delete_integrators(self):
         ''' delete integrator: Mike <mike@i.com> '''
@@ -239,9 +240,9 @@ class TestSubDomainRole(unittest.TestCase):
         ''')
         for role in ROLES:
             self.assertEqual(
-              [],
-              [r.role for r in SubDomainRole.objects.filter(
-                subdomain__name='Clock', role=role)])
+                [],
+                [r.role for r in SubDomainRole.objects.filter(
+                    subdomain__name='Clock', role=role)])
 
     def test_update_architectures(self):
         from_string('''
@@ -293,7 +294,7 @@ class TestSubDomainRole(unittest.TestCase):
         self.assertEqual(
             ['mike@i.com'],
             [i.email for i in SubDomainRole.objects.get(
-            subdomain__name='Gallery', role='MAINTAINER').user_set.all()])
+                subdomain__name='Gallery', role='MAINTAINER').user_set.all()])
         self.assertEqual(
             ['mike@i.com'],
             [u.email for u in User.objects.all()])
@@ -321,23 +322,26 @@ class TestSubDomainRole(unittest.TestCase):
         I: Tom Frédéric <tom.adwel@hello.com>
         ''')
         self.assertEqual(
-                ['lucy.chung@wel.com'],
-                [i.email for i in SubDomainRole.objects.get(
-                    subdomain__name='Clock', role="ARCHITECT").user_set.all()])
+            ['lucy.chung@wel.com'],
+            [i.email for i in SubDomainRole.objects.get(
+                subdomain__name='Clock', role="ARCHITECT").user_set.all()])
         self.assertEqual(
-                ['lily.david@hello.com'],
-                [i.email for i in SubDomainRole.objects.get(
-                    subdomain__name='Clock', role="REVIEWER").user_set.all()])
+            ['lily.david@hello.com'],
+            [i.email for i in SubDomainRole.objects.get(
+                subdomain__name='Clock', role="REVIEWER").user_set.all()])
         self.assertEqual(
-                ['mike@i.com'],
-                [i.email for i in SubDomainRole.objects.get(
-                   subdomain__name='Clock', role="MAINTAINER").user_set.all()])
+            ['mike@i.com'],
+            [i.email for i in SubDomainRole.objects.get(
+                subdomain__name='Clock', role="MAINTAINER").user_set.all()])
         self.assertEqual(
-                ['Frédéric'],
-                [i.last_name.encode('utf8') for i in SubDomainRole.objects.get(
-                   subdomain__name='Clock', role="INTEGRATOR").user_set.all()])
-        self.assertEqual(['lily.david@hello.com',
-                          'lucy.chung@wel.com',
-                          'mike@i.com',
-                          'tom.adwel@hello.com'],
-                        [u.email for u in User.objects.all().order_by('email')])
+            ['Frédéric'],
+            [i.last_name.encode('utf8') for i in SubDomainRole.objects.get(
+                subdomain__name='Clock', role="INTEGRATOR").user_set.all()])
+        self.assertEqual([
+            'lily.david@hello.com',
+            'lucy.chung@wel.com',
+            'mike@i.com',
+            'tom.adwel@hello.com'
+        ], [
+            u.email for u in User.objects.all().order_by('email')
+        ])

@@ -9,6 +9,7 @@
 '''
 This module is used to test import scm data module: iris/etl/scm.py
 '''
+#pylint: disable=missing-docstring,no-member,invalid-name
 
 import unittest
 
@@ -17,7 +18,6 @@ from django.contrib.auth.models import User
 from iris.core.models import Domain, SubDomain, GitTree, License, GitTreeRole
 from iris.etl.scm import from_string, ROLES
 
-#pylint: skip-file
 
 class GitTreeTest(unittest.TestCase):
 
@@ -113,8 +113,8 @@ class GitTreeTest(unittest.TestCase):
          D: System / Alarm
          ''')
         self.assertEqual(
-           ['dapt/alsa', 'ton/face'],
-           [g.gitpath for g in GitTree.objects.filter(
+            ['dapt/alsa', 'ton/face'],
+            [g.gitpath for g in GitTree.objects.filter(
                 subdomain__name='Alarm').order_by('gitpath')])
 
     def test_add_three_gittrees(self):
@@ -136,11 +136,13 @@ class GitTreeTest(unittest.TestCase):
         T: apps/core/preloaded/email
         D: System / Call
         ''')
-        self.assertEqual(
-            ['adaptation/alsa-scen',
-             'adaptation/face-engine',
-             'apps/core/preloaded/email'],
-            [ g.gitpath for g in GitTree.objects.all().order_by('gitpath')])
+        self.assertEqual([
+            'adaptation/alsa-scen',
+            'adaptation/face-engine',
+            'apps/core/preloaded/email'
+        ], [
+            g.gitpath for g in GitTree.objects.all().order_by('gitpath')
+        ])
 
     def test_delete_gittree(self):
         ''' delete gitree: ad/alsa '''
@@ -179,9 +181,12 @@ class GitTreeTest(unittest.TestCase):
         D: System / Call
         ''')
 
-        self.assertEqual(
-            ['ad/face', 'apps/core/preloaded/email'],
-            [g.gitpath for g in GitTree.objects.all().order_by('gitpath')])
+        self.assertEqual([
+            'ad/face',
+            'apps/core/preloaded/email'
+        ], [
+            g.gitpath for g in GitTree.objects.all().order_by('gitpath')
+        ])
         self.assertEqual(
             ['ad/face'],
             [g.gitpath for g in GitTree.objects.filter(
@@ -214,11 +219,11 @@ class GitTreeTest(unittest.TestCase):
         D: System / Call
         ''')
         self.assertEqual(
-           [],
-           [g.gitpath for g in GitTree.objects.filter(subdomain__name='Alarm')])
+            [],
+            [g.gitpath for g in GitTree.objects.filter(subdomain__name='Alarm')])
         self.assertEqual(
-           ['adaptation/alsa-scenario-scn-data-0-base'],
-           [g.gitpath for g in GitTree.objects.filter(subdomain__name='Call')])
+            ['adaptation/alsa-scenario-scn-data-0-base'],
+            [g.gitpath for g in GitTree.objects.filter(subdomain__name='Call')])
 
 
 class TestGitTreeRole(unittest.TestCase):
@@ -241,9 +246,9 @@ class TestGitTreeRole(unittest.TestCase):
         M: Mike <mike@i.com>
         ''')
         self.assertEqual(
-               ['mike@i.com'],
-               [i.email for i in GitTreeRole.objects.get(
-               gittree__gitpath='a/b', role="MAINTAINER").user_set.all()])
+            ['mike@i.com'],
+            [i.email for i in GitTreeRole.objects.get(
+                gittree__gitpath='a/b', role="MAINTAINER").user_set.all()])
 
     def test_add_two_gittree_reviewers(self):
         from_string('''
@@ -258,10 +263,10 @@ class TestGitTreeRole(unittest.TestCase):
         R: Lucy David <lucy.david@inher.com>
         ''')
         self.assertEqual(
-             ['Lucy', 'Mike'],
-             [i.first_name.encode('utf8') for i in GitTreeRole.objects.get(
-              gittree__gitpath='a/b',
-              role='REVIEWER').user_set.all().order_by('first_name')])
+            ['Lucy', 'Mike'],
+            [i.first_name.encode('utf8') for i in GitTreeRole.objects.get(
+                gittree__gitpath='a/b',
+                role='REVIEWER').user_set.all().order_by('first_name')])
 
     def test_delete_integrators(self):
         ''' delete integrator: Mike <mike@i.com> '''
@@ -320,10 +325,10 @@ class TestGitTreeRole(unittest.TestCase):
         ''')
         for role in ROLES:
             self.assertEqual(
-            [],
-            [r.role for r in GitTreeRole.objects.filter(
-            gittree__gitpath='a/b',
-            role=role)])
+                [],
+                [r.role for r in GitTreeRole.objects.filter(
+                    gittree__gitpath='a/b',
+                    role=role)])
 
     def test_update_architectures(self):
         from_string('''
@@ -387,7 +392,7 @@ class TestGitTreeRole(unittest.TestCase):
         self.assertEqual(
             ['mike@i.com'],
             [i.email for i in GitTreeRole.objects.get(
-            gittree__gitpath='c/d', role='MAINTAINER').user_set.all()])
+                gittree__gitpath='c/d', role='MAINTAINER').user_set.all()])
         self.assertEqual(
             ['mike@i.com'],
             [u.email for u in User.objects.all()])
@@ -421,26 +426,29 @@ class TestGitTreeRole(unittest.TestCase):
         I: Tom Frédéric <tom.adwel@hello.com>
         ''')
         self.assertEqual(
-                ['lucy.chung@wel.com'],
-                [i.email for i in GitTreeRole.objects.get(
-                    gittree__gitpath='a/b', role="ARCHITECT").user_set.all()])
+            ['lucy.chung@wel.com'],
+            [i.email for i in GitTreeRole.objects.get(
+                gittree__gitpath='a/b', role="ARCHITECT").user_set.all()])
         self.assertEqual(
-                ['lily.david@hello.com'],
-                [i.email for i in GitTreeRole.objects.get(
-                    gittree__gitpath='a/b', role="REVIEWER").user_set.all()])
+            ['lily.david@hello.com'],
+            [i.email for i in GitTreeRole.objects.get(
+                gittree__gitpath='a/b', role="REVIEWER").user_set.all()])
         self.assertEqual(
-                ['mike@i.com'],
-                [i.email for i in GitTreeRole.objects.get(
-                   gittree__gitpath='a/b', role="MAINTAINER").user_set.all()])
+            ['mike@i.com'],
+            [i.email for i in GitTreeRole.objects.get(
+                gittree__gitpath='a/b', role="MAINTAINER").user_set.all()])
         self.assertEqual(
-                ['Frédéric'],
-                [i.last_name.encode('utf8') for i in GitTreeRole.objects.get(
-                   gittree__gitpath='a/b', role="INTEGRATOR").user_set.all()])
-        self.assertEqual(['lily.david@hello.com',
-                          'lucy.chung@wel.com',
-                          'mike@i.com',
-                          'tom.adwel@hello.com'],
-                        [u.email for u in User.objects.all().order_by('email')])
+            ['Frédéric'],
+            [i.last_name.encode('utf8') for i in GitTreeRole.objects.get(
+                gittree__gitpath='a/b', role="INTEGRATOR").user_set.all()])
+        self.assertEqual([
+            'lily.david@hello.com',
+            'lucy.chung@wel.com',
+            'mike@i.com',
+            'tom.adwel@hello.com'
+        ], [
+            u.email for u in User.objects.all().order_by('email')
+        ])
 
 class GitTreeLicenseTest(unittest.TestCase):
 

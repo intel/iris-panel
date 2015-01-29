@@ -5,7 +5,7 @@
 # IRIS is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # version 2.0 as published by the Free Software Foundation.
-#pylint: skip-file
+#pylint: disable=missing-docstring,invalid-name
 
 from iris.etl.parser import UserCache
 
