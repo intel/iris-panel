@@ -9,7 +9,11 @@
 """
 This is the REST framework test class for the iris-packagedb project REST API.
 """
-#pylint: skip-file
+
+#pylint: disable=no-member,missing-docstring,invalid-name
+#E:397,18: Instance of 'HttpResponse' has no 'data' member (no-member)
+#C: 36, 0: Missing function docstring (missing-docstring)
+#C: 96, 8: Invalid variable name "d" (invalid-name)
 
 import base64
 import urllib
@@ -38,7 +42,7 @@ def sort_data(data):
             sort_data(item)
 
     if isinstance(data, dict):
-        for key, value in data.iteritems():
+        for value in data.itervalues():
             sort_data(value)
 
 
@@ -63,8 +67,8 @@ class AuthTests(TestCase):
         url = '/api/packagedb/products/'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.data,
-            {u'detail': u'Authentication credentials were not provided.'})
+        self.assertEqual(response.data, {
+            u'detail': u'Authentication credentials were not provided.'})
 
 
     def test_auth_success(self):
@@ -106,16 +110,15 @@ class ProductsTests(TestCase):
         url = '/api/packagedb/products/'
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
-        data = [
-                {'name': 'a:b',
-                'description': 'product2',
-                'gittrees': ['c/d']
-                },
-               {'name': 'product',
-                'description': 'product1',
-                'gittrees': ['a/b', 'c/d']
-                },
-                ]
+        data = [{
+            'name': 'a:b',
+            'description': 'product2',
+            'gittrees': ['c/d']
+        }, {
+            'name': 'product',
+            'description': 'product1',
+            'gittrees': ['a/b', 'c/d']
+        }]
 
         sort_data(data)
         sort_data(response.data)
@@ -129,10 +132,11 @@ class ProductsTests(TestCase):
         url = urllib.quote(url)
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
-        data = {'name': 'a:b',
-                  'description': 'product2',
-                  'gittrees': ['c/d']
-                }
+        data = {
+            'name': 'a:b',
+            'description': 'product2',
+            'gittrees': ['c/d'],
+        }
         sort_data(data)
         sort_data(response.data)
         self.assertEqual(response.data, data)
@@ -158,19 +162,27 @@ class DomainsTests(TestCase):
         one domainrole, one subdomainrole.
         Create 2 test user.
         """
-        user = User.objects.create_user(username='nemo', password='password', email='nemo@a.com')
-        user2 = User.objects.create_user(username='lucy', password='lucy', first_name='jaeho81', last_name='lucy', email='jaeho81.lucy@a.com')
+        user = User.objects.create_user(
+            username='nemo', password='password', email='nemo@a.com')
+        user2 = User.objects.create_user(
+            username='lucy', password='lucy',
+            first_name='jaeho81', last_name='lucy',
+            email='jaeho81.lucy@a.com')
         self.credentials = basic_auth_header(user.username, 'password')
 
         d1 = Domain.objects.create(name='domain1')
         d2 = Domain.objects.create(name='domain2')
         sd1 = SubDomain.objects.create(name='subdomain', domain=d1)
-        sd2 = SubDomain.objects.create(name='Uncategorized', domain=d2)
+        SubDomain.objects.create(name='Uncategorized', domain=d2)
 
-        dr = DomainRole.objects.create(role='Architect', domain=d2, name="%s: %s" %('Architect', d2.name))
+        dr = DomainRole.objects.create(
+            role='Architect', domain=d2,
+            name="%s: %s" % ('Architect', d2.name))
         user.groups.add(dr)
         user2.groups.add(dr)
-        sdr = SubDomainRole.objects.create(role='Maintainer', subdomain=sd1, name="%s: %s" %('Maintainer', sd1.name))
+        sdr = SubDomainRole.objects.create(
+            role='Maintainer', subdomain=sd1,
+            name="%s: %s" % ('Maintainer', sd1.name))
         user.groups.add(sdr)
         user2.groups.add(sdr)
 
@@ -181,32 +193,33 @@ class DomainsTests(TestCase):
         url = '/api/packagedb/domains/'
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
-        data = [
-                {'name': 'domain1 / subdomain',
-                 'roles': {
-                        'Maintainer': [
-                            {'first_name': '',
-                            'last_name': '',
-                            'email': 'nemo@a.com'},
-                            {'first_name': 'jaeho81',
-                            'last_name': 'lucy',
-                            'email': 'jaeho81.lucy@a.com'},
-                            ]
-                    }
-                },
-                {'name': 'domain2 / Uncategorized',
-                 'roles': {
-                        'Architect': [
-                        {'first_name': '',
-                         'last_name': '',
-                         'email': 'nemo@a.com'},
-                        {'first_name': 'jaeho81',
-                         'last_name': 'lucy',
-                         'email': 'jaeho81.lucy@a.com'},
-                        ]
-                    },
-                }
-                ]
+        data = [{
+            'name': 'domain1 / subdomain',
+            'roles': {
+                'Maintainer': [{
+                    'first_name': '',
+                    'last_name': '',
+                    'email': 'nemo@a.com',
+                }, {
+                    'first_name': 'jaeho81',
+                    'last_name': 'lucy',
+                    'email': 'jaeho81.lucy@a.com'
+                }]
+            },
+        }, {
+            'name': 'domain2 / Uncategorized',
+            'roles': {
+                'Architect': [{
+                    'first_name': '',
+                    'last_name': '',
+                    'email': 'nemo@a.com'
+                }, {
+                    'first_name': 'jaeho81',
+                    'last_name': 'lucy',
+                    'email': 'jaeho81.lucy@a.com'
+                }],
+            },
+        }]
         sort_data(data)
         sort_data(response.data)
         self.assertEqual(response.data, data)
@@ -219,17 +232,20 @@ class DomainsTests(TestCase):
         url = urllib.quote(url)
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
-        data = {'name': 'domain2 / Uncategorized',
-                'roles': {
-                     'Architect': [
-                     {'first_name': '',
-                      'last_name': '',
-                      'email': 'nemo@a.com'},
-                     {'first_name': 'jaeho81',
-                      'last_name': 'lucy',
-                      'email': 'jaeho81.lucy@a.com'},
-                     ]}
-                 }
+        data = {
+            'name': 'domain2 / Uncategorized',
+            'roles': {
+                'Architect': [{
+                    'first_name': '',
+                    'last_name': '',
+                    'email': 'nemo@a.com'
+                }, {
+                    'first_name': 'jaeho81',
+                    'last_name': 'lucy',
+                    'email': 'jaeho81.lucy@a.com'
+                }],
+            }
+        }
         sort_data(data)
         sort_data(response.data)
         self.assertEqual(response.data, data)
@@ -247,13 +263,17 @@ class GitTreesTests(TestCase):
         with subdomain,
         Create 2 test user.
         """
-        user1 = User.objects.create_user(username='nemo', password='password', email='nemo@a.com')
-        user2 = User.objects.create_user(username='lucy', password='password', first_name='jaeho81', last_name='lucy', email='jaeho81.lucy@a.com')
+        user1 = User.objects.create_user(
+            username='nemo', password='password', email='nemo@a.com')
+        user2 = User.objects.create_user(
+            username='lucy', password='password',
+            first_name='jaeho81', last_name='lucy',
+            email='jaeho81.lucy@a.com')
         self.credentials = basic_auth_header(user1.username, 'password')
 
         domain = Domain.objects.create(name='domain')
-        sd1  = SubDomain.objects.create(name='subdomain', domain=domain)
-        sd2  = SubDomain.objects.create(name='Uncategorized', domain=domain)
+        sd1 = SubDomain.objects.create(name='subdomain', domain=domain)
+        sd2 = SubDomain.objects.create(name='Uncategorized', domain=domain)
 
         gt1 = GitTree.objects.create(gitpath='d/f', subdomain=sd1)
         gt2 = GitTree.objects.create(gitpath='a/b/c', subdomain=sd2)
@@ -271,10 +291,14 @@ class GitTreesTests(TestCase):
                                     text='helo world')
         gt2.licenses.add(l1, l2)
 
-        gr1 = GitTreeRole.objects.create(role='Integrator', gittree=gt1, name='Integrator: %s' % gt1.gitpath)
+        gr1 = GitTreeRole.objects.create(
+            role='Integrator', gittree=gt1,
+            name='Integrator: %s' % gt1.gitpath)
         user1.groups.add(gr1)
         user2.groups.add(gr1)
-        gr2 = GitTreeRole.objects.create(role='Maintainer', gittree=gt2, name='Integrator: %s' % gt2.gitpath)
+        gr2 = GitTreeRole.objects.create(
+            role='Maintainer', gittree=gt2,
+            name='Integrator: %s' % gt2.gitpath)
         user1.groups.add(gr2)
         user2.groups.add(gr2)
 
@@ -285,34 +309,39 @@ class GitTreesTests(TestCase):
         url = '/api/packagedb/gittrees/'
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
-        data = [
-              {'gitpath': 'a/b/c',
-               'domain': 'domain / Uncategorized',
-               'roles': {'Maintainer': [
-                            {'first_name': '',
-                             'last_name': '',
-                             'email': 'nemo@a.com'},
-                            {'first_name': 'jaeho81',
-                             'last_name': 'lucy',
-                             'email': 'jaeho81.lucy@a.com'}]
-                         },
-                'packages': ['p2'],
-                'licenses': ['license1', 'abc'],
-             },
-             {'gitpath': 'd/f',
-              'domain': 'domain / subdomain',
-              'roles': {'Integrator': [
-                            {'first_name': '',
-                             'last_name': '',
-                             'email': 'nemo@a.com'},
-                            {'first_name': 'jaeho81',
-                             'last_name': 'lucy',
-                             'email': 'jaeho81.lucy@a.com'}]
-                         },
-              'packages': ['xap1', 'p2'],
-              'licenses': [],
-             },
-            ]
+        data = [{
+            'gitpath': 'a/b/c',
+            'domain': 'domain / Uncategorized',
+            'roles': {
+                'Maintainer': [{
+                    'first_name': '',
+                    'last_name': '',
+                    'email': 'nemo@a.com'
+                }, {
+                    'first_name': 'jaeho81',
+                    'last_name': 'lucy',
+                    'email': 'jaeho81.lucy@a.com'
+                }],
+            },
+            'packages': ['p2'],
+            'licenses': ['license1', 'abc'],
+        }, {
+            'gitpath': 'd/f',
+            'domain': 'domain / subdomain',
+            'roles': {
+                'Integrator': [{
+                    'first_name': '',
+                    'last_name': '',
+                    'email': 'nemo@a.com'
+                }, {
+                    'first_name': 'jaeho81',
+                    'last_name': 'lucy',
+                    'email': 'jaeho81.lucy@a.com'
+                }]
+            },
+            'packages': ['xap1', 'p2'],
+            'licenses': [],
+        }]
         sort_data(data)
         sort_data(response.data)
         self.assertEqual(response.data, data)
@@ -325,20 +354,23 @@ class GitTreesTests(TestCase):
         url = urllib.quote(url)
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
-        data = {'gitpath': 'd/f',
-                'domain': 'domain / subdomain',
-                'roles': {'Integrator': [
-                            {'first_name': '',
-                             'last_name': '',
-                             'email': 'nemo@a.com'},
-                            {'first_name': 'jaeho81',
-                             'last_name': 'lucy',
-                             'email': 'jaeho81.lucy@a.com'}]
-                         },
-                'packages': ['xap1', 'p2'],
-                'licenses': [],
-                }
-
+        data = {
+            'gitpath': 'd/f',
+            'domain': 'domain / subdomain',
+            'roles': {
+                'Integrator': [{
+                    'first_name': '',
+                    'last_name': '',
+                    'email': 'nemo@a.com'
+                }, {
+                    'first_name': 'jaeho81',
+                    'last_name': 'lucy',
+                    'email': 'jaeho81.lucy@a.com'
+                }],
+            },
+            'packages': ['xap1', 'p2'],
+            'licenses': [],
+        }
         sort_data(data)
         sort_data(response.data)
         self.assertEqual(response.data, data)
@@ -375,11 +407,13 @@ class PackagesTests(TestCase):
         url = '/api/packagedb/packages/'
         response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
         self.assertEqual(response.status_code, 200)
-        data = [
-                {'name': 'package1', 'gittrees': ['agitpath1']},
-                {'name': 'package2', 'gittrees': ['gitpath2', 'agitpath1']},
-               ]
-
+        data = [{
+            'name': 'package1',
+            'gittrees': ['agitpath1']
+        }, {
+            'name': 'package2',
+            'gittrees': ['gitpath2', 'agitpath1']
+        }]
         sort_data(data)
         sort_data(response.data)
         self.assertEqual(response.data, data)

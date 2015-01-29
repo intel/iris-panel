@@ -5,17 +5,15 @@
 # IRIS is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # version 2.0 as published by the Free Software Foundation.
-import sys
-import os
-import time
+
+#pylint: disable=missing-docstring
+#C: 31, 4: Missing method docstring (missing-docstring)
 
 from django.test import TestCase
 from django.contrib.auth.models import User
 from iris.core.models import Domain, DomainRole
 
 from iris.etl.scm import merge_users
-
-#pylint: skip-file
 
 
 class MergeUsersTest(TestCase):
@@ -37,7 +35,3 @@ class MergeUsersTest(TestCase):
         self.assertEqual(User.objects.filter(username=self.mail, email=self.mail).exists(), False)
         self.assertTrue(self.user_b in self.domainrole.user_set.all(), True)
         self.assertTrue(len(self.domainrole.user_set.all()) == 1, True)
-
-
-if __name__ == '__main__':
-     unittest.main()

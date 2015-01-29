@@ -12,13 +12,15 @@ This is the test module for the vanilla Django views for IRIS Package Database.
 The tests included are mostly smoke tests for verifying that all views
 indeed work correctly with legal input and produce a HTTP response code 200.
 """
-#pylint: skip-file
+
+#pylint: disable=no-member
+#E:203,23: Class 'License' has no 'objects' member (no-member)
 
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
 
-from iris.core.models import (Domain, SubDomain, License,
-        GitTree, Package, Product, Image)
+from iris.core.models import (
+    Domain, SubDomain, License, GitTree, Package, Product, Image)
 from iris.packagedb.plugin import APPINFO
 
 
@@ -83,7 +85,6 @@ class DomainTest(TestCase):
         """
         Sets tests up with User, Client and Domain fixtures.
         """
-
         self.user = create_test_user()
         self.client = Client()
         login(self.client)
@@ -94,7 +95,6 @@ class DomainTest(TestCase):
         """
         Creates a Domain object with POST.
         """
-
         data = {
             'name': 'Multimedia',
         }
@@ -108,7 +108,6 @@ class DomainTest(TestCase):
         """
         Reads all Domain objects with GET.
         """
-
         url = synthesize_url('domains/')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -117,7 +116,6 @@ class DomainTest(TestCase):
         """
         Reads a single Domain object with GET.
         """
-
         url = synthesize_url('domains/%d/' % self.domain.id)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -126,7 +124,6 @@ class DomainTest(TestCase):
         """
         Deletes a single Domain object with DELETE.
         """
-
         login(self.client, username='admin', password='admin')
         url = synthesize_url('domains/%d/delete/' % self.domain.id)
         response = self.client.delete(url)
@@ -142,20 +139,18 @@ class SubDomainTest(TestCase):
         """
         Sets tests up with User, Client and SubDomain fixtures.
         """
-
         self.user = create_test_user()
         self.client = Client()
         login(self.client)
 
         self.domain = Domain.objects.create(name='Multimedia')
-        self.subdomain = SubDomain.objects.create(name='SubMultimedia',
-            domain=self.domain)
+        self.subdomain = SubDomain.objects.create(
+            name='SubMultimedia', domain=self.domain)
 
     def test_create_subdomain(self):
         """
         Creates a SubDomain object with POST.
         """
-
         data = {
             'name': 'SubMultimedia',
             'subdomain': '%d' % self.domain.pk,
@@ -170,7 +165,6 @@ class SubDomainTest(TestCase):
         """
         Reads a single SubDomain object with GET.
         """
-
         url = synthesize_url('subdomains/%d/' % self.subdomain.id)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -179,7 +173,6 @@ class SubDomainTest(TestCase):
         """
         Deletes a single SubDomain object with DELETE.
         """
-
         login(self.client, username='admin', password='admin')
         url = synthesize_url('subdomains/%d/delete/' % self.subdomain.id)
         response = self.client.delete(url)
@@ -195,20 +188,18 @@ class LicenseTest(TestCase):
         """
         Sets tests up with User, Client and License fixtures.
         """
-
         self.user = create_test_user()
         self.client = Client()
         login(self.client)
 
         self.license = License.objects.create(
-                shortname='LGPL 2.1',
-                text='Lorem ipsum dolor, sit amet qualitet.')
+            shortname='LGPL 2.1',
+            text='Lorem ipsum dolor, sit amet qualitet.')
 
     def test_create_license(self):
         """
         Creates a License object with POST.
         """
-
         data = {
             'shortname': 'LGPL 2.0',
             'text': 'Lorem ipsum dolor, sit amet qualitet.',
@@ -223,7 +214,6 @@ class LicenseTest(TestCase):
         """
         Reads all License objects with GET.
         """
-
         url = synthesize_url('licenses/')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -232,7 +222,6 @@ class LicenseTest(TestCase):
         """
         Reads a single License object with GET.
         """
-
         url = synthesize_url('licenses/%d/' % self.license.id)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -241,7 +230,6 @@ class LicenseTest(TestCase):
         """
         Deletes a single License object with DELETE.
         """
-
         login(self.client, username='admin', password='admin')
         url = synthesize_url('licenses/%d/delete/' % self.license.id)
         response = self.client.delete(url)
@@ -257,23 +245,20 @@ class GitTreeTest(TestCase):
         """
         Sets tests up with User, Client, Domain, SubDomain and GitTree fixtures.
         """
-
         self.user = create_test_user()
         self.client = Client()
         login(self.client)
 
         self.domain = Domain.objects.create(name='Multimedia')
-        self.subdomain = SubDomain.objects.create(name='SubMultimedia',
-                domain=self.domain)
+        self.subdomain = SubDomain.objects.create(
+            name='SubMultimedia', domain=self.domain)
         self.gittree = GitTree.objects.create(
-                gitpath='/pulseaudio/libpulseaudio',
-                subdomain=self.subdomain)
+            gitpath='/pulseaudio/libpulseaudio', subdomain=self.subdomain)
 
     def test_create_gittree(self):
         """
         Creates a GitTree object with POST.
         """
-
         data = {
             'gitpath': '/pulseaudio/libpulseaudio',
             'subdomain': '%d' % self.subdomain.id
@@ -288,7 +273,6 @@ class GitTreeTest(TestCase):
         """
         Reads all GitTree objects with GET.
         """
-
         url = synthesize_url('gittrees/')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -297,7 +281,6 @@ class GitTreeTest(TestCase):
         """
         Reads a single GitTree object with GET.
         """
-
         url = synthesize_url('gittrees/%d/' % self.gittree.id)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -306,7 +289,6 @@ class GitTreeTest(TestCase):
         """
         Deletes a single GitTree object with DELETE.
         """
-
         login(self.client, username='admin', password='admin')
         url = synthesize_url('gittrees/%d/delete/' % self.gittree.id)
         response = self.client.delete(url)
@@ -322,26 +304,23 @@ class PackageTest(TestCase):
         """
         Sets tests up with User, Client, Domain, GitTree and Package fixtures.
         """
-
         self.user = create_test_user()
         self.client = Client()
         login(self.client)
 
         self.domain = Domain.objects.create(name='Multimedia')
-        self.subdomain = SubDomain.objects.create(name='SubMultimedia',
-                domain=self.domain)
+        self.subdomain = SubDomain.objects.create(
+            name='SubMultimedia', domain=self.domain)
         self.gittree = GitTree.objects.create(
-                gitpath='/pulseaudio/libpulseaudio',
-                subdomain=self.subdomain)
-        self.package = Package.objects.create(
-                name='Pulseaudio')
+            gitpath='/pulseaudio/libpulseaudio',
+            subdomain=self.subdomain)
+        self.package = Package.objects.create(name='Pulseaudio')
         self.package.gittree_set.add(self.gittree)
 
     def test_create_package(self):
         """
         Creates a Package object with POST.
         """
-
         data = {
             'name': '/alsa/libalsa',
         }
@@ -355,7 +334,6 @@ class PackageTest(TestCase):
         """
         Reads all Package objects with GET.
         """
-
         url = synthesize_url('packages/')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -364,7 +342,6 @@ class PackageTest(TestCase):
         """
         Reads a single Package object with GET.
         """
-
         url = synthesize_url('packages/%d/' % self.package.id)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -373,7 +350,6 @@ class PackageTest(TestCase):
         """
         Deletes a single Package object with DELETE.
         """
-
         login(self.client, username='admin', password='admin')
         url = synthesize_url('packages/%d/delete/' % self.package.id)
         response = self.client.delete(url)
@@ -389,19 +365,17 @@ class ProductTest(TestCase):
         """
         Sets tests up with User, Client and Product fixtures.
         """
-
         self.user = create_test_user()
         self.client = Client()
         login(self.client)
 
-        self.product = Product.objects.create(name='Tizen Common',
-                description='Foo, Bar, Biz, Bah')
+        self.product = Product.objects.create(
+            name='Tizen Common', description='Foo, Bar, Biz, Bah')
 
     def test_create_product(self):
         """
         Creates a Product object with POST.
         """
-
         data = {
             'name': 'Tizen IVI',
             'description': 'Tizen IVI',
@@ -416,7 +390,6 @@ class ProductTest(TestCase):
         """
         Reads all Product objects with GET.
         """
-
         url = synthesize_url('products/')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -425,7 +398,6 @@ class ProductTest(TestCase):
         """
         Reads a single Product object with GET.
         """
-
         url = synthesize_url('products/%d/' % self.product.id)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -434,7 +406,6 @@ class ProductTest(TestCase):
         """
         Deletes a single Product object with DELETE.
         """
-
         login(self.client, username='admin', password='admin')
         url = synthesize_url('products/%d/delete/' % self.product.id)
         response = self.client.delete(url)
@@ -450,21 +421,20 @@ class ImageTest(TestCase):
         """
         Sets tests up with User, Client and Product and Image fixtures.
         """
-
         self.user = create_test_user()
         self.client = Client()
         login(self.client)
 
-        self.product = Product.objects.create(name='Tizen Common',
-                description='Foo, Bar, Biz, Bah')
-        self.image = Image.objects.create(name='Tizen IVI',
-                target='Tizen IVI', arch='x86', product=self.product)
+        self.product = Product.objects.create(
+            name='Tizen Common', description='Foo, Bar, Biz, Bah')
+        self.image = Image.objects.create(
+            name='Tizen IVI', target='Tizen IVI',
+            arch='x86', product=self.product)
 
     def test_create_image(self):
         """
         Creates a Image object with POST.
         """
-
         data = {
             'name': 'Tizen PC',
             'target': 'Tizen PC',
@@ -481,7 +451,6 @@ class ImageTest(TestCase):
         """
         Reads all Image objects with GET.
         """
-
         url = synthesize_url('images/')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -490,7 +459,6 @@ class ImageTest(TestCase):
         """
         Reads a single Image object with GET.
         """
-
         url = synthesize_url('images/%d/' % self.image.id)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -499,7 +467,6 @@ class ImageTest(TestCase):
         """
         Deletes a single Image object with DELETE.
         """
-
         login(self.client, username='admin', password='admin')
         url = synthesize_url('images/%d/delete/' % self.image.id)
         response = self.client.delete(url)
