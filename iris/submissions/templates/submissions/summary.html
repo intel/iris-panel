@@ -39,25 +39,16 @@ tr.table-header {
               <td>
                 <a href="{% url 'submission_detail' g.name %}">{{ g.name }}</a>
               </td>
-              {% if g.count == 1 %}
-                <td>
-                  <a href="{% url 'users' g.owner.id %}">{{ g.owner|user_display_name }}</a>
-                </td>
-                <td>
-                  <a href="{% url 'gittree.read' g.gittree.id %}">{{ g.gittree }}</a>
-                </td>
-              {% else %}
-                <td>
+              <td>
                 {% for o in g.owner %}
                   <a href="{% url 'users' o.id %}">{{ o|user_display_name }}</a><br/>
                 {% endfor %}
-                </td>
-                <td>
+              </td>
+              <td>
                   {% for t in g.gittree %}
                     <a href="{% url 'gittree.read' t.id %}">{{ t }}</a><br/>
                   {% endfor %}
-                </td>
-              {% endif %}
+              </td>
               {% with prod_st=g.product_status.items %}
                 <td>
                   {% for product, _ in prod_st %}

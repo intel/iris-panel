@@ -16,7 +16,8 @@ Models related to submissions and acceptance go here.
 from collections import defaultdict
 
 # Disabling class checks for the sake of Django specific Meta classes.
-# pylint: disable=W0232, C0111, R0903
+# pylint: disable=W0232, C0111, R0903, no-member, old-style-class
+# pylint: disable=no-value-for-parameter, undefined-loop-variable
 
 # This signifies that these models belong to core application.
 # Required for splitting up the applications to multiple files.
@@ -234,11 +235,12 @@ class BuildGroup(models.Model):
         })
 
     @property
-    def packages(self):
-        return list({
-            pb.package.name
-            for pb in self.packagebuild_set.all()
-        })
+    def pac_builds(self):
+        return {pb for pb in self.packagebuild_set.all()}
+
+    @property
+    def download_url(self):
+        return self.imagebuild_set.all()[0].url.split('images')[0]
 
     def natural_key(self):
         return (self.name,)
@@ -292,8 +294,8 @@ class Submission(models.Model):
 
     @property
     def opened(self):
-        groups = { sbuild.group
-                   for sbuild in self.submissionbuild_set.select_related(
+        groups = {sbuild.group
+                    for sbuild in self.submissionbuild_set.select_related(
                         'group', 'submission').all() if sbuild.group
                   }
         if groups:
@@ -311,7 +313,7 @@ class Submission(models.Model):
 
     @property
     def accepted(self):
-        groups = { sbuild.group
+        groups = {sbuild.group
                    for sbuild in self.submissionbuild_set.all() if sbuild.group
                   }
         if groups:
@@ -322,9 +324,9 @@ class Submission(models.Model):
 
     @property
     def rejected(self):
-        groups = { sbuild.group
-                   for sbuild in self.submissionbuild_set.all() if sbuild.group
-                  }
+        groups = {sbuild.group
+                 for sbuild in self.submissionbuild_set.all() if sbuild.group
+                 }
         if groups:
             for group in groups:
                 if group.status == '36_REJECTED':
@@ -402,7 +404,7 @@ class SubmissionGroup(object):
             if sbuild.product in product_groups:
                 # make sure one product only related with
                 # one pre-relsese project
-                assert product_groups[sbuild.product]== sbuild.group
+                assert product_groups[sbuild.product] == sbuild.group
             else:
                 product_groups[sbuild.product] = sbuild.group
 
@@ -427,27 +429,30 @@ class SubmissionGroup(object):
 
     @property
     def owner(self):
-        if self.count > 1:
-            return {s.owner for s in self.subs}
-        return self.subs[0].owner
+        return {s.owner for s in self.subs}
 
     @property
     def gittree(self):
-        if self.count > 1:
-            return {s.gittree for s in self.subs}
-        return self.subs[0].gittree
+        return {s.gittree for s in self.subs}
+
+    def buildgroup(self, product_name):
+        bgs = BuildGroup.objects.filter(
+            submissionbuild__submission__name=self.name,
+            submissionbuild__product__name=product_name
+        )
+        assert len(set(bgs)) in [0, 1]
+        if bgs:
+            return bgs[0]
+        else:
+            return None
 
     @property
     def commit(self):
-        if self.count > 1:
-            return {s.commit for s in self.subs}
-        return self.subs[0].commit
+        return {s.commit for s in self.subs}
 
     @property
     def gittree_commit(self):
-        if self.count > 1:
-            return {(s.gittree, s.commit) for s in self.subs}
-        return [(self.subs[0].gittree, self.subs[0].commit)]
+        return {(s.gittree, s.commit) for s in self.subs}
 
     @property
     def updated(self):
@@ -457,15 +462,11 @@ class SubmissionGroup(object):
     def created(self):
         return min([s.created for s in self.subs])
 
-    @property
-    def count(self):
-        return len(self.subs)
-
 
 class Snapshot(models.Model):
 
     product = models.ForeignKey('Product')
-    buildid= models.CharField(max_length=128)
+    buildid = models.CharField(max_length=128)
     started_time = models.DateTimeField()
     finished_time = models.DateTimeField(blank=True, null=True)
     url = models.URLField(max_length=512, blank=True, null=True)
@@ -482,12 +483,12 @@ class Snapshot(models.Model):
     @classmethod
     def snapshots_with_same_product(cls, pro_obj):
         return Snapshot.objects.filter(
-                product=pro_obj
-               ).exclude(
+            product=pro_obj
+            ).exclude(
                 finished_time=None
-               ).order_by(
-                 '-finished_time'
-               )
+                ).order_by(
+                    '-finished_time'
+                    )
 
     class Meta:
         app_label = APP_LABEL

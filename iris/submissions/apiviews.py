@@ -20,9 +20,9 @@ import json
 
 from rest_framework.decorators import api_view
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 
-from iris.core.models import BuildGroup
+from iris.core.models import (BuildGroup, SubmissionGroup, Submission)
 
 
 def get_query(product_name=None, status=None):
@@ -54,7 +54,8 @@ def get_active_submissions(request, product_name=None):
     bgs = BuildGroup.objects.filter(
         get_query(product_name, status)
         ).prefetch_related(
-            'submissionbuild_set__submission',
+            'submissionbuild_set__submission__gittree',
+            'submissionbuild_set__product',
             'packagebuild_set__package')
 
     sub_list = []
@@ -65,7 +66,7 @@ def get_active_submissions(request, product_name=None):
             # buildgroup don't related with submissions
             sub_dict['submission'] = bdg.submissions.pop().name
             sub_dict['status'] = bdg.STATUS[bdg.status]
-            sub_dict['packages'] = bdg.packages
+            sub_dict['packages'] = [pb.package.name for pb in bdg.pac_builds]
             sub_dict['gittrees'] = bdg.gittrees
             if product_name is None:
                 sub_dict['product'] = bdg.product.name
@@ -85,3 +86,41 @@ def list_submissions_by_product(request, project):
     return HttpResponse(
         json.dumps(get_active_submissions(request, project)),
         content_type="application/json")
+
+
+@api_view(['GET'])
+def get_submission(request, project, submission):
+    submissions = Submission.objects.filter(
+        name=submission
+        ).prefetch_related(
+            'submissionbuild_set__group__packagebuild_set__package',
+            'submissionbuild_set__group__imagebuild_set',
+            'owner',
+            'gittree',
+            )
+    if submissions:
+        sng = SubmissionGroup(submissions)
+        bdg = sng.buildgroup(project)
+        packages = [
+            ('%s/%s' %(pb.repo, pb.arch), pb.package.name, pb.STATUS[pb.status])
+            for pb in bdg.pac_builds if pb.status == 'FAILURE'
+            ] if bdg else []
+        detail = {
+            'submission': submission,
+            'target_project': project,
+            'commit': list(sng.commit),
+            'submitter': [u.email for u in sng.owner],
+            'download_url': bdg.download_url if bdg else '',
+            'git_trees': [g.gitpath for g in sng.gittree],
+            'images': [
+                (i.name, i.STATUS[i.status])
+                for i in bdg.imagebuild_set.all()] if bdg else [],
+            'package_build_failures': packages,
+        }
+        return HttpResponse(
+            json.dumps(detail),
+            content_type="application/json")
+    else:
+        return HttpResponseNotFound(
+            json.dumps({'reason': 'submission can not be found'}),
+            content_type="application/json")

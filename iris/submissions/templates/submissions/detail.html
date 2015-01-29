@@ -35,15 +35,10 @@
         <tr>
           <th>Owner</th>
           <td>
-            {% if sgroup.count > 1 %}
             {% for o in sgroup.owner %}
             <a href="{% url 'users' o.id %}">
               {{ o|user_display_name }}</a>
             {% endfor %}
-            {% else %}
-            <a href="{% url 'users' sgroup.owner.id %}">
-              {{ sgroup.owner|user_display_name }}</a>
-            {% endif %}
           </td>
         </tr>
         {% if not bgroups %}

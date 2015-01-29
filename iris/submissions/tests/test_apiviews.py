@@ -22,7 +22,7 @@ from rest_framework.status import (
     HTTP_400_BAD_REQUEST)
 
 from iris.core.models import (
-    Product, Submission, Domain, SubDomain, GitTree, BuildGroup,
+    Product, Submission, Domain, SubDomain, GitTree, BuildGroup, ImageBuild,
     SubmissionBuild, PackageBuild, Package)
 from iris.packagedb.tests.test_apiviews import sort_data
 
@@ -80,7 +80,9 @@ class SubmissionsTests(TestCase):
         Create 1 test user.
         """
         self.base_url = '/api/submissions'
-        user = User.objects.create_user(username='nemo', password='password')
+
+        user = User.objects.create_user(username='nemo', password='password', email='nemo@a.com')
+        user2 = User.objects.create_user(username='helo', password='ssd', email='hello@a.com')
         self.client.login(username='nemo', password='password')
 
         product = Product.objects.create(name='Tizen:Common', description='Product')
@@ -88,24 +90,23 @@ class SubmissionsTests(TestCase):
         d = Domain.objects.create(name='domain')
         sd = SubDomain.objects.create(name='subdomain', domain=d)
         gt = GitTree.objects.create(gitpath='gitpath', subdomain=sd)
-        gt2 = GitTree.objects.create(gitpath='gitpath2', subdomain=sd)
+        gt2 = GitTree.objects.create(gitpath='a/b/c', subdomain=sd)
 
         submission_name_status = {
-            'submit/product/20140321.223750': ['20_IMGBUILDING', product, [gt, gt2]],
-            'submit/product/20140421.223750': ['15_PKGFAILED', product, [gt]],
-            'submit/product/20140521.223750': ['15_PKGFAILED', product, [gt]],
-            'submit/product/20140621.223750': ['33_ACCEPTED', product, [gt]],
-            'submit/product/20140721.223750': ['36_REJECTED', product, [gt]],
-            'submit/product/20140821.223750': ['15_PKGFAILED', product2, [gt]]
+            'submit/product/20140321.223750': [('20_IMGBUILDING', product, gt, user), ('20_IMGBUILDING', product, gt2, user)],
+            'submit/product/20140421.223750': [('15_PKGFAILED', product, gt, user), ('15_PKGFAILED', product, gt2, user2)],
+            'submit/product/20140521.223750': [('15_PKGFAILED', product, gt, user)],
+            'submit/product/20140621.223750': [('33_ACCEPTED', product, gt, user)],
+            'submit/product/20140721.223750': [('36_REJECTED', product, gt, user)],
+            'submit/product/20140821.223750': [('15_PKGFAILED', product2, gt, user)]
         }
         for key, value in submission_name_status.iteritems():
-            status, product, gittrees = value
-            for g in gittrees:
+            for status, product, gittree, user in value:
                 sb1 = Submission.objects.create(
                     name=key,
                     commit='2ae265f9820cb36e',
                     owner=user,
-                    gittree=g,
+                    gittree=gittree,
                     status=status)
                 bg1, _ = BuildGroup.objects.get_or_create(
                     name='home:pre-release:%s:%s' %(product.name, key),
@@ -116,17 +117,24 @@ class SubmissionsTests(TestCase):
                     group=bg1)
 
         buildgroup_name_packages_status = {
-            'home:pre-release:Tizen:Common:submit/product/20140321.223750': [('pac1', 'pac3'), 'SUCCESS'],
-            'home:pre-release:Tizen:Common:submit/product/20140421.223750': [('pac2',), 'FAILURE'],
-            'home:pre-release:Tizen:Common:submit/product/20140521.223750': [('pac1',), 'FAILURE'],
-            'home:pre-release:Tizen:IVI:submit/product/20140821.223750': [('pac4',), 'FAILURE'],
+            'submit/product/20140321.223750': [('pac1', 'SUCCESS', 'x86_64-x11', 'x86_64'), ('pac3', 'SUCCESS', 'arm-x11', 'armv7l')],
+            'submit/product/20140421.223750': [('pac2', 'FAILURE', 'arm-x11', 'armv7l')],
+            'submit/product/20140521.223750': [('pac1', 'FAILURE', 'arm64-x11', 'aarch64')],
         }
         for key, value in buildgroup_name_packages_status.iteritems():
-            bg = BuildGroup.objects.get(name=key)
-            packages, status = value
-            for pac in packages:
-                p, _ = Package.objects.get_or_create(name=pac)
-                PackageBuild.objects.create(package=p, group=bg, status=status)
+            bg = BuildGroup.objects.get(name='home:pre-release:Tizen:Common:%s' % key)
+            for package, status, repo, arch in value:
+                p, _ = Package.objects.get_or_create(name=package)
+                PackageBuild.objects.create(package=p, group=bg, status=status, repo=repo, arch=arch)
+
+        bg = BuildGroup.objects.get(name='home:pre-release:Tizen:Common:submit/product/20140421.223750')
+        image_data = [
+            ('mobile-boot-armv7l-RD-PQ', 'SUCCESS', 'http://download.xx.org/prerelease/tizen/20150128.3/images/arm-x11/mobile-boot-armv7l-RD-PQ'),
+            ('mobile-x11-3parts-arm64', 'BUILDING', 'http://download.xx.org/prerelease/tizen/20150128.3/images/arm-x11/mobile-x11-3parts-arm64'),
+            ('mobile-x11-3parts-armv7l', 'FAILURE', 'http://download.xx.org/prerelease/tizen/20150128.3/images/arm-x11/mobile-x11-3parts-armv7l'),
+        ]
+        for name, status, url in image_data:
+            ImageBuild.objects.create(name=name, status=status, url=url, group=bg)
 
     def test_get_query_all(self):
         """
@@ -140,13 +148,13 @@ class SubmissionsTests(TestCase):
             'status': 'Image building',
             'packages': ['pac1', 'pac3'],
             'product': 'Tizen:Common',
-            'gittrees': ['gitpath', 'gitpath2']
+            'gittrees': ['a/b/c', 'gitpath']
         }, {
             'submission': 'submit/product/20140421.223750',
             'status': 'Package building failed',
             'packages': ['pac2'],
             'product': 'Tizen:Common',
-            'gittrees': ['gitpath']
+            'gittrees': ['a/b/c', 'gitpath']
         }, {
             'submission': 'submit/product/20140521.223750',
             'status': 'Package building failed',
@@ -157,7 +165,7 @@ class SubmissionsTests(TestCase):
         {
             'submission': 'submit/product/20140821.223750',
             'status': 'Package building failed',
-            'packages': ['pac4'],
+            'packages': [],
             'product': 'Tizen:IVI',
             'gittrees': ['gitpath']
         }
@@ -165,9 +173,11 @@ class SubmissionsTests(TestCase):
         res_data = eval(response.content)
         sort_data(data)
         sort_data(res_data)
+        print 'data: ', data
+        print 'res_data: ', res_data
         self.assertEqual(res_data, data)
 
-    def _test_get_query_by_product(self):
+    def test_get_query_by_product(self):
         """
         GET full list of submissions of product: Tizen:Common
         """
@@ -178,12 +188,12 @@ class SubmissionsTests(TestCase):
             'submission': 'submit/product/20140321.223750',
             'status': 'Image building',
             'packages': ['pac1', 'pac3'],
-            'gittrees': ['gitpath', 'gitpath2']
+            'gittrees': ['a/b/c', 'gitpath']
         }, {
             'submission': 'submit/product/20140421.223750',
             'status': 'Package building failed',
             'packages': ['pac2'],
-            'gittrees': ['gitpath']
+            'gittrees': ['a/b/c', 'gitpath']
         }, {
             'submission': 'submit/product/20140521.223750',
             'status': 'Package building failed',
@@ -195,23 +205,41 @@ class SubmissionsTests(TestCase):
         sort_data(res_data)
         self.assertEqual(res_data, data)
 
-    def _test_query_by_name(self):
+    def test_query_specific_submission(self):
         """
          GET submissions by name.
         """
-        url = '/api/submissions/items/?name=submit/product/20140321.223750'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
+        url = '%s/Tizen:Common/submit/product/20140421.223750/' % self.base_url
+        response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response.data, self.data)
+        res_data = eval(response.content)
+        self.maxDiff = None
+        data = {
+            'submission': 'submit/product/20140421.223750',
+            'target_project': 'Tizen:Common',
+            'commit': ['2ae265f9820cb36e'],
+            'submitter': ['nemo@a.com', 'hello@a.com'],
+            'download_url': 'http://download.xx.org/prerelease/tizen/20150128.3/',
+            'git_trees': ['a/b/c', 'gitpath'],
+            'images': [
+                        ['mobile-boot-armv7l-RD-PQ', 'Succeeded'],
+                        ['mobile-x11-3parts-arm64', 'Building'],
+                        ['mobile-x11-3parts-armv7l', 'Failed'],
+                       ],
+            'package_build_failures': [['arm-x11/armv7l', 'pac2', 'Failed']],
+        }
+        sort_data(data)
+        sort_data(res_data)
 
-    def _test_empty_query_by_name(self):
-        """"
-        GET empty results by querying by non-existing name
+        self.assertEqual(res_data, data)
+
+    def test_query_not_exist_specific_submission(self):
         """
-        url = '/api/submissions/items/?name=this_submission_doesnt_exist'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response.data, [])
+         GET submissions by name.
+        """
+        url = '%s/Tizen:Common/submit/product/201021.223750/' % self.base_url
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
 
     def test_query_by_un_exist_product(self):
         """
@@ -232,7 +260,7 @@ class SubmissionsTests(TestCase):
             'submission': 'submit/product/20140421.223750',
             'status': 'Package building failed',
             'packages': ['pac2'],
-            'gittrees': ['gitpath']
+            'gittrees': ['a/b/c', 'gitpath']
         }, {
             'submission': 'submit/product/20140521.223750',
             'status': 'Package building failed',
@@ -267,102 +295,9 @@ class SubmissionsTests(TestCase):
             'submission': 'submit/product/20140321.223750',
             'status': 'Image building',
             'packages': ['pac1', 'pac3'],
-            'gittrees': ['gitpath', 'gitpath2']
+            'gittrees': ['gitpath', 'a/b/c']
             }]
         res_data = eval(response.content)
         sort_data(data)
         sort_data(res_data)
         self.assertEqual(res_data, data)
-
-    def _test_query_active_submissions(self):
-        """
-        Test query for active submissions
-        """
-        url = '/api/submissions/items/?active=1'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response.data, self.data)
-
-    def _test_query_not_active_submissions(self):
-        """
-        Test query for not active submissions
-        """
-        url = '/api/submissions/items/?active=0'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response.data, [])
-
-    def _test_wrong_active_parameter(self):
-        """
-        Valid 'active' values are 0 and 1. Everything els should cause failure.
-        """
-        url = '/api/submissions/items/?active=3'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
-        self.assertEqual(response.status_code, HTTP_406_NOT_ACCEPTABLE)
-
-    def _test_query_status_and_active(self):
-        """
-        Usage of 'active' and 'ststus' together should cause failure
-        """
-        url = '/api/submissions/items/?active=1&status=submitted'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
-        self.assertEqual(response.status_code, HTTP_406_NOT_ACCEPTABLE)
-
-    def _test_multiple_parameters(self):
-        """
-        Test query with multiple parameters
-        """
-        url = '/api/submissions/items/?active=1&product=prod&name=%s' \
-                                                      % self.fixture_obj.name
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response.data, self.data)
-
-    def _test_get_detail(self):
-        """
-        GET requests to APIView should return a single object.
-        """
-
-        url = "/api/submissions/items/%d/" % (self.fixture_obj.pk,)
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response.data, self.data[0])
-
-
-    def _test_get_not_existing_id(self):
-        """
-        GET requests to APIView should raise 404
-        If it does not currently exist.
-        """
-
-        url = "/api/submissions/items/999/"
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
-        self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
-
-    def _test_create(self):
-        """"
-        Test creation of new submission
-        """
-        url = "/api/submissions/items/"
-        name = 'submit/product/20140407.000700'
-        commit = '80392ccb45f80b554f99786b01ed7183899c2d1c'
-        status = 'REJECTED'
-        product = 'prod'
-        response = self.client.post(
-            url, {
-                'name': name, 'commit': commit,
-                'status': status, 'product': product
-            },
-            HTTP_AUTHORIZATION=self.credentials)
-        self.assertEqual(response.status_code, HTTP_201_CREATED)
-        Submission.objects.get(name__exact=name, product__name__exact=product,
-                               status__exact=status, commit__exact=commit)
-
-    def _test_create_duplicated(self):
-        """
-        Creation of duplicated submission should fail
-        """
-        url = "/api/submissions/items/"
-        response = self.client.post(url, {'name': self.fixture_obj.name},
-                                    HTTP_AUTHORIZATION=self.credentials)
-        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
