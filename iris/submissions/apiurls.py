@@ -6,7 +6,7 @@
 #
 # IRIS is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
-# version 2.1 as published by the Free Software Foundation.
+# version 2.0 as published by the Free Software Foundation.
 
 """
 API URL configuration for the iris-submissions project.
