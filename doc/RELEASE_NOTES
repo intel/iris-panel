@@ -1,3 +1,28 @@
+Release notes for IRIS 0.3
+==========================
+
+- Release Date: 2015-2
+
+- Major features and enhancements added:
+
+  * Feature #2229: Show the relationship UI between submission and snapshot
+  * Feature #2224: Processing events related to snapshots and releases
+  * Feature #2232: IRIS should deal with submission of which the product is not "Tizen:IVI", "Tizen:Mobile", "Tizen:Common"
+  * Feature #2256: Increase a view without the roles but just domains,subdomains, and packages
+  * Feature #2289: Send email notification for import snapshot script
+  * Feature #2299: ReST API: list submissions
+  * Feature #2300: ReST API: show detailed info about submission
+  * Feature #2154: iris landing interface jump optimization
+
+- Bug fixed:
+
+  * Bug #2184: Submission details missing some product info
+  * Bug #2220: Forbidden (403): CSRF verification failed. Request aborted shows when login in gittree list page
+  * Bug #2246: Increase domain/subdomain information for Samsung (Jinkun)
+  * Bug #2257: ERROR 1071 when deployment in local vm
+  * Bug #2274: In submission module, all url won't auto add slash if end slash missing
+  * Bug #2280: Snapshot doesn't display if one submission related with more than one product, and only one snapshot related with it
+
 Release notes for IRIS 0.2.2
 ============================
 
