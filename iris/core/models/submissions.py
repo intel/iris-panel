@@ -240,7 +240,10 @@ class BuildGroup(models.Model):
 
     @property
     def download_url(self):
-        return self.imagebuild_set.all()[0].url.split('images')[0]
+        try:
+            return self.imagebuild_set.all()[0].url.split('images')[0]
+        except IndexError:
+            return ''
 
     def natural_key(self):
         return (self.name,)

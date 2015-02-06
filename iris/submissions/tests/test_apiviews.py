@@ -87,6 +87,7 @@ class SubmissionsTests(TestCase):
 
         product = Product.objects.create(name='Tizen:Common', description='Product')
         product2 = Product.objects.create(name='Tizen:IVI', description='Product2')
+        product3 = Product.objects.create(name='Tizen:TV', description='Product3')
         d = Domain.objects.create(name='domain')
         sd = SubDomain.objects.create(name='subdomain', domain=d)
         gt = GitTree.objects.create(gitpath='gitpath', subdomain=sd)
@@ -98,7 +99,8 @@ class SubmissionsTests(TestCase):
             'submit/product/20140521.223750': [('15_PKGFAILED', product, gt, user)],
             'submit/product/20140621.223750': [('33_ACCEPTED', product, gt, user)],
             'submit/product/20140721.223750': [('36_REJECTED', product, gt, user)],
-            'submit/product/20140821.223750': [('15_PKGFAILED', product2, gt, user)]
+            'submit/product/20140821.223750': [('15_PKGFAILED', product2, gt, user)],
+            'submit/product/20140921.223750': [('10_PKGBUILDING', product3, gt, user)]
         }
         for key, value in submission_name_status.iteritems():
             for status, product, gittree, user in value:
@@ -168,13 +170,18 @@ class SubmissionsTests(TestCase):
             'packages': [],
             'product': 'Tizen:IVI',
             'gittrees': ['gitpath']
+        },
+        {
+            'submission': 'submit/product/20140921.223750',
+            'status': 'Package building',
+            'packages': [],
+            'product': 'Tizen:TV',
+            'gittrees': ['gitpath']
         }
         ]
         res_data = eval(response.content)
         sort_data(data)
         sort_data(res_data)
-        print 'data: ', data
-        print 'res_data: ', res_data
         self.assertEqual(res_data, data)
 
     def test_get_query_by_product(self):
@@ -231,6 +238,52 @@ class SubmissionsTests(TestCase):
         sort_data(data)
         sort_data(res_data)
 
+        self.assertEqual(res_data, data)
+
+    def test_query_specific_submission_without_images(self):
+        """
+         GET submissions by name.
+        """
+        url = '%s/Tizen:Common/submit/product/20140521.223750/' % self.base_url
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        res_data = eval(response.content)
+        self.maxDiff = None
+        data = {
+            'submission': 'submit/product/20140521.223750',
+            'target_project': 'Tizen:Common',
+            'commit': ['2ae265f9820cb36e'],
+            'submitter': ['nemo@a.com'],
+            'download_url': '',
+            'git_trees': ['gitpath'],
+            'images': [],
+            'package_build_failures': [['arm64-x11/aarch64', 'pac1', 'Failed']],
+        }
+        sort_data(data)
+        sort_data(res_data)
+        self.assertEqual(res_data, data)
+
+    def test_query_specific_submission_without_packages(self):
+        """
+         GET submissions by name.
+        """
+        url = '%s/Tizen:TV/submit/product/20140921.223750/' % self.base_url
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        res_data = eval(response.content)
+        self.maxDiff = None
+        data = {
+            'submission': 'submit/product/20140921.223750',
+            'target_project': 'Tizen:TV',
+            'commit': ['2ae265f9820cb36e'],
+            'submitter': ['nemo@a.com'],
+            'download_url': '',
+            'git_trees': ['gitpath'],
+            'images': [],
+            'package_build_failures': [],
+        }
+        sort_data(data)
+        sort_data(res_data)
         self.assertEqual(res_data, data)
 
     def test_query_not_exist_specific_submission(self):
