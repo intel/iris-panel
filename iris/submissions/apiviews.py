@@ -91,7 +91,8 @@ def list_submissions_by_product(request, project):
 @api_view(['GET'])
 def get_submission(request, project, submission):
     submissions = Submission.objects.filter(
-        name=submission
+        name=submission,
+        submissionbuild__product__name=project
         ).prefetch_related(
             'submissionbuild_set__group__packagebuild_set__package',
             'submissionbuild_set__group__imagebuild_set',

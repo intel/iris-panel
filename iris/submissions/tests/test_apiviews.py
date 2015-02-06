@@ -100,7 +100,8 @@ class SubmissionsTests(TestCase):
             'submit/product/20140621.223750': [('33_ACCEPTED', product, gt, user)],
             'submit/product/20140721.223750': [('36_REJECTED', product, gt, user)],
             'submit/product/20140821.223750': [('15_PKGFAILED', product2, gt, user)],
-            'submit/product/20140921.223750': [('10_PKGBUILDING', product3, gt, user)]
+            'submit/product/20140921.223750': [('10_PKGBUILDING', product3, gt, user)],
+            'submit/product/20140121.223750': [('SUBMITTED', None, gt, user)],
         }
         for key, value in submission_name_status.iteritems():
             for status, product, gittree, user in value:
@@ -110,13 +111,14 @@ class SubmissionsTests(TestCase):
                     owner=user,
                     gittree=gittree,
                     status=status)
-                bg1, _ = BuildGroup.objects.get_or_create(
-                    name='home:pre-release:%s:%s' %(product.name, key),
-                    status=status)
-                SubmissionBuild.objects.create(
-                    submission=sb1,
-                    product=product,
-                    group=bg1)
+                if status != 'SUBMITTED':
+                    bg1, _ = BuildGroup.objects.get_or_create(
+                        name='home:pre-release:%s:%s' %(product.name, key),
+                        status=status)
+                    SubmissionBuild.objects.create(
+                        submission=sb1,
+                        product=product,
+                        group=bg1)
 
         buildgroup_name_packages_status = {
             'submit/product/20140321.223750': [('pac1', 'SUCCESS', 'x86_64-x11', 'x86_64'), ('pac3', 'SUCCESS', 'arm-x11', 'armv7l')],
@@ -220,7 +222,6 @@ class SubmissionsTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
         res_data = eval(response.content)
-        self.maxDiff = None
         data = {
             'submission': 'submit/product/20140421.223750',
             'target_project': 'Tizen:Common',
@@ -240,6 +241,14 @@ class SubmissionsTests(TestCase):
 
         self.assertEqual(res_data, data)
 
+    def test_query_specific_submission_without_product(self):
+        """
+         GET submissions by name.
+        """
+        url = '%s/Tizen:Common/submit/product/20140121.223750/' % self.base_url
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
+
     def test_query_specific_submission_without_images(self):
         """
          GET submissions by name.
@@ -248,7 +257,6 @@ class SubmissionsTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
         res_data = eval(response.content)
-        self.maxDiff = None
         data = {
             'submission': 'submit/product/20140521.223750',
             'target_project': 'Tizen:Common',
@@ -271,7 +279,6 @@ class SubmissionsTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
         res_data = eval(response.content)
-        self.maxDiff = None
         data = {
             'submission': 'submit/product/20140921.223750',
             'target_project': 'Tizen:TV',
