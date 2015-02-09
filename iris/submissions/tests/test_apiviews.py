@@ -35,40 +35,6 @@ from iris.packagedb.tests.test_apiviews import sort_data
 #E:349,25: Instance of 'WSGIRequest' has no 'status_code' member (but some types could not be inferred) (maybe-no-member)
 
 
-class AuthTests(TestCase):
-    """
-    The REST framework test case class of Authorization
-    """
-
-    def setUp(self):
-        """
-        Create 1 test user.
-        """
-        User.objects.create_user(username='nemo', password='password')
-        self.base_url = '/api/submissions'
-
-    def test_auth_fail(self):
-        """
-        Get requests to APIView should raise 403
-        if dose not sign in.
-        """
-        url = '%s/Tizen:Common/' % self.base_url
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.data, {
-            u'detail': u'Authentication credentials were not provided.'})
-
-    def test_auth_success(self):
-        """
-        Login success should return True.
-        """
-        url = '%s/Tizen:Common/' % self.base_url
-        self.client.login(username='nemo', password='password')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertTrue(response)
-
-
 class SubmissionsTests(TestCase):
     """
     The REST framework test case class of Submissions APIView
@@ -83,7 +49,6 @@ class SubmissionsTests(TestCase):
 
         user = User.objects.create_user(username='nemo', password='password', email='nemo@a.com')
         user2 = User.objects.create_user(username='helo', password='ssd', email='hello@a.com')
-        self.client.login(username='nemo', password='password')
 
         product = Product.objects.create(name='Tizen:Common', description='Product')
         product2 = Product.objects.create(name='Tizen:IVI', description='Product2')

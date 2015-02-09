@@ -26,15 +26,6 @@ from iris.core.models import (
     SubDomainRole, GitTreeRole)
 
 
-def basic_auth_header(username, password):
-    """
-    Build basic authorization header
-    """
-    credentials = '%s:%s' % (username, password)
-    base64_credentials = base64.b64encode(credentials)
-    return 'Basic %s' % base64_credentials
-
-
 def sort_data(data):
     if isinstance(data, list):
         data.sort()
@@ -44,40 +35,6 @@ def sort_data(data):
     if isinstance(data, dict):
         for value in data.itervalues():
             sort_data(value)
-
-
-class AuthTests(TestCase):
-    """
-    The REST framework test case class of Authorization
-    """
-
-    def setUp(self):
-        """
-        Create 1 test user.
-        """
-        user = User.objects.create_user(username='nemo', password='password')
-        self.credentials = basic_auth_header(user.username, 'password')
-
-
-    def test_auth_fail(self):
-        """
-        Get requests to APIView should raise 403
-        if dose not sign in.
-        """
-        url = '/api/packagedb/products/'
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.data, {
-            u'detail': u'Authentication credentials were not provided.'})
-
-
-    def test_auth_success(self):
-        """
-        Login success should return True.
-        """
-        url = '/api/packagedb/products/'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
-        self.assertTrue(response)
 
 
 class ProductsTests(TestCase):
@@ -92,7 +49,6 @@ class ProductsTests(TestCase):
         Create 2 test user.
         """
         user = User.objects.create_user(username='nemo', password='password')
-        self.credentials = basic_auth_header(user.username, 'password')
 
         d = Domain.objects.create(name='doamin')
         sd = SubDomain.objects.create(name='subdoamin', domain=d)
@@ -108,7 +64,7 @@ class ProductsTests(TestCase):
         GET requests to APIView should return list of objects.
         """
         url = '/api/packagedb/products/'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         data = [{
             'name': 'a:b',
@@ -130,7 +86,7 @@ class ProductsTests(TestCase):
         """
         url = "/api/packagedb/products/a:b/"
         url = urllib.quote(url)
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         data = {
             'name': 'a:b',
@@ -147,7 +103,7 @@ class ProductsTests(TestCase):
         If it does not currently exist.
         """
         url = "/api/packagedb/products/999/"
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
 
@@ -168,7 +124,6 @@ class DomainsTests(TestCase):
             username='lucy', password='lucy',
             first_name='jaeho81', last_name='lucy',
             email='jaeho81.lucy@a.com')
-        self.credentials = basic_auth_header(user.username, 'password')
 
         d1 = Domain.objects.create(name='domain1')
         d2 = Domain.objects.create(name='domain2')
@@ -191,7 +146,7 @@ class DomainsTests(TestCase):
         GET requests to APIView should return list of objects.
         """
         url = '/api/packagedb/domains/'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         data = [{
             'name': 'domain1 / subdomain',
@@ -230,7 +185,7 @@ class DomainsTests(TestCase):
         """
         url = '/api/packagedb/domains/domain2 / Uncategorized/'
         url = urllib.quote(url)
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         data = {
             'name': 'domain2 / Uncategorized',
@@ -269,7 +224,6 @@ class GitTreesTests(TestCase):
             username='lucy', password='password',
             first_name='jaeho81', last_name='lucy',
             email='jaeho81.lucy@a.com')
-        self.credentials = basic_auth_header(user1.username, 'password')
 
         domain = Domain.objects.create(name='domain')
         sd1 = SubDomain.objects.create(name='subdomain', domain=domain)
@@ -307,7 +261,7 @@ class GitTreesTests(TestCase):
         GET requests to APIView should return list of objects.
         """
         url = '/api/packagedb/gittrees/'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         data = [{
             'gitpath': 'a/b/c',
@@ -352,7 +306,7 @@ class GitTreesTests(TestCase):
         """
         url = '/api/packagedb/gittrees/d/f/'
         url = urllib.quote(url)
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         data = {
             'gitpath': 'd/f',
@@ -388,7 +342,6 @@ class PackagesTests(TestCase):
         Create 1 test user.
         """
         user = User.objects.create_user(username='nemo', password='password')
-        self.credentials = basic_auth_header(user.username, 'password')
 
         domain = Domain.objects.create(name='domain')
         subdomain = SubDomain.objects.create(name='subdomain', domain=domain)
@@ -405,7 +358,7 @@ class PackagesTests(TestCase):
         GET requests to APIView should return list of objects.
         """
         url = '/api/packagedb/packages/'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         data = [{
             'name': 'package1',
@@ -423,7 +376,7 @@ class PackagesTests(TestCase):
         GET requests to APIView should return a single object.
         """
         url = '/api/packagedb/packages/package2/'
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.credentials)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         data = {'name': 'package2', 'gittrees': ['agitpath1', 'gitpath2']}
         sort_data(data)

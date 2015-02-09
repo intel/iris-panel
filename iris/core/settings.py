@@ -252,17 +252,10 @@ if REST_API_AVAILABLE:
             'rest_framework_swagger'
         )
 
-        REST_FRAMEWORK = {
-            'DEFAULT_PERMISSION_CLASSES': (
-                'rest_framework.permissions.IsAuthenticated',
-            ),
-        }
-
         SWAGGER_SETTINGS = {
             "api_version": '0.0.1',
             "api_path": "/",
-            "enabled_methods": ['get', 'post', 'put', 'patch', 'delete'],
-            "is_authenticated": True,
+            "enabled_methods": ['get'],
         }
 
         print('Loaded RESTful API and documentation')
