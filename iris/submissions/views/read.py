@@ -126,10 +126,9 @@ def parse_query_string(query_string):
 
 def validate_search(request):
     """ Ajax view for validte keyword before search """
-    if request.GET.get('kw'):
-        kw = parse_query_string(request.GET.get('kw'))
-        return HttpResponse('ok') if kw else HttpResponseBadRequest('error')
-    return HttpResponseBadRequest('no kw arguments')
+    if request.GET.get('kw') and parse_query_string(request.GET.get('kw')):
+        return HttpResponse('ok')
+    return HttpResponseBadRequest('error')
 
 
 def make_query_conditions(kw):
@@ -165,10 +164,13 @@ def make_query_conditions(kw):
 def search(request):
     """Search submissions by keyword """
     querystring = request.GET.get('kw')
+    if not querystring:
+        return HttpResponseBadRequest('error')
     kw = parse_query_string(querystring)
-    st = kw.pop('status', None)
+    st = None
     subs = Submission.objects.select_related('owner', 'gittree', 'product')
     if kw:
+        st = kw.pop('status', None)
         query = make_query_conditions(kw)
         subs = subs.filter(query)
     else:
@@ -184,12 +186,14 @@ def search(request):
             subs = {sub for sub in subs if sub.accepted}
             show_snapshot = True
 
-    return render(request, 'submissions/summary.html', {
-            'title': 'Search result for "%s"' % querystring,
-            'results': SubmissionGroup.group(subs, st),
-            'keyword': querystring,
-            'show_snapshot': show_snapshot
-            })
+    return render(
+        request,
+        'submissions/summary.html',
+        {'title': 'Search result for "%s"' % querystring,
+        'results': SubmissionGroup.group(subs, st),
+        'keyword': querystring,
+        'show_snapshot': show_snapshot
+        })
 
 
 def detail(request, tag):
