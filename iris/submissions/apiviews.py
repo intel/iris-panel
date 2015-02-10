@@ -31,11 +31,15 @@ def get_query(product_name=None, status=None):
         reverse_dict = dict(
             (v.lower(), k) for k, v in BuildGroup.STATUS.iteritems())
         return reverse_dict.get(value, 'un_exist')
-    query_list = [~Q(status='33_ACCEPTED'), ~Q(status='36_REJECTED')]
+    query_list = []
     if product_name is not None:
         query_list.append(Q(submissionbuild__product__name=product_name))
-    if status is not None:
-        query_list.append(Q(status=get_key(status.lower())))
+    if status:
+        status_list = [Q(status=get_key(item.lower())) for item in status.split(',')]
+        query_list.append(reduce(lambda a, b: a | b, status_list))
+    else:
+        query_list.extend([~Q(status='33_ACCEPTED'), ~Q(status='36_REJECTED')])
+
     return reduce(lambda a, b: a&b, query_list)
 
 

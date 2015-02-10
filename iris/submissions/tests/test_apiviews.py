@@ -275,7 +275,7 @@ class SubmissionsTests(TestCase):
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(eval(response.content), [])
 
-    def test_query_by_status(self):
+    def test_query_by_status_with_product(self):
         """
         GET submissions by status
         """
@@ -290,6 +290,70 @@ class SubmissionsTests(TestCase):
             'submission': 'submit/product/20140521.223750',
             'status': 'Package building failed',
             'packages': ['pac1'],
+            'gittrees': ['gitpath']
+        }]
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        res_data = eval(response.content)
+        sort_data(data)
+        sort_data(res_data)
+        self.assertEqual(res_data, data)
+
+    def test_query_by_multi_status_with_product(self):
+        """
+        GET submissions by status
+        """
+        url = '%s/Tizen:Common/?status=%s,%s,%s' % \
+              (self.base_url, urllib.quote('Package building failed'),
+                urllib.quote('Image building'),
+                urllib.quote('accepted'))
+        data = [{
+            'submission': 'submit/product/20140421.223750',
+            'status': 'Package building failed',
+            'packages': ['pac2'],
+            'gittrees': ['a/b/c', 'gitpath']
+        }, {
+            'submission': 'submit/product/20140521.223750',
+            'status': 'Package building failed',
+            'packages': ['pac1'],
+            'gittrees': ['gitpath']
+        },{
+            'submission': 'submit/product/20140321.223750',
+            'status': 'Image building',
+            'packages': ['pac1', 'pac3'],
+            'gittrees': ['a/b/c', 'gitpath']
+        },{
+            'submission': 'submit/product/20140621.223750',
+            'status': 'Accepted',
+            'packages': [],
+            'gittrees': ['gitpath']
+        }]
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        res_data = eval(response.content)
+        sort_data(data)
+        sort_data(res_data)
+        self.assertEqual(res_data, data)
+
+    def test_query_by_multi_status_without_product(self):
+        """
+        GET submissions by status
+        """
+        url = '%s/?status=%s,%s' % \
+              (self.base_url,
+               urllib.quote('rejected'),
+               urllib.quote('accepted'))
+        data = [{
+            'submission': 'submit/product/20140721.223750',
+            'status': 'Rejected',
+            'product': 'Tizen:Common',
+            'packages': [],
+            'gittrees': ['gitpath']
+        },{
+            'submission': 'submit/product/20140621.223750',
+            'status': 'Accepted',
+            'product': 'Tizen:Common',
+            'packages': [],
             'gittrees': ['gitpath']
         }]
         response = self.client.get(url)
