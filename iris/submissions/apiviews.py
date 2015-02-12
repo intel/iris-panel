@@ -70,8 +70,9 @@ def get_active_submissions(request, product_name=None):
             # buildgroup don't related with submissions
             sub_dict['submission'] = bdg.submissions.pop().name
             sub_dict['status'] = bdg.STATUS[bdg.status]
-            sub_dict['packages'] = [pb.package.name for pb in bdg.pac_builds]
-            sub_dict['gittrees'] = bdg.gittrees
+            sub_dict['packages'] = sorted(list(set(
+                            [pb.package.name for pb in bdg.pac_builds])))
+            sub_dict['gittrees'] = sorted(bdg.gittrees)
             if product_name is None:
                 sub_dict['product'] = bdg.product.name
             sub_list.append(sub_dict)
@@ -113,14 +114,14 @@ def get_submission(request, project, submission):
         detail = {
             'submission': submission,
             'target_project': project,
-            'commit': list(sng.commit),
-            'submitter': [u.email for u in sng.owner],
+            'commit': sorted(list(sng.commit)),
+            'submitter': sorted([u.email for u in sng.owner]),
             'download_url': bdg.download_url if bdg else '',
-            'git_trees': [g.gitpath for g in sng.gittree],
-            'images': [
+            'git_trees': sorted([g.gitpath for g in sng.gittree]),
+            'images': sorted([
                 (i.name, i.STATUS[i.status])
-                for i in bdg.imagebuild_set.all()] if bdg else [],
-            'package_build_failures': packages,
+                for i in bdg.imagebuild_set.all()]) if bdg else [],
+            'package_build_failures': sorted(packages),
         }
         return HttpResponse(
             json.dumps(detail),
