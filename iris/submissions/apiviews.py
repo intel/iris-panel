@@ -59,8 +59,7 @@ def get_active_submissions(request, product_name=None):
         get_query(product_name, status)
         ).prefetch_related(
             'submissionbuild_set__submission__gittree',
-            'submissionbuild_set__product',
-            'packagebuild_set__package')
+            'submissionbuild_set__product')
 
     sub_list = []
     for bdg in set(bgs):
@@ -70,8 +69,6 @@ def get_active_submissions(request, product_name=None):
             # buildgroup don't related with submissions
             sub_dict['submission'] = bdg.submissions.pop().name
             sub_dict['status'] = bdg.STATUS[bdg.status]
-            sub_dict['packages'] = sorted(list(set(
-                            [pb.package.name for pb in bdg.pac_builds])))
             sub_dict['gittrees'] = sorted(bdg.gittrees)
             if product_name is None:
                 sub_dict['product'] = bdg.product.name
@@ -99,7 +96,6 @@ def get_submission(request, project, submission):
         name=submission,
         submissionbuild__product__name=project
         ).prefetch_related(
-            'submissionbuild_set__group__packagebuild_set__package',
             'submissionbuild_set__group__imagebuild_set',
             'owner',
             'gittree',
@@ -107,10 +103,6 @@ def get_submission(request, project, submission):
     if submissions:
         sng = SubmissionGroup(submissions)
         bdg = sng.buildgroup(project)
-        packages = [
-            ('%s/%s' %(pb.repo, pb.arch), pb.package.name, pb.STATUS[pb.status])
-            for pb in bdg.pac_builds if pb.status == 'FAILURE'
-            ] if bdg else []
         detail = {
             'submission': submission,
             'target_project': project,
@@ -121,7 +113,6 @@ def get_submission(request, project, submission):
             'images': sorted([
                 (i.name, i.STATUS[i.status])
                 for i in bdg.imagebuild_set.all()]) if bdg else [],
-            'package_build_failures': sorted(packages),
         }
         return HttpResponse(
             json.dumps(detail),

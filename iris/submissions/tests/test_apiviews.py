@@ -85,17 +85,6 @@ class SubmissionsTests(TestCase):
                         product=product,
                         group=bg1)
 
-        buildgroup_name_packages_status = {
-            'submit/product/20140321.223750': [('pac1', 'SUCCESS', 'x86_64-x11', 'x86_64'), ('pac3', 'SUCCESS', 'arm-x11', 'armv7l')],
-            'submit/product/20140421.223750': [('pac2', 'FAILURE', 'arm-x11', 'armv7l')],
-            'submit/product/20140521.223750': [('pac1', 'FAILURE', 'arm64-x11', 'aarch64')],
-        }
-        for key, value in buildgroup_name_packages_status.iteritems():
-            bg = BuildGroup.objects.get(name='home:pre-release:Tizen:Common:%s' % key)
-            for package, status, repo, arch in value:
-                p, _ = Package.objects.get_or_create(name=package)
-                PackageBuild.objects.create(package=p, group=bg, status=status, repo=repo, arch=arch)
-
         bg = BuildGroup.objects.get(name='home:pre-release:Tizen:Common:submit/product/20140421.223750')
         image_data = [
             ('mobile-boot-armv7l-RD-PQ', 'SUCCESS', 'http://download.xx.org/prerelease/tizen/20150128.3/images/arm-x11/mobile-boot-armv7l-RD-PQ'),
@@ -115,33 +104,28 @@ class SubmissionsTests(TestCase):
         data = [{
             'submission': 'submit/product/20140321.223750',
             'status': 'Image building',
-            'packages': ['pac1', 'pac3'],
             'product': 'Tizen:Common',
             'gittrees': ['a/b/c', 'gitpath']
         }, {
             'submission': 'submit/product/20140421.223750',
             'status': 'Package building failed',
-            'packages': ['pac2'],
             'product': 'Tizen:Common',
             'gittrees': ['a/b/c', 'gitpath']
         }, {
             'submission': 'submit/product/20140521.223750',
             'status': 'Package building failed',
-            'packages': ['pac1'],
             'product': 'Tizen:Common',
             'gittrees': ['gitpath']
         },
         {
             'submission': 'submit/product/20140821.223750',
             'status': 'Package building failed',
-            'packages': [],
             'product': 'Tizen:IVI',
             'gittrees': ['gitpath']
         },
         {
             'submission': 'submit/product/20140921.223750',
             'status': 'Package building',
-            'packages': [],
             'product': 'Tizen:TV',
             'gittrees': ['gitpath']
         }
@@ -161,17 +145,14 @@ class SubmissionsTests(TestCase):
         data = [{
             'submission': 'submit/product/20140321.223750',
             'status': 'Image building',
-            'packages': ['pac1', 'pac3'],
             'gittrees': ['a/b/c', 'gitpath']
         }, {
             'submission': 'submit/product/20140421.223750',
             'status': 'Package building failed',
-            'packages': ['pac2'],
             'gittrees': ['a/b/c', 'gitpath']
         }, {
             'submission': 'submit/product/20140521.223750',
             'status': 'Package building failed',
-            'packages': ['pac1'],
             'gittrees': ['gitpath']
         }]
         res_data = eval(response.content)
@@ -199,7 +180,6 @@ class SubmissionsTests(TestCase):
                         ['mobile-x11-3parts-arm64', 'Building'],
                         ['mobile-x11-3parts-armv7l', 'Failed'],
                        ],
-            'package_build_failures': [['arm-x11/armv7l', 'pac2', 'Failed']],
         }
         sort_data(data)
         sort_data(res_data)
@@ -230,7 +210,6 @@ class SubmissionsTests(TestCase):
             'download_url': '',
             'git_trees': ['gitpath'],
             'images': [],
-            'package_build_failures': [['arm64-x11/aarch64', 'pac1', 'Failed']],
         }
         sort_data(data)
         sort_data(res_data)
@@ -252,7 +231,6 @@ class SubmissionsTests(TestCase):
             'download_url': '',
             'git_trees': ['gitpath'],
             'images': [],
-            'package_build_failures': [],
         }
         sort_data(data)
         sort_data(res_data)
@@ -284,12 +262,10 @@ class SubmissionsTests(TestCase):
         data = [{
             'submission': 'submit/product/20140421.223750',
             'status': 'Package building failed',
-            'packages': ['pac2'],
             'gittrees': ['a/b/c', 'gitpath']
         }, {
             'submission': 'submit/product/20140521.223750',
             'status': 'Package building failed',
-            'packages': ['pac1'],
             'gittrees': ['gitpath']
         }]
         response = self.client.get(url)
@@ -310,22 +286,18 @@ class SubmissionsTests(TestCase):
         data = [{
             'submission': 'submit/product/20140421.223750',
             'status': 'Package building failed',
-            'packages': ['pac2'],
             'gittrees': ['a/b/c', 'gitpath']
         }, {
             'submission': 'submit/product/20140521.223750',
             'status': 'Package building failed',
-            'packages': ['pac1'],
             'gittrees': ['gitpath']
         },{
             'submission': 'submit/product/20140321.223750',
             'status': 'Image building',
-            'packages': ['pac1', 'pac3'],
             'gittrees': ['a/b/c', 'gitpath']
         },{
             'submission': 'submit/product/20140621.223750',
             'status': 'Accepted',
-            'packages': [],
             'gittrees': ['gitpath']
         }]
         response = self.client.get(url)
@@ -347,13 +319,11 @@ class SubmissionsTests(TestCase):
             'submission': 'submit/product/20140721.223750',
             'status': 'Rejected',
             'product': 'Tizen:Common',
-            'packages': [],
             'gittrees': ['gitpath']
         },{
             'submission': 'submit/product/20140621.223750',
             'status': 'Accepted',
             'product': 'Tizen:Common',
-            'packages': [],
             'gittrees': ['gitpath']
         }]
         response = self.client.get(url)
@@ -383,7 +353,6 @@ class SubmissionsTests(TestCase):
         data = [{
             'submission': 'submit/product/20140321.223750',
             'status': 'Image building',
-            'packages': ['pac1', 'pac3'],
             'gittrees': ['gitpath', 'a/b/c']
             }]
         res_data = eval(response.content)

@@ -235,10 +235,6 @@ class BuildGroup(models.Model):
         })
 
     @property
-    def pac_builds(self):
-        return {pb for pb in self.packagebuild_set.all()}
-
-    @property
     def download_url(self):
         try:
             return self.imagebuild_set.all()[0].url.split('images')[0]
