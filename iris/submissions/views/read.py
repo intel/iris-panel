@@ -167,10 +167,9 @@ def search(request):
     if not querystring:
         return HttpResponseBadRequest('error')
     kw = parse_query_string(querystring)
-    st = None
+    st = kw.pop('status', None) if kw else None
     subs = Submission.objects.select_related('owner', 'gittree', 'product')
     if kw:
-        st = kw.pop('status', None)
         query = make_query_conditions(kw)
         subs = subs.filter(query)
     else:
