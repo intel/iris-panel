@@ -21,7 +21,7 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns(
     'iris.submissions.views.read',
-    url(r'^$', 'index', name='submissions_index'),
+    url(r'^$', 'index', name='submissions'),
     url(r'^mine/$', 'mine', name='my_submissions'),
     url(r'^snapshots/(?P<pkid>\d+)/$', 'snapshot', name='snapshot_detail'),
     url(r'^snapshots/product/(?P<product_id>\d+)/$', 'snapshot_by_product', name='snapshot_by_product'),

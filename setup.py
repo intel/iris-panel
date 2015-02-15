@@ -18,10 +18,6 @@ Hence they are set up with differing names and produce
 iris_packagedb.egg-info and iris_submissions.egg-info folders,
 respectively, to broadcast their existence to the core app.
 
-Apart from this egg setup, they build from the same binary
-as the core application does, and come plugged only when
-their plugins are registered under the [iris.app] entrypoint.
-
 This convenience is for RPM packaging purposes and to avoid
 setting up multiple setup.py files doing essentially the same thing.
 """
@@ -87,10 +83,6 @@ setup(
     namespace_packages=['iris'],
     packages=['iris.packagedb'],
     include_package_data=True,
-    entry_points="""
-        [iris.app]
-        packagedb=iris.packagedb.plugin:APPINFO
-    """,
     license='GPL-2.0',
     description='IRIS Package Database plugin',
 )
@@ -103,10 +95,6 @@ setup(
     namespace_packages=['iris'],
     packages=['iris.submissions'],
     include_package_data=True,
-    entry_points="""
-        [iris.app]
-        submissions=iris.submissions.plugin:APPINFO
-    """,
     license='GPL-2.0',
     description='IRIS Submissions plugin',
 )
