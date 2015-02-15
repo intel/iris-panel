@@ -41,41 +41,50 @@ def index(request):
     return HttpResponseRedirect(url)
 
 
+def get_submissions(**query):
+    return [sub for sub in Submission.objects.select_related(
+        'owner', 'gittree').filter(**query).prefetch_related(
+            'submissionbuild_set__product',
+            'submissionbuild_set__group',
+            'submissionbuild_set__group__snapshot',
+            )]
+
+
 def opened(request):
     """
     All opened submissions
     """
-    subs = {sub for sub in Submission.objects.all() if sub.opened}
+    subs = [sub for sub in get_submissions() if sub.opened]
     return render(request, 'submissions/summary.html', {
-            'title': 'All open submissions',
-            'results': SubmissionGroup.group(subs, DISPLAY_STATUS['OPENED']),
-            'keyword': 'status:%s' % DISPLAY_STATUS['OPENED']
-            })
+        'title': 'All open submissions',
+        'results': SubmissionGroup.group(subs, DISPLAY_STATUS['OPENED']),
+        'keyword': 'status:%s' % DISPLAY_STATUS['OPENED'],
+        })
 
 
 def accepted(request):
     """
     All accepted submissions
     """
-    subs = {sub for sub in Submission.objects.all() if sub.accepted}
+    subs = [sub for sub in get_submissions() if sub.accepted]
     return render(request, 'submissions/summary.html', {
-            'title': 'All accepted submissions',
-            'results': SubmissionGroup.group(subs, DISPLAY_STATUS['ACCEPTED']),
-            'keyword': 'status:%s' % DISPLAY_STATUS['ACCEPTED'],
-            'show_snapshot': True,
-            })
+        'title': 'All accepted submissions',
+        'results': SubmissionGroup.group(subs, DISPLAY_STATUS['ACCEPTED']),
+        'keyword': 'status:%s' % DISPLAY_STATUS['ACCEPTED'],
+        'show_snapshot': True,
+        })
 
 
 def rejected(request):
     """
     All rejected submissions
     """
-    subs = {sub for sub in Submission.objects.all() if sub.rejected}
+    subs = [sub for sub in get_submissions() if sub.rejected]
     return render(request, 'submissions/summary.html', {
-            'title': 'All rejected submissions',
-            'results': SubmissionGroup.group(subs, DISPLAY_STATUS['REJECTED']),
-            'keyword': 'status:%s' % DISPLAY_STATUS['REJECTED'],
-            })
+        'title': 'All rejected submissions',
+        'results': SubmissionGroup.group(subs, DISPLAY_STATUS['REJECTED']),
+        'keyword': 'status:%s' % DISPLAY_STATUS['REJECTED'],
+        })
 
 
 @login_required
@@ -84,14 +93,13 @@ def mine(request):
     All my (the logged-in user) opened submissions
     TODO: add menu as all did, show opened, rejected, accepted
     """
-    subs = {sub for sub in Submission.objects.filter(owner=request.user) if
-            sub.opened }
+    subs = [sub for sub in get_submissions(owner=request.user) if sub.opened]
     return render(request, 'submissions/summary.html', {
-            'title': 'My submissions',
-            'results': SubmissionGroup.group(subs, DISPLAY_STATUS['OPENED']),
-            'keyword': 'status:%s owner:%s' % (DISPLAY_STATUS['OPENED'],
-                            request.user.email)
-            })
+        'title': 'My submissions',
+        'results': SubmissionGroup.group(subs, DISPLAY_STATUS['OPENED']),
+        'keyword': 'status:%s owner:%s' % (DISPLAY_STATUS['OPENED'],
+                                           request.user.email)
+        })
 
 
 def parse_query_string(query_string):

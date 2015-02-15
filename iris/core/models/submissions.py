@@ -293,10 +293,11 @@ class Submission(models.Model):
 
     @property
     def opened(self):
-        groups = {sbuild.group
-                    for sbuild in self.submissionbuild_set.select_related(
-                        'group', 'submission').all() if sbuild.group
-                  }
+        groups = {
+            sbuild.group
+            for sbuild in self.submissionbuild_set.all()
+            if sbuild.group
+        }
         if groups:
             not_opened_count = 0
             for group in groups:
@@ -312,9 +313,11 @@ class Submission(models.Model):
 
     @property
     def accepted(self):
-        groups = {sbuild.group
-                   for sbuild in self.submissionbuild_set.all() if sbuild.group
-                  }
+        groups = {
+            sbuild.group
+            for sbuild in self.submissionbuild_set.all()
+            if sbuild.group
+        }
         if groups:
             for group in groups:
                 if group.status == '33_ACCEPTED':
@@ -323,9 +326,11 @@ class Submission(models.Model):
 
     @property
     def rejected(self):
-        groups = {sbuild.group
-                 for sbuild in self.submissionbuild_set.all() if sbuild.group
-                 }
+        groups = {
+            sbuild.group
+            for sbuild in self.submissionbuild_set.all()
+            if sbuild.group
+        }
         if groups:
             for group in groups:
                 if group.status == '36_REJECTED':
