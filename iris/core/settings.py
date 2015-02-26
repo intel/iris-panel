@@ -27,7 +27,6 @@ except ImportError:
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-INTERNAL_IPS = ('127.0.0.1', 'localhost')
 
 SQLITE_DB_FILE = path.join(path.expanduser('~'), '.cache', 'iris.db')
 
@@ -291,11 +290,6 @@ if 'test' in argv:
 
     TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS\
         + ("django.core.context_processors.request",)
-
-if DEBUG:
-    INSTALLED_APPS += (
-        'debug_toolbar',
-    )
 
 """
 If you want to log the number of sql queries, you can use LogSQLPanel
