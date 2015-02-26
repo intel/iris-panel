@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 def transform(prod, prod_path):
     """transform data
     """
-    trees, pkgs, imgs = get_prod_data(prod, prod_path)
+    trees, pkgs, imgs = get_prod_data(prod_path)
 
     product_trees = [({'name': prod}, {'gitpath': gitpath})
                      for gitpath in trees]
@@ -51,7 +51,7 @@ def transform(prod, prod_path):
     return product_trees, packages, trees_packages, images
 
 
-def get_prod_data(prod, prod_path):
+def get_prod_data(prod_path):
     """get all prod data, include trees, images, packages
     """
     packages = []

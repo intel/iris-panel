@@ -13,7 +13,6 @@ import os
 import glob
 import gzip
 
-from email.utils import parseaddr
 from xml.dom import minidom
 
 from django.core.validators import validate_email, ValidationError

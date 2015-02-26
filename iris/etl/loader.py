@@ -17,7 +17,7 @@ to make records in db are all the same as given data.
 from collections import defaultdict
 import logging
 
-# pylint: disable=W0142,C0103,W0511,R0914i,R0912
+# pylint: disable=W0142,C0103,W0511,R0914,R0912
 # W0142: Used * or ** magic
 # C0103: Invalid name "x"
 # W0511: FIXME: select_related
