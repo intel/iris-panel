@@ -23,29 +23,12 @@
 # which has to be found out by getting a concrete package location
 # (in this case the iris.core) and coming down to namespace package level
 
-HERE=$(shell pwd)
-MANAGEPY=$(shell python -c 'from iris import manage; print(manage.__file__)')
-MPATH=$(shell dirname $(MANAGEPY))
-
-.PHONY: test devel clean
+.PHONY: test clean
 
 test:
-	cd $(MPATH) && \
-	ls && \
-	COVERAGE_FILE=$(HERE)/.coverage python manage.py test \
+	python iris/manage.py test \
 		--with-xunit \
-		--xunit-file=$(HERE)/nosetests.xml \
-		--with-coverage \
-		--cover-xml \
-		--cover-xml-file=$(HERE)/coverage.xml \
-		--cover-erase \
-		--cover-branches \
-		--cover-package=. \
-		--verbosity=2
-
-devel:		
-	bash bin/generate_environment.sh
+		--with-coverage
 
 clean:
-	rm -rf virtualenv build dist node_modules bower_components \
-		iris.egg-info iris_packagedb.egg-info iris_submissions.egg-info
+	rm -rf build dist *.egg-info

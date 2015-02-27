@@ -1,0 +1,9 @@
+[run]
+branch = True
+
+include = 
+	iris/*
+
+omit =
+	*migrations*
+	*tests*
