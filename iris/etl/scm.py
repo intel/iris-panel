@@ -25,8 +25,7 @@ from django.contrib.auth.models import User
 from iris.core.models import (
     Domain, SubDomain, GitTree, License,
     DomainRole, SubDomainRole, GitTreeRole)
-from iris.core.models.user import (
-    parties as party_choices, roles as role_choices)
+from iris.core.models.user import roles as role_choices
 from iris.core.injectors import inject_user_getters
 
 from iris.etl.parser import parse_blocks, UserCache

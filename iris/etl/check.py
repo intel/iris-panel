@@ -25,7 +25,6 @@ _message = []
 
 def error(*args, **kw):
     "increase error count and log message"
-    global _message
     _message.append(*args)
     return logger.error(*args, **kw)
 
@@ -36,7 +35,7 @@ def check_scm(domain_str, gittree_str):
     The return value: zero means everything is ok, non-zero means something
     is wrong, and the number is the error num in total.
     """
-    global _error, _message
+    global _message
     _message = []
 
     try:

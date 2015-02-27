@@ -11,7 +11,6 @@ View functions to handler submission events
 import sys
 import urllib
 import logging
-import datetime
 
 from MySQLdb.constants.ER import DUP_ENTRY, LOCK_DEADLOCK
 
