@@ -16,7 +16,6 @@ Django settings for the iris-core project.
 import os
 from os import path
 from sys import prefix, argv
-from pkg_resources import iter_entry_points
 from django.conf import global_settings
 
 # ConfigParser was renamed to configparser in Python 3
@@ -72,15 +71,7 @@ STATICFILES_DIRS = (
 )
 
 TEMPLATE_DIRS = (
-
 )
-
-for plugin in iter_entry_points(group='iris.app'):
-    template_dirs = plugin.load().get('template_dirs', ())
-    TEMPLATE_DIRS += template_dirs
-
-    print('Loaded application template directories: ')
-    print(template_dirs)
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -109,14 +100,9 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'south',
     'iris.core',
+    'iris.packagedb',
+    'iris.submissions',
 )
-
-for plugin in iter_entry_points(group='iris.app'):
-    installed_apps = plugin.load().get('installed_apps', ())
-    INSTALLED_APPS += installed_apps
-
-    print('Loaded applications: ')
-    print(installed_apps)
 
 SECRET_KEY = '(e0wp@h7-@_p_&u99vi9&$jju+#=b&yyv9@0uqp!8#z#fiyb1!'
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

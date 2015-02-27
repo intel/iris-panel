@@ -21,7 +21,7 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns(
     'iris.packagedb.views.base',
-    url(r'^(?i)$', 'index', name='packagedb'),
+    url(r'^$', 'index', name='packagedb'),
 )
 
 urlpatterns += patterns(

@@ -13,7 +13,6 @@ This is the root views module for the iris-core project.
 """
 
 import logging
-from pkg_resources import iter_entry_points
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -26,6 +25,18 @@ from iris.core.injectors import inject_user_getters
 from iris.etl.scm import merge_users
 
 log = logging.getLogger(__name__)
+
+APPS = [{
+    'url': 'packagedb',
+    'intro': 'IRIS Package Database. Contains metadata about packages, '
+    'such as maintainers, developers, reviewers, versioning.',
+    'header': 'Package Database',
+}, {
+    'url': 'submissions',
+    'intro': 'IRIS Submissions. Contains metadata aboutCI and build system '
+    'statuses and package integration.',
+    'header': 'Submissions',
+}]
 
 
 def error(request):
@@ -40,26 +51,16 @@ def index(request):
     """
     Returns page index.
     """
-
     apps = []
-
     # Get button info for accessible apps to front page:
-    for plugin in iter_entry_points(group='iris.app'):
-        fields = plugin.load()
-
-        try:
-            app = {
-                # URL is filtered because it's in regexp format of r'^url/'
-                'url': fields['urlpatterns']['baseurl'].replace('^', ''),
-                'intro': fields['intro'],
-                'header': fields['header']
-            }
-
-            apps.append(app)
-
-        except KeyError as field:
-            log.warn('Plugin error, entrypoint field "%s" missing!' % field)
-
+    for fields in APPS:
+        app = {
+            # URL is filtered because it's in regexp format of r'^url/'
+            'url': fields['url'],
+            'intro': fields['intro'],
+            'header': fields['header']
+        }
+        apps.append(app)
     return render(request, 'core/index.html', {
         'apps': apps,
     })

@@ -18,7 +18,6 @@ Put commonplace URL definitions here.
 # pylint: disable=C0103
 
 from logging import getLogger
-from pkg_resources import iter_entry_points
 from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
@@ -40,6 +39,14 @@ urlpatterns += patterns(
     url(r'^users(?:/(?P<pkid>\d+))?/$', 'users', name='users'),
 )
 
+urlpatterns += patterns(
+    '',
+    url(r'^app/packagedb/', include('iris.packagedb.urls')),
+    url(r'^api/packagedb/', include('iris.packagedb.apiurls')),
+    url(r'^app/submissions/', include('iris.submissions.urls')),
+    url(r'^api/submissions/', include('iris.submissions.apiurls')),
+)
+
 LOGGER = getLogger('iris')
 
 if settings.REST_API_AVAILABLE:
@@ -49,25 +56,3 @@ if settings.REST_API_AVAILABLE:
     )
 
     LOGGER.info('Loaded REST API documentation under /api/doc')
-
-# Please refer to documentation regarding plugins
-for plugin in iter_entry_points('iris.app'):
-    urlinfo = plugin.load().get('urlpatterns', {})
-
-    baseurl = urlinfo.get('baseurl')
-    viewpatterns = urlinfo.get('patterns')
-
-    if baseurl and patterns:
-        urlpatterns += patterns('', url(baseurl, include(viewpatterns)))
-
-        LOGGER.info('Loaded base URL as %s', baseurl)
-        LOGGER.info('Loaded patterns as %s', viewpatterns)
-
-    apiurl = urlinfo.get('apiurl')
-    apipatterns = urlinfo.get('apipatterns')
-
-    if settings.REST_API_AVAILABLE and apiurl and apipatterns:
-        urlpatterns += patterns('', url(apiurl, include(apipatterns)))
-
-        LOGGER.info('Loaded API URL as %s', apiurl)
-        LOGGER.info('Loaded API patterns as %s', apipatterns)
