@@ -161,7 +161,7 @@ def pre_created_failed(request):
         return Response({'detail': 'wrong tag name or gitpath'},
                         status=HTTP_406_NOT_ACCEPTABLE)
     else:
-        sub.status='ERROR'
+        sub.status = 'ERROR'
         sub.reason = request.POST['reason']
         sub.save()
         return Response(
@@ -217,7 +217,8 @@ def package_built(request):
     # foreign key to BuildGroup.id, when insert a new record to PackageBuild,
     # MSYQL trys to add a shared lock on BuildGroup's corresponding row.
     # refs: http://dev.mysql.com/doc/refman/5.5/en/innodb-foreign-key-constraints.html
-    group.check_packages_status(PackageBuild(
+    group.check_packages_status(
+        PackageBuild(
             package=data['name'],
             repo=data['repo'],
             arch=data['arch'],
@@ -266,7 +267,8 @@ def image_building(request):
     data = form.cleaned_data
     group = data['project']
 
-    group.check_images_status(ImageBuild(
+    group.check_images_status(
+        ImageBuild(
             name=data['name'],
             group=group,
             status='BUILDING'))
@@ -300,7 +302,7 @@ def image_created(request):
                         status=HTTP_406_NOT_ACCEPTABLE)
 
     data = form.cleaned_data
-    ibuild, group= data['name'], data['project']
+    ibuild, group = data['name'], data['project']
 
     # Now the image and log all can be downloaded from the same url
     ibuild.url = data['url']
@@ -360,10 +362,10 @@ def snapshot_finish(request):
 
     def manage_submissions():
         buildgroups = BuildGroup.objects.filter(
-                        status="33_ACCEPTED",
-                        operated_on__lt=snapshot.started_time,
-                        submissionbuild__product=snapshot.product,
-                        snapshot=None)
+            status="33_ACCEPTED",
+            operated_on__lt=snapshot.started_time,
+            submissionbuild__product=snapshot.product,
+            snapshot=None)
 
         for buildgroup in buildgroups:
             buildgroup.snapshot = snapshot
@@ -375,7 +377,7 @@ def snapshot_finish(request):
                         status=HTTP_406_NOT_ACCEPTABLE)
 
     data = form.cleaned_data
-    snapshot= Snapshot.objects.get(buildid=data['buildid'],
+    snapshot = Snapshot.objects.get(buildid=data['buildid'],
                                     product=data['project'])
     snapshot.finished_time = data['finished_time']
     snapshot.url = data['url']
@@ -392,7 +394,7 @@ def snapshot_release(request):
         return Response({'detail': form.errors.as_text()},
                         status=HTTP_406_NOT_ACCEPTABLE)
     data = form.cleaned_data
-    snapshot= Snapshot.objects.get(buildid=data['buildid'],
+    snapshot = Snapshot.objects.get(buildid=data['buildid'],
                                     product=data['project'])
     if data['release_type'] == 'daily':
         snapshot.daily_url = data['url']
