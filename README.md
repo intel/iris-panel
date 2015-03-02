@@ -24,23 +24,7 @@ http://iris-panel.readthedocs.org/en/latest/
 Contribute
 ----------
 
-For new requirements and bug reports, please create tickets
-in this JIRA with reasonable detail information.
-
-  https://bugs.tizen.org/jira/browse/TINF/component/11900/
-
-Please also help us to contribute document on wiki:
-
-  https://wiki.tizen.org/wiki/IRIS
-
 Before submitting a patch, please read these articles:
 
-  https://wiki.openstack.org/wiki/GitCommitMessages
-
-  Add "Fixes" line to include issue number in commit message
-  if the patch is related to some issue. For example:
-
-    Fixes: #256
-
-  http://legacy.python.org/dev/peps/pep-0008/ and use tools
-  like flake8 or pylint to check a patch before submitting.
+- https://wiki.openstack.org/wiki/GitCommitMessages
+- http://legacy.python.org/dev/peps/pep-0008/
