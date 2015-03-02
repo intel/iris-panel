@@ -73,6 +73,7 @@ setup(
         'bin/download_snapshots.py',
         'bin/scmlint.py',
     ],
+    install_requires=open('requirements.txt').readlines(),
 )
 
 # Package Database plugin setup
