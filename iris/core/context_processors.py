@@ -11,7 +11,7 @@ and return a dict that can be used in all templates.
 """
 import pkg_resources
 
-# pylint: disable=E1103
+# pylint: disable=maybe-no-member
 # E1103: version: Instance of 'str' has no 'version' member
 
 
