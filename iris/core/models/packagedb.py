@@ -198,7 +198,7 @@ class Product(models.Model):
 
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField()
-    gittrees = models.ManyToManyField(GitTree)
+    gittrees = models.ManyToManyField(GitTree, blank=True)
 
     def __unicode__(self):
         return self.name
