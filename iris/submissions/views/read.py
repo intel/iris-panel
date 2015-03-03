@@ -18,14 +18,14 @@ Views for listing single and multiple item info is contained here.
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import (Http404, HttpResponseRedirect, HttpResponseBadRequest,
-                    HttpResponse)
+from django.http import (
+    Http404, HttpResponseRedirect, HttpResponseBadRequest, HttpResponse)
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator
 from django.core.exceptions import ValidationError
 
-from iris.core.models import (Submission, BuildGroup, SubmissionGroup,
-    Snapshot, Product, DISPLAY_STATUS)
+from iris.core.models import (
+    Submission, BuildGroup, SubmissionGroup, Snapshot, Product, DISPLAY_STATUS)
 
 
 def index(request):
@@ -197,9 +197,9 @@ def search(request):
         request,
         'submissions/summary.html',
         {'title': 'Search result for "%s"' % querystring,
-        'results': SubmissionGroup.group(subs, st),
-        'keyword': querystring,
-        'show_snapshot': show_snapshot
+         'results': SubmissionGroup.group(subs, st),
+         'keyword': querystring,
+         'show_snapshot': show_snapshot
         })
 
 
@@ -216,10 +216,12 @@ def detail(request, tag):
     sgroup = groups[0]
     bgroups = submission_group_to_build_groups(sgroup)
 
-    return render(request, 'submissions/detail.html', {
-            'sgroup': sgroup,
-            'bgroups': bgroups,
-            })
+    return render(
+        request,
+        'submissions/detail.html',
+        {'sgroup': sgroup,
+         'bgroups': bgroups,
+        })
 
 
 def submission_group_to_build_groups(sgroup):
