@@ -2,7 +2,7 @@ language: python
 install:
   - pip install -rrequirements.txt -rtest-requirements.txt
   - pip install python-coveralls
-  - pip install .
+  - pip install -e .
 script: make test
 after_success:
   - coveralls
