@@ -12,6 +12,10 @@ Contents:
    :maxdepth: 2
 
    iris-panel
+   front-end_technical_summary
+   IRIS_Data_Schema
+   iris_testing_process
+
 
 
 
